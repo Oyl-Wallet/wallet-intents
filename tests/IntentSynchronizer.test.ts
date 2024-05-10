@@ -13,7 +13,7 @@ afterAll(() => server.close());
 
 test("It marks intent as completed for confirmed transactions", async () => {
   const storage = new InMemoryStorageAdapter();
-  const intentManager = new IntentManager(new InMemoryStorageAdapter());
+  const intentManager = new IntentManager(storage);
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
