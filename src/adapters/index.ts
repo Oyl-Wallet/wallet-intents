@@ -1,0 +1,1 @@
+export { InMemoryStorageAdapter } from "./InMemoryStorageAdapter";
