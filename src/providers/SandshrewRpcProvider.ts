@@ -46,4 +46,36 @@ export class SandshrewRpcProvider implements DataProvider {
     const data = await response.json();
     return data.result;
   }
+
+  async getTxOutput(txId: string, index: number) {
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ord_output",
+        params: [`${txId}:${index}`],
+      }),
+    });
+
+    const data = await response.json();
+    return data.result;
+  }
+
+  async getInscriptionById(inscriptionId: string) {
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ord_inscription",
+        params: [inscriptionId],
+      }),
+    });
+
+    const data = await response.json();
+    return data.result;
+  }
 }

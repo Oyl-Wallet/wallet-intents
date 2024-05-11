@@ -37,4 +37,22 @@ export interface DataProvider {
   baseUrl: string;
   getTxById(txId: string): Promise<void>;
   getAddressTxs(address: string): Promise<any>;
+  getTxOutput(txId: string, index: number): Promise<void>;
+  getInscriptionById(
+    inscriptionId: string
+  ): Promise<EsploraInscriptionResponse>;
 }
+
+export type EsploraInscriptionResponse = {
+  address: string;
+  charms: string[];
+  content_type: string;
+  fee: number;
+  height: number;
+  id: string;
+  next: string;
+  number: number;
+  previous: string;
+  satpoint: string;
+  timestamp: number;
+};

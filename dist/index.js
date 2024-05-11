@@ -138,9 +138,7 @@ var IntentSynchronizer = class {
   async syncIntents() {
     const intents = await this.manager.retrieveAllIntents();
     for (const intent of intents) {
-      if (intent.type !== "transaction" /* Transaction */)
-        continue;
-      if (intent.status === "pending" /* Pending */) {
+      if (intent.type === "transaction" /* Transaction */) {
         await this.syncTxIntent(intent);
       }
     }
@@ -167,11 +165,12 @@ var IntentSynchronizer = class {
     }
   }
   async syncTxIntent(intent) {
-    const txIds = intent.data.txIds;
-    if (txIds.length === 0)
+    if (intent.status !== "pending" /* Pending */)
+      return;
+    if (intent.data.txIds.length === 0)
       return;
     const txs = await Promise.all(
-      txIds.map((txId) => this.provider.getTxById(txId))
+      intent.data.txIds.map((txId) => this.provider.getTxById(txId))
     );
     if (txs.every((tx) => tx.status.confirmed)) {
       intent.status = "completed" /* Completed */;

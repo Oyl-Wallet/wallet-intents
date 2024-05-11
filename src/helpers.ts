@@ -2,12 +2,11 @@ export function isReceiveTx(tx, addresses) {
   const outputsToAddress = tx.vout.filter((output) =>
     addresses.includes(output.scriptpubkey_address)
   );
-
   const inputsFromAddress = tx.vin.some((input) =>
     addresses.includes(input.prevout.scriptpubkey_address)
   );
 
-  return outputsToAddress.length <= 0 || inputsFromAddress;
+  return outputsToAddress.length > 0 && !inputsFromAddress;
 }
 
 export function txIntentExists(tx, intents) {
@@ -20,4 +19,12 @@ export function determineReceiverAddress(tx, addresses: string[]) {
       return output.scriptpubkey_address;
     }
   }
+}
+
+export function inscriptionIdsFromTxOutputs(txOutputs) {
+  let inscriptionIds = [];
+  for (let output of txOutputs) {
+    inscriptionIds = inscriptionIds.concat(output.inscriptions);
+  }
+  return inscriptionIds;
 }
