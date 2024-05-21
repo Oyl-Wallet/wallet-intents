@@ -26,6 +26,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@plasmohq/storage": "^1.10.0",
     "micro-ordinals": "^0.1.0"
   }
 }
