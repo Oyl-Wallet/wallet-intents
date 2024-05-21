@@ -179,12 +179,12 @@ function inscriptionIdsFromTxOutputs(txOutputs) {
   return inscriptionIds;
 }
 function getInscriptionsFromInput(input) {
-  if (input.witness.length === 0)
+  if (input.witness.length < 3)
     return [];
+  const inscriptions = [];
   const parsedInscriptions = (0, import_micro_ordinals.parseWitness)(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
-  const inscriptions = [];
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
       id: `${input.txid}i0`,
