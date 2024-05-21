@@ -99,7 +99,8 @@ var PlasmoStorageAdapter = class {
     }
   }
   async getAllIntents() {
-    return this.storage.get(this.key);
+    const intents = await this.storage.get(this.key);
+    return intents || [];
   }
   async getIntentsByAddresses(addresses) {
     const intents = await this.getAllIntents();
