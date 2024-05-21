@@ -38,21 +38,24 @@ export interface DataProvider {
   getTxById(txId: string): Promise<void>;
   getAddressTxs(address: string): Promise<any>;
   getTxOutput(txId: string, index: number): Promise<void>;
-  getInscriptionById(
-    inscriptionId: string
-  ): Promise<EsploraInscriptionResponse>;
+  getInscriptionById(inscriptionId: string): Promise<EsploraInscription>;
 }
 
-export type EsploraInscriptionResponse = {
-  address: string;
-  charms: string[];
+export type EsploraInscription = {
   content_type: string;
-  fee: number;
-  height: number;
-  id: string;
-  next: string;
-  number: number;
-  previous: string;
-  satpoint: string;
-  timestamp: number;
 };
+
+export type Inscription = {
+  id: string;
+  content_type: string;
+  content: string;
+};
+
+export interface BRC20Content {
+  p: string;
+  op: string;
+  amt: string;
+  tick: string;
+  max?: string;
+  lim?: string;
+}

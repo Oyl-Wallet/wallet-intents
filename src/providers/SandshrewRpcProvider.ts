@@ -47,7 +47,7 @@ export class SandshrewRpcProvider implements DataProvider {
     return data.result;
   }
 
-  async getTxOutput(txId: string, index: number) {
+  async getTxOutput(txId: string, voutIndex: number) {
     const response = await fetch(this.baseUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ export class SandshrewRpcProvider implements DataProvider {
         jsonrpc: "2.0",
         id: 1,
         method: "ord_output",
-        params: [`${txId}:${index}`],
+        params: [`${txId}:${voutIndex}`],
       }),
     });
 
@@ -64,18 +64,35 @@ export class SandshrewRpcProvider implements DataProvider {
   }
 
   async getInscriptionById(inscriptionId: string) {
-    const response = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "ord_inscription",
-        params: [inscriptionId],
+    const [inscriptionResponse, contentResponse] = await Promise.all([
+      fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "ord_inscription",
+          params: [inscriptionId],
+        }),
       }),
-    });
+      fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "ord_content",
+          params: [inscriptionId],
+        }),
+      }),
+    ]);
 
-    const data = await response.json();
-    return data.result;
+    const inscriptionData = await inscriptionResponse.json();
+    const contentData = await contentResponse.json();
+
+    return {
+      ...inscriptionData.result,
+      content: contentData.result,
+    };
   }
 }

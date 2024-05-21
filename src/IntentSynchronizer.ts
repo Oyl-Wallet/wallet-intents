@@ -1,6 +1,8 @@
 import { IntentManager } from "./IntentManager";
 import {
+  parseBrc20Inscription,
   determineReceiverAddress,
+  getInscriptionsFromInput,
   inscriptionIdsFromTxOutputs,
   isReceiveTx,
   txIntentExists,
@@ -41,25 +43,24 @@ export class IntentSynchronizer {
       if (!isReceiveTx(tx, addresses)) continue;
       if (txIntentExists(tx, intents)) continue;
 
-      const addressVoutIndexes = tx.vout.reduce((result, output, index) => {
-        if (addresses.includes(output.scriptpubkey_address)) {
-          result.push(index);
-        }
-        return result;
-      }, []);
+      const addressesVoutIndexes = tx.vout
+        .map((output, index) =>
+          addresses.includes(output.scriptpubkey_address) ? index : null
+        )
+        .filter((index) => index !== null);
 
       const txOutputs = await Promise.all(
-        addressVoutIndexes.map((voutIndex) =>
+        addressesVoutIndexes.map((voutIndex) =>
           this.provider.getTxOutput(tx.id, voutIndex)
         )
       );
 
-      if (txOutputs.every((output) => output.indexed)) {
-        const inscriptionIds = inscriptionIdsFromTxOutputs(txOutputs);
+      const inscriptions = [];
 
-        const collectibles = [];
-        const brc20s = [];
-        const runes = [];
+      const txOutputsIndexed = txOutputs.every((output) => output.indexed);
+
+      if (txOutputsIndexed) {
+        const inscriptionIds = inscriptionIdsFromTxOutputs(txOutputs);
 
         for (let inscriptionId of inscriptionIds) {
           const inscription = await this.provider.getInscriptionById(
@@ -69,24 +70,65 @@ export class IntentSynchronizer {
           if (inscription.content_type.startsWith("text")) {
             // Maybe BRC-20
           } else {
-            collectibles.push(inscription);
+            inscriptions.push(inscription);
           }
         }
-
-        await this.manager.captureIntent({
-          address: determineReceiverAddress(tx, addresses),
-          type: IntentType.Transaction,
-          status: tx.status.confirmed
-            ? IntentStatus.Completed
-            : IntentStatus.Pending,
-          data: {
-            txIds: [tx.id],
-            brc20s,
-            collectibles,
-            runes,
-          },
-        });
       }
+
+      if (inscriptions.length === 0) {
+        const txPrevOutputs = await Promise.all(
+          tx.vin.map(({ txid, vout }) => this.provider.getTxOutput(txid, vout))
+        );
+
+        const inscriptionIds = inscriptionIdsFromTxOutputs(txPrevOutputs);
+
+        for (let inscriptionId of inscriptionIds) {
+          const inscription = await this.provider.getInscriptionById(
+            inscriptionId
+          );
+
+          if (inscription.content_type.startsWith("text")) {
+            // Maybe BRC-20
+          } else {
+            inscriptions.push(inscription);
+          }
+        }
+      }
+
+      if (inscriptions.length === 0) {
+        for (let input of tx.vin) {
+          const decodedInscriptions = getInscriptionsFromInput(input);
+          inscriptions.push(...decodedInscriptions);
+        }
+      }
+
+      const collectibles = [];
+      const brc20s = [];
+      const runes = [];
+
+      for (let inscription of inscriptions) {
+        const brc20 = parseBrc20Inscription(inscription);
+
+        if (brc20) {
+          brc20s.push(brc20);
+        } else {
+          collectibles.push(inscription);
+        }
+      }
+
+      await this.manager.captureIntent({
+        address: determineReceiverAddress(tx, addresses),
+        type: IntentType.Transaction,
+        status: tx.status.confirmed
+          ? IntentStatus.Completed
+          : IntentStatus.Pending,
+        data: {
+          txIds: [tx.id],
+          brc20s,
+          collectibles,
+          runes,
+        },
+      });
     }
   }
 
