@@ -49,4 +49,12 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     const intents = await this.getAllIntents();
     return intents.filter((intent) => addresses.includes(intent.address));
   }
+
+  async purgeIntentsByAddresses(addresses: string[]): Promise<void> {
+    const intents = await this.getAllIntents();
+    const purgedIntents = intents.filter(
+      (intent) => !addresses.includes(intent.address)
+    );
+    return this.storage.set(this.key, purgedIntents);
+  }
 }

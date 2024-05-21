@@ -106,6 +106,13 @@ var PlasmoStorageAdapter = class {
     const intents = await this.getAllIntents();
     return intents.filter((intent) => addresses.includes(intent.address));
   }
+  async purgeIntentsByAddresses(addresses) {
+    const intents = await this.getAllIntents();
+    const purgedIntents = intents.filter(
+      (intent) => !addresses.includes(intent.address)
+    );
+    return this.storage.set(this.key, purgedIntents);
+  }
 };
 
 // src/providers/SandshrewRpcProvider.ts
@@ -348,7 +355,7 @@ var IntentSynchronizer = class {
         type: "transaction" /* Transaction */,
         status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
         data: {
-          txIds: [tx.id],
+          txIds: [tx.txid],
           brc20s,
           collectibles,
           runes

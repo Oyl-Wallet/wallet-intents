@@ -123,7 +123,7 @@ export class IntentSynchronizer {
           ? IntentStatus.Completed
           : IntentStatus.Pending,
         data: {
-          txIds: [tx.id],
+          txIds: [tx.txid],
           brc20s,
           collectibles,
           runes,

@@ -74,7 +74,7 @@ test("Receive BTC confirmed", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [],
               vout: [
                 {
@@ -142,7 +142,7 @@ test("Receive BTC unconfirmed", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [],
               vout: [
                 {
@@ -200,7 +200,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [],
               vout: [
                 {
@@ -284,7 +284,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [
                 {
                   txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
@@ -395,7 +395,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [
                 {
                   txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
@@ -508,7 +508,7 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
         return HttpResponse.json({
           result: [
             {
-              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
               vin: [
                 {
                   txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",

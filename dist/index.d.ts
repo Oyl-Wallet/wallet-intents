@@ -49,6 +49,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     save(intent: Intent): Promise<void>;
     getAllIntents(): Promise<Intent[]>;
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+    purgeIntentsByAddresses(addresses: string[]): Promise<void>;
 }
 
 declare class SandshrewRpcProvider implements DataProvider {
