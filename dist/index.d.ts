@@ -42,6 +42,15 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
+declare class PlasmoStorageAdapter implements StorageAdapter {
+    private storage;
+    private key;
+    constructor(key: string);
+    save(intent: Intent): Promise<void>;
+    getAllIntents(): Promise<Intent[]>;
+    getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+}
+
 declare class SandshrewRpcProvider implements DataProvider {
     baseUrl: string;
     constructor({ network, projectId }: {
@@ -71,4 +80,4 @@ declare class IntentSynchronizer {
     private syncTxIntent;
 }
 
-export { InMemoryStorageAdapter, IntentManager, IntentSynchronizer, SandshrewRpcProvider };
+export { InMemoryStorageAdapter, IntentManager, IntentSynchronizer, PlasmoStorageAdapter, SandshrewRpcProvider };

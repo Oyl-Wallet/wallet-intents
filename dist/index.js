@@ -22,6 +22,7 @@ __export(src_exports, {
   InMemoryStorageAdapter: () => InMemoryStorageAdapter,
   IntentManager: () => IntentManager,
   IntentSynchronizer: () => IntentSynchronizer,
+  PlasmoStorageAdapter: () => PlasmoStorageAdapter,
   SandshrewRpcProvider: () => SandshrewRpcProvider
 });
 module.exports = __toCommonJS(src_exports);
@@ -59,6 +60,50 @@ var InMemoryStorageAdapter = class {
       (intent) => addresses.includes(intent.address)
     );
     return structuredClone(intents);
+  }
+};
+
+// src/adapters/PlasmoStorageAdapter.ts
+var import_storage = require("@plasmohq/storage");
+var PlasmoStorageAdapter = class {
+  storage;
+  key;
+  constructor(key) {
+    this.key = key;
+    this.storage = new import_storage.Storage({
+      area: "local"
+    });
+  }
+  async save(intent) {
+    const intents = await this.getAllIntents();
+    if (intent.id) {
+      const newIntents = intents.map((existingIntent) => {
+        if (existingIntent.id === intent.id) {
+          return {
+            ...existingIntent,
+            ...intent
+          };
+        }
+        return existingIntent;
+      });
+      return this.storage.set(this.key, newIntents);
+    } else {
+      intents.push(
+        structuredClone({
+          ...intent,
+          id: Math.random().toString(36).substring(7),
+          timestamp: Date.now()
+        })
+      );
+      return this.storage.set(this.key, intents);
+    }
+  }
+  async getAllIntents() {
+    return this.storage.get(this.key);
+  }
+  async getIntentsByAddresses(addresses) {
+    const intents = await this.getAllIntents();
+    return intents.filter((intent) => addresses.includes(intent.address));
   }
 };
 
@@ -346,5 +391,6 @@ var IntentManager = class {
   InMemoryStorageAdapter,
   IntentManager,
   IntentSynchronizer,
+  PlasmoStorageAdapter,
   SandshrewRpcProvider
 });
