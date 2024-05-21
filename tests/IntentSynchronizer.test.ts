@@ -72,19 +72,21 @@ test("Receive BTC confirmed", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: true,
               },
-            ],
-            status: {
-              confirmed: true,
             },
-          },
+          ],
         });
       }
 
@@ -138,19 +140,21 @@ test("Receive BTC unconfirmed", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: false,
               },
-            ],
-            status: {
-              confirmed: false,
             },
-          },
+          ],
         });
       }
     })
@@ -194,19 +198,21 @@ test("Confirmed TX with Collectible in Outputs", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: true,
               },
-            ],
-            status: {
-              confirmed: true,
             },
-          },
+          ],
         });
       }
 
@@ -276,26 +282,28 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [
-              {
-                txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
-                vout: 1,
-                prevout: {},
-                witness: [],
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [
+                {
+                  txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+                  vout: 1,
+                  prevout: {},
+                  witness: [],
+                },
+              ],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: false,
               },
-            ],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-              },
-            ],
-            status: {
-              confirmed: false,
             },
-          },
+          ],
         });
       }
 
@@ -385,26 +393,28 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [
-              {
-                txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
-                vout: 1,
-                prevout: {},
-                witness: WITNESS_SCRIPTS.IMAGE_PNG,
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [
+                {
+                  txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+                  vout: 1,
+                  prevout: {},
+                  witness: WITNESS_SCRIPTS.IMAGE_PNG,
+                },
+              ],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: false,
               },
-            ],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-              },
-            ],
-            status: {
-              confirmed: false,
             },
-          },
+          ],
         });
       }
 
@@ -496,26 +506,28 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
 
       if (method === "esplora_address::txs") {
         return HttpResponse.json({
-          result: {
-            id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-            vin: [
-              {
-                txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
-                vout: 1,
-                prevout: {},
-                witness: WITNESS_SCRIPTS.BRC20_DEPLOY,
+          result: [
+            {
+              id: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+              vin: [
+                {
+                  txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+                  vout: 1,
+                  prevout: {},
+                  witness: WITNESS_SCRIPTS.BRC20_DEPLOY,
+                },
+              ],
+              vout: [
+                {
+                  scriptpubkey_address:
+                    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+                },
+              ],
+              status: {
+                confirmed: false,
               },
-            ],
-            vout: [
-              {
-                scriptpubkey_address:
-                  "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-              },
-            ],
-            status: {
-              confirmed: false,
             },
-          },
+          ],
         });
       }
 

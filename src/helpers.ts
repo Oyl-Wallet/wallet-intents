@@ -39,6 +39,8 @@ export function getInscriptionsFromInput(input: {
 }) {
   if (input.witness.length === 0) return [];
 
+  console.log(input.witness);
+
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
