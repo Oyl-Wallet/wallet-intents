@@ -37,15 +37,13 @@ export function getInscriptionsFromInput(input: {
   txid: string;
   witness: string[];
 }) {
-  if (input.witness.length === 0) return [];
+  if (input.witness.length < 3) return [];
 
-  console.log(input.witness);
+  const inscriptions = [];
 
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
-
-  const inscriptions = [];
 
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
