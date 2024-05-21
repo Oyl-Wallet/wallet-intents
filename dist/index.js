@@ -104,9 +104,54 @@ var SandshrewRpcProvider = class {
     const data = await response.json();
     return data.result;
   }
+  async getTxOutput(txId, voutIndex) {
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ord_output",
+        params: [`${txId}:${voutIndex}`]
+      })
+    });
+    const data = await response.json();
+    return data.result;
+  }
+  async getInscriptionById(inscriptionId) {
+    const [inscriptionResponse, contentResponse] = await Promise.all([
+      fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "ord_inscription",
+          params: [inscriptionId]
+        })
+      }),
+      fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "ord_content",
+          params: [inscriptionId]
+        })
+      })
+    ]);
+    const inscriptionData = await inscriptionResponse.json();
+    const contentData = await contentResponse.json();
+    return {
+      ...inscriptionData.result,
+      content: contentData.result
+    };
+  }
 };
 
 // src/helpers.ts
+var import_micro_ordinals = require("micro-ordinals");
 function isReceiveTx(tx, addresses) {
   const outputsToAddress = tx.vout.filter(
     (output) => addresses.includes(output.scriptpubkey_address)
@@ -114,7 +159,7 @@ function isReceiveTx(tx, addresses) {
   const inputsFromAddress = tx.vin.some(
     (input) => addresses.includes(input.prevout.scriptpubkey_address)
   );
-  return outputsToAddress.length <= 0 || inputsFromAddress;
+  return outputsToAddress.length > 0 && !inputsFromAddress;
 }
 function txIntentExists(tx, intents) {
   return intents.some((intent) => intent.data.txIds.includes(tx.txid));
@@ -125,6 +170,48 @@ function determineReceiverAddress(tx, addresses) {
       return output.scriptpubkey_address;
     }
   }
+}
+function inscriptionIdsFromTxOutputs(txOutputs) {
+  let inscriptionIds = [];
+  for (let output of txOutputs) {
+    inscriptionIds = inscriptionIds.concat(output.inscriptions);
+  }
+  return inscriptionIds;
+}
+function getInscriptionsFromInput(input) {
+  if (input.witness.length === 0)
+    return [];
+  const parsedInscriptions = (0, import_micro_ordinals.parseWitness)(
+    input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
+  );
+  const inscriptions = [];
+  for (let inscription of parsedInscriptions) {
+    inscriptions.push({
+      id: `${input.txid}i0`,
+      content_type: inscription.tags.contentType,
+      content: uint8ArrayToBase64(inscription.body)
+    });
+  }
+  return inscriptions;
+}
+function uint8ArrayToBase64(uint8Array) {
+  let binaryString = "";
+  const len = uint8Array.byteLength;
+  for (let i = 0; i < len; i++) {
+    binaryString += String.fromCharCode(uint8Array[i]);
+  }
+  return btoa(binaryString);
+}
+function parseBrc20Inscription(inscription) {
+  const contentBuffer = Buffer.from(inscription.content, "base64");
+  try {
+    let parsed = JSON.parse(contentBuffer.toString());
+    if (parsed.p === "brc-20") {
+      return parsed;
+    }
+  } catch {
+  }
+  return null;
 }
 
 // src/IntentSynchronizer.ts
@@ -156,11 +243,70 @@ var IntentSynchronizer = class {
         continue;
       if (txIntentExists(tx, intents))
         continue;
-      this.manager.captureIntent({
+      const addressesVoutIndexes = tx.vout.map(
+        (output, index) => addresses.includes(output.scriptpubkey_address) ? index : null
+      ).filter((index) => index !== null);
+      const txOutputs = await Promise.all(
+        addressesVoutIndexes.map(
+          (voutIndex) => this.provider.getTxOutput(tx.id, voutIndex)
+        )
+      );
+      const inscriptions = [];
+      const txOutputsIndexed = txOutputs.every((output) => output.indexed);
+      if (txOutputsIndexed) {
+        const inscriptionIds = inscriptionIdsFromTxOutputs(txOutputs);
+        for (let inscriptionId of inscriptionIds) {
+          const inscription = await this.provider.getInscriptionById(
+            inscriptionId
+          );
+          if (inscription.content_type.startsWith("text")) {
+          } else {
+            inscriptions.push(inscription);
+          }
+        }
+      }
+      if (inscriptions.length === 0) {
+        const txPrevOutputs = await Promise.all(
+          tx.vin.map(({ txid, vout }) => this.provider.getTxOutput(txid, vout))
+        );
+        const inscriptionIds = inscriptionIdsFromTxOutputs(txPrevOutputs);
+        for (let inscriptionId of inscriptionIds) {
+          const inscription = await this.provider.getInscriptionById(
+            inscriptionId
+          );
+          if (inscription.content_type.startsWith("text")) {
+          } else {
+            inscriptions.push(inscription);
+          }
+        }
+      }
+      if (inscriptions.length === 0) {
+        for (let input of tx.vin) {
+          const decodedInscriptions = getInscriptionsFromInput(input);
+          inscriptions.push(...decodedInscriptions);
+        }
+      }
+      const collectibles = [];
+      const brc20s = [];
+      const runes = [];
+      for (let inscription of inscriptions) {
+        const brc20 = parseBrc20Inscription(inscription);
+        if (brc20) {
+          brc20s.push(brc20);
+        } else {
+          collectibles.push(inscription);
+        }
+      }
+      await this.manager.captureIntent({
         address: determineReceiverAddress(tx, addresses),
         type: "transaction" /* Transaction */,
         status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
-        data: { txIds: [tx.id] }
+        data: {
+          txIds: [tx.id],
+          brc20s,
+          collectibles,
+          runes
+        }
       });
     }
   }
