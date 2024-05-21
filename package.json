@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsup src/index.ts",
+    "build": "tsup src/index.ts --dts",
     "dev": "tsup src/index.ts --watch"
   },
   "author": "Jonathan P. Navarrete",
