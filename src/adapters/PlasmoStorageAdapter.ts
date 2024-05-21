@@ -41,7 +41,8 @@ export class PlasmoStorageAdapter implements StorageAdapter {
   }
 
   async getAllIntents(): Promise<Intent[]> {
-    return this.storage.get(this.key);
+    const intents = await this.storage.get<Intent[]>(this.key);
+    return intents || [];
   }
 
   async getIntentsByAddresses(addresses: string[]): Promise<Intent[]> {
