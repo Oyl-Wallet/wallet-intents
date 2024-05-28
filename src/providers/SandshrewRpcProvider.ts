@@ -1,6 +1,11 @@
-import { DataProvider } from "../types";
+import {
+  IntentProvider,
+  EsploraTransaction,
+  OrdInscription,
+  OrdOutput,
+} from "../types";
 
-export class SandshrewRpcProvider implements DataProvider {
+export class SandshrewRpcProvider implements IntentProvider {
   baseUrl: string;
 
   constructor({ network, projectId }: { network: string; projectId: string }) {
@@ -11,7 +16,7 @@ export class SandshrewRpcProvider implements DataProvider {
     }
   }
 
-  async getAddressTxs(address: string) {
+  async getAddressTxs(address: string): Promise<EsploraTransaction[]> {
     try {
       const response = await fetch(this.baseUrl, {
         method: "POST",
@@ -31,7 +36,7 @@ export class SandshrewRpcProvider implements DataProvider {
     }
   }
 
-  async getTxById(txId: string) {
+  async getTxById(txId: string): Promise<EsploraTransaction> {
     const response = await fetch(this.baseUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,7 +52,7 @@ export class SandshrewRpcProvider implements DataProvider {
     return data.result;
   }
 
-  async getTxOutput(txId: string, voutIndex: number) {
+  async getTxOutput(txId: string, voutIndex: number): Promise<OrdOutput> {
     const response = await fetch(this.baseUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -63,7 +68,7 @@ export class SandshrewRpcProvider implements DataProvider {
     return data.result;
   }
 
-  async getInscriptionById(inscriptionId: string) {
+  async getInscriptionById(inscriptionId: string): Promise<OrdInscription> {
     const [inscriptionResponse, contentResponse] = await Promise.all([
       fetch(this.baseUrl, {
         method: "POST",

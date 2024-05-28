@@ -1,4 +1,4 @@
-import { InMemoryStorageAdapter, IntentManager } from "../src";
+import { InMemoryStorage, IntentManager } from "../src";
 import { IntentStatus, IntentType } from "../src/types";
 
 const nativeSegwitAddress = "tb1q2nph3vjqsq4paqdy34f4qrk4x3uh4k2x3u3vq8";
@@ -28,14 +28,12 @@ const nestedSegwitIntent = {
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {
-  const storage = new InMemoryStorageAdapter();
-  const intentManager = new IntentManager(storage);
-
+  const intentManager = new IntentManager(new InMemoryStorage());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);
 
-  const intents = await storage.getAllIntents();
+  const intents = await intentManager.retrieveAllIntents();
 
   expect(intents).toHaveLength(3);
   expect(intents[0]).toEqual(expect.objectContaining(nativeSegwitIntent));
@@ -44,27 +42,23 @@ test("IntentManager can retrieve all intents correctly", async () => {
 });
 
 test("IntentManager can retrieve intents by addresses correctly (0 addresses)", async () => {
-  const storage = new InMemoryStorageAdapter();
-  const intentManager = new IntentManager(storage);
-
+  const intentManager = new IntentManager(new InMemoryStorage());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);
 
-  const intents = await storage.getIntentsByAddresses([]);
+  const intents = await intentManager.retrieveIntentsByAddresses([]);
 
   expect(intents).toHaveLength(0);
 });
 
 test("IntentManager can retrieve intents by addresses correctly (2 addresses)", async () => {
-  const storage = new InMemoryStorageAdapter();
-  const intentManager = new IntentManager(storage);
-
+  const intentManager = new IntentManager(new InMemoryStorage());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);
 
-  const intents = await storage.getIntentsByAddresses([
+  const intents = await intentManager.retrieveIntentsByAddresses([
     nativeSegwitAddress,
     taprootAddress,
   ]);

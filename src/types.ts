@@ -27,22 +27,73 @@ export interface IntentSynchronizer {
   start(): Promise<void>;
 }
 
-export interface StorageAdapter {
+export interface IntentStorage {
   save(intent: Intent): Promise<void>;
   getAllIntents(): Promise<Intent[]>;
   getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
-export interface DataProvider {
+export interface IntentProvider {
   baseUrl: string;
-  getTxById(txId: string): Promise<void>;
-  getAddressTxs(address: string): Promise<any>;
-  getTxOutput(txId: string, index: number): Promise<void>;
-  getInscriptionById(inscriptionId: string): Promise<EsploraInscription>;
+  getTxById(txId: string): Promise<EsploraTransaction>;
+  getAddressTxs(address: string): Promise<EsploraTransaction[]>;
+  getTxOutput(txId: string, index: number): Promise<OrdOutput>;
+  getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
 }
 
-export type EsploraInscription = {
+export interface EsploraTransaction {
+  txid: string;
+  version: number;
+  locktime: number;
+  vin: {
+    txid: string;
+    vout: number;
+    prevout: {
+      scriptpubkey: string;
+      scriptpubkey_asm: string;
+      scriptpubkey_type: string;
+      scriptpubkey_address: string;
+      value: number;
+    };
+    scriptsig: string;
+    scriptsig_asm: string;
+    witness: string[];
+    is_coinbase: boolean;
+    sequence: number;
+  }[];
+  vout: {
+    scriptpubkey: string;
+    scriptpubkey_asm: string;
+    scriptpubkey_type: string;
+    scriptpubkey_address: string;
+    value: number;
+  }[];
+  size: number;
+  weight: number;
+  fee: number;
+  status: {
+    confirmed: boolean;
+    block_height?: number;
+    block_hash?: string;
+    block_time?: number;
+  };
+}
+
+export interface OrdOutput {
+  address: string;
+  indexed: boolean;
+  inscriptions: string[];
+  runes: any[];
+  sat_ranges: number[][];
+  script_pubkey: string;
+  spent: boolean;
+  transaction: string;
+  value: number;
+}
+
+export type OrdInscription = {
   content_type: string;
+  content: string;
 };
 
 export type Inscription = {

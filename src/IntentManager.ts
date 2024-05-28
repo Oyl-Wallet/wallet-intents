@@ -1,9 +1,9 @@
-import { Intent, IntentHandler, StorageAdapter } from "./types";
+import { Intent, IntentHandler, IntentStorage } from "./types";
 
 export class IntentManager implements IntentHandler {
-  private storage: StorageAdapter;
+  private storage: IntentStorage;
 
-  constructor(storage: StorageAdapter) {
+  constructor(storage: IntentStorage) {
     this.storage = storage;
   }
 
