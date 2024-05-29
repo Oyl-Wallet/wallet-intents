@@ -13,6 +13,7 @@ const nativeSegwitIntent = {
   data: {
     direction: TransactionDirection.Outbound,
     txIds: [],
+    amountSats: 10000,
     brc20s: [],
     collectibles: [],
     runes: [],
@@ -27,6 +28,7 @@ const taprootIntent = {
   data: {
     direction: TransactionDirection.Outbound,
     txIds: [],
+    amountSats: 10000,
     brc20s: [],
     collectibles: [],
     runes: [],
@@ -41,6 +43,7 @@ const nestedSegwitIntent = {
   data: {
     direction: TransactionDirection.Outbound,
     txIds: [],
+    amountSats: 10000,
     brc20s: [],
     collectibles: [],
     runes: [],

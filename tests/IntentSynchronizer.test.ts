@@ -36,6 +36,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
     data: {
       direction: TransactionDirection.Outbound,
       txIds: [],
+      amountSats: 10000,
       brc20s: [],
       collectibles: [],
       runes: [],

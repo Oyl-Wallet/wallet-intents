@@ -13,6 +13,7 @@ declare enum TransactionDirection {
 type TransactionIntentData = {
     txIds: string[];
     direction: TransactionDirection;
+    amountSats: number;
     brc20s: BRC20Content[];
     collectibles: Inscription[];
     runes: string[];

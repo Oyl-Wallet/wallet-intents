@@ -6,6 +6,7 @@ import {
   inscriptionIdsFromTxOutputs,
   isReceiveTx,
   txIntentExists,
+  determineReceiverAmount,
 } from "../helpers";
 import {
   IntentType,
@@ -87,6 +88,8 @@ export class TransactionHandler {
       });
     }
 
+    const amountSats = determineReceiverAmount(tx, this.addresses);
+
     await this.manager.captureIntent({
       address: determineReceiverAddress(tx, this.addresses),
       type: IntentType.Transaction,
@@ -96,6 +99,7 @@ export class TransactionHandler {
       data: {
         txIds: [tx.txid],
         direction: TransactionDirection.Inbound,
+        amountSats,
         brc20s,
         collectibles,
         runes: [],

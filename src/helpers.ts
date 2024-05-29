@@ -1,5 +1,5 @@
 import { parseWitness } from "micro-ordinals";
-import { BRC20Content, Inscription } from "./types";
+import { BRC20Content, EsploraTransaction, Inscription } from "./types";
 
 export function isReceiveTx(tx, addresses) {
   const outputsToAddress = tx.vout.filter((output) =>
@@ -16,12 +16,30 @@ export function txIntentExists(tx, intents) {
   return intents.some((intent) => intent.data.txIds.includes(tx.txid));
 }
 
-export function determineReceiverAddress(tx, addresses: string[]) {
+export function determineReceiverAddress(
+  tx: EsploraTransaction,
+  addresses: string[]
+) {
   for (const output of tx.vout) {
     if (addresses.includes(output.scriptpubkey_address)) {
       return output.scriptpubkey_address;
     }
   }
+}
+
+export function determineReceiverAmount(
+  tx: EsploraTransaction,
+  addresses: string[]
+) {
+  let amount = 0;
+
+  for (const output of tx.vout) {
+    if (addresses.includes(output.scriptpubkey_address)) {
+      amount += output.value;
+    }
+  }
+
+  return amount;
 }
 
 export function inscriptionIdsFromTxOutputs(txOutputs) {

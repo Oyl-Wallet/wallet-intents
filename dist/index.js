@@ -244,6 +244,15 @@ function determineReceiverAddress(tx, addresses) {
     }
   }
 }
+function determineReceiverAmount(tx, addresses) {
+  let amount = 0;
+  for (const output of tx.vout) {
+    if (addresses.includes(output.scriptpubkey_address)) {
+      amount += output.value;
+    }
+  }
+  return amount;
+}
 function inscriptionIdsFromTxOutputs(txOutputs) {
   let inscriptionIds = [];
   for (let output of txOutputs) {
@@ -343,6 +352,7 @@ var TransactionHandler = class {
         traits.add(collectible.content_type);
       });
     }
+    const amountSats = determineReceiverAmount(tx, this.addresses);
     await this.manager.captureIntent({
       address: determineReceiverAddress(tx, this.addresses),
       type: "transaction" /* Transaction */,
@@ -350,6 +360,7 @@ var TransactionHandler = class {
       data: {
         txIds: [tx.txid],
         direction: "Inbound" /* Inbound */,
+        amountSats,
         brc20s,
         collectibles,
         runes: [],
