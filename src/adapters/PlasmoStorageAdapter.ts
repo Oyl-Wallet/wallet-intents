@@ -1,7 +1,7 @@
-import { Intent, IntentStorage } from "../types";
+import { Intent, StorageAdapter } from "../types";
 import { Storage } from "@plasmohq/storage";
 
-export class PlasmoStorage implements IntentStorage {
+export class PlasmoStorageAdapter implements StorageAdapter {
   private storage: Storage;
   private key: string;
 

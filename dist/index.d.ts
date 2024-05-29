@@ -19,12 +19,12 @@ interface IntentHandler {
     retrieveAllIntents(): Promise<Intent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
-interface IntentStorage {
+interface StorageAdapter {
     save(intent: Intent): Promise<void>;
     getAllIntents(): Promise<Intent[]>;
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
-interface IntentProvider {
+interface RpcProvider {
     baseUrl: string;
     getTxById(txId: string): Promise<EsploraTransaction>;
     getAddressTxs(address: string): Promise<EsploraTransaction[]>;
@@ -84,14 +84,14 @@ type OrdInscription = {
     content: string;
 };
 
-declare class InMemoryStorage implements IntentStorage {
+declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
     save(intent: Intent): Promise<void>;
     getAllIntents(): Promise<Intent[]>;
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
-declare class PlasmoStorage implements IntentStorage {
+declare class PlasmoStorageAdapter implements StorageAdapter {
     private storage;
     private key;
     constructor(key: string);
@@ -101,7 +101,7 @@ declare class PlasmoStorage implements IntentStorage {
     purgeIntentsByAddresses(addresses: string[]): Promise<void>;
 }
 
-declare class SandshrewRpcProvider implements IntentProvider {
+declare class SandshrewRpcProvider implements RpcProvider {
     baseUrl: string;
     constructor({ network, projectId }: {
         network: string;
@@ -116,7 +116,7 @@ declare class SandshrewRpcProvider implements IntentProvider {
 declare class IntentManager implements IntentHandler {
     private storage;
     private addresses;
-    constructor(storage: IntentStorage, addresses?: string[]);
+    constructor(storage: StorageAdapter, addresses?: string[]);
     captureIntent(intent: Omit<Intent, "id" | "timestamp">): Promise<void>;
     retrieveAllIntents(): Promise<Intent[]>;
     retrievePendingIntents(): Promise<Intent[]>;
@@ -127,9 +127,9 @@ declare class IntentManager implements IntentHandler {
 declare class IntentSynchronizer {
     private manager;
     private transactionHandler;
-    constructor(manager: IntentManager, provider: IntentProvider);
+    constructor(manager: IntentManager, provider: RpcProvider);
     syncPendingIntents(): Promise<void>;
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { InMemoryStorage, IntentManager, IntentSynchronizer, PlasmoStorage, SandshrewRpcProvider };
+export { InMemoryStorageAdapter, IntentManager, IntentSynchronizer, PlasmoStorageAdapter, SandshrewRpcProvider };

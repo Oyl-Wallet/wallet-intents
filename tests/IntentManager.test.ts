@@ -1,4 +1,4 @@
-import { InMemoryStorage, IntentManager } from "../src";
+import { InMemoryStorageAdapter, IntentManager } from "../src";
 import { IntentStatus, IntentType } from "../src/types";
 
 const nativeSegwitAddress = "tb1q2nph3vjqsq4paqdy34f4qrk4x3uh4k2x3u3vq8";
@@ -28,7 +28,7 @@ const nestedSegwitIntent = {
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);
@@ -42,7 +42,7 @@ test("IntentManager can retrieve all intents correctly", async () => {
 });
 
 test("IntentManager can retrieve intents by addresses correctly (0 addresses)", async () => {
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);
@@ -53,7 +53,7 @@ test("IntentManager can retrieve intents by addresses correctly (0 addresses)", 
 });
 
 test("IntentManager can retrieve intents by addresses correctly (2 addresses)", async () => {
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
   await intentManager.captureIntent(nestedSegwitIntent);

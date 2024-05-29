@@ -19,16 +19,16 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  InMemoryStorage: () => InMemoryStorage,
+  InMemoryStorageAdapter: () => InMemoryStorageAdapter,
   IntentManager: () => IntentManager,
   IntentSynchronizer: () => IntentSynchronizer,
-  PlasmoStorage: () => PlasmoStorage,
+  PlasmoStorageAdapter: () => PlasmoStorageAdapter,
   SandshrewRpcProvider: () => SandshrewRpcProvider
 });
 module.exports = __toCommonJS(src_exports);
 
-// src/storage/InMemoryStorage.ts
-var InMemoryStorage = class {
+// src/adapters/InMemoryStorageAdapter.ts
+var InMemoryStorageAdapter = class {
   intents = [];
   async save(intent) {
     if (intent.id) {
@@ -63,9 +63,9 @@ var InMemoryStorage = class {
   }
 };
 
-// src/storage/PlasmoStorage.ts
+// src/adapters/PlasmoStorageAdapter.ts
 var import_storage = require("@plasmohq/storage");
-var PlasmoStorage = class {
+var PlasmoStorageAdapter = class {
   storage;
   key;
   constructor(key) {
@@ -423,9 +423,9 @@ var IntentManager = class {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  InMemoryStorage,
+  InMemoryStorageAdapter,
   IntentManager,
   IntentSynchronizer,
-  PlasmoStorage,
+  PlasmoStorageAdapter,
   SandshrewRpcProvider
 });

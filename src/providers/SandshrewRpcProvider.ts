@@ -1,11 +1,11 @@
 import {
-  IntentProvider,
+  RpcProvider,
   EsploraTransaction,
   OrdInscription,
   OrdOutput,
 } from "../types";
 
-export class SandshrewRpcProvider implements IntentProvider {
+export class SandshrewRpcProvider implements RpcProvider {
   baseUrl: string;
 
   constructor({ network, projectId }: { network: string; projectId: string }) {

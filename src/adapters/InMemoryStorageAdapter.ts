@@ -1,6 +1,6 @@
-import { Intent, IntentStorage } from "../types";
+import { Intent, StorageAdapter } from "../types";
 
-export class InMemoryStorage implements IntentStorage {
+export class InMemoryStorageAdapter implements StorageAdapter {
   private intents: Intent[] = [];
 
   async save(intent: Intent): Promise<void> {

@@ -8,22 +8,19 @@ import {
   txIntentExists,
 } from "../helpers";
 import {
-  IntentProvider,
   IntentType,
   IntentStatus,
   EsploraTransaction,
   Intent,
   BRC20Content,
   Inscription,
+  RpcProvider,
 } from "../types";
 
 export class TransactionHandler {
   private addresses: string[] = [];
 
-  constructor(
-    private manager: IntentManager,
-    private provider: IntentProvider
-  ) {}
+  constructor(private manager: IntentManager, private provider: RpcProvider) {}
 
   async setAddresses(addresses: string[]) {
     this.addresses = addresses;

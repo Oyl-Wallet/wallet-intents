@@ -1,5 +1,5 @@
 import {
-  InMemoryStorage,
+  InMemoryStorageAdapter,
   IntentManager,
   IntentSynchronizer,
   SandshrewRpcProvider,
@@ -20,7 +20,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
     },
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -72,7 +72,7 @@ test("Receive BTC confirmed", async () => {
     },
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -127,7 +127,7 @@ test("Receive BTC unconfirmed", async () => {
     },
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -196,7 +196,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
     result: IMAGE_BASE64,
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -293,7 +293,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
     result: IMAGE_BASE64,
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -367,7 +367,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
     },
   });
 
-  const intentManager = new IntentManager(new InMemoryStorage());
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,
     new SandshrewRpcProvider({
@@ -441,7 +441,7 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
     },
   });
 
-  const storage = new InMemoryStorage();
+  const storage = new InMemoryStorageAdapter();
   const intentManager = new IntentManager(storage);
   const intentSyncronizer = new IntentSynchronizer(
     intentManager,

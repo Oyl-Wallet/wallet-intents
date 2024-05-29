@@ -1,11 +1,11 @@
 import { IntentManager } from "./IntentManager";
 import { TransactionHandler } from "./handlers";
-import { IntentProvider, IntentType } from "./types";
+import { RpcProvider, IntentType } from "./types";
 
 export class IntentSynchronizer {
   private transactionHandler: TransactionHandler;
 
-  constructor(private manager: IntentManager, provider: IntentProvider) {
+  constructor(private manager: IntentManager, provider: RpcProvider) {
     this.transactionHandler = new TransactionHandler(manager, provider);
   }
 

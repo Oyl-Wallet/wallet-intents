@@ -27,13 +27,13 @@ export interface IntentSynchronizer {
   start(): Promise<void>;
 }
 
-export interface IntentStorage {
+export interface StorageAdapter {
   save(intent: Intent): Promise<void>;
   getAllIntents(): Promise<Intent[]>;
   getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
-export interface IntentProvider {
+export interface RpcProvider {
   baseUrl: string;
   getTxById(txId: string): Promise<EsploraTransaction>;
   getAddressTxs(address: string): Promise<EsploraTransaction[]>;
