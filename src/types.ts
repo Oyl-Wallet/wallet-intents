@@ -17,8 +17,9 @@ export type TransactionIntentData = {
   txIds: string[];
   direction: TransactionDirection;
   brc20s: BRC20Content[];
-  collectibles: CollectibleContent[];
+  collectibles: Inscription[];
   runes: string[];
+  traits: string[];
 };
 
 export type Intent = {
@@ -122,9 +123,4 @@ export interface BRC20Content {
   tick: string;
   max?: string;
   lim?: string;
-}
-
-export interface CollectibleContent {
-  contentType: string;
-  content: string;
 }

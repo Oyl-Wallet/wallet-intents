@@ -16,6 +16,7 @@ const nativeSegwitIntent = {
     brc20s: [],
     collectibles: [],
     runes: [],
+    traits: [],
   },
 };
 
@@ -29,6 +30,7 @@ const taprootIntent = {
     brc20s: [],
     collectibles: [],
     runes: [],
+    traits: [],
   },
 };
 
@@ -42,6 +44,7 @@ const nestedSegwitIntent = {
     brc20s: [],
     collectibles: [],
     runes: [],
+    traits: [],
   },
 };
 

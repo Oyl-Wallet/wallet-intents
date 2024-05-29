@@ -39,6 +39,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
       brc20s: [],
       collectibles: [],
       runes: [],
+      traits: [],
     },
   });
 

@@ -292,7 +292,25 @@ var TransactionHandler = class {
   }
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
-    const { brc20s, collectibles } = this.categorizeInscriptions(inscriptions);
+    const { brc20s, runes, collectibles } = this.categorizeInscriptions(inscriptions);
+    const traits = /* @__PURE__ */ new Set();
+    if (brc20s.length > 0) {
+      traits.add("token");
+      traits.add("brc20");
+      brc20s.forEach((brc20) => {
+        traits.add(brc20.op);
+      });
+    }
+    if (runes.length > 0) {
+      traits.add("token");
+      traits.add("rune");
+    }
+    if (collectibles.length > 0) {
+      traits.add("collectible");
+      collectibles.forEach((collectible) => {
+        traits.add(collectible.content_type);
+      });
+    }
     await this.manager.captureIntent({
       address: determineReceiverAddress(tx, this.addresses),
       type: "transaction" /* Transaction */,
@@ -302,7 +320,8 @@ var TransactionHandler = class {
         direction: "Inbound" /* Inbound */,
         brc20s,
         collectibles,
-        runes: []
+        runes: [],
+        traits: Array.from(traits)
       }
     });
   }
@@ -358,7 +377,7 @@ var TransactionHandler = class {
         collectibles.push(inscription);
       }
     }
-    return { brc20s, collectibles };
+    return { brc20s, runes: [], collectibles };
   }
 };
 

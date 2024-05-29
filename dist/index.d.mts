@@ -14,8 +14,9 @@ type TransactionIntentData = {
     txIds: string[];
     direction: TransactionDirection;
     brc20s: BRC20Content[];
-    collectibles: CollectibleContent[];
+    collectibles: Inscription[];
     runes: string[];
+    traits: string[];
 };
 type Intent = {
     id: string;
@@ -107,10 +108,6 @@ interface BRC20Content {
     max?: string;
     lim?: string;
 }
-interface CollectibleContent {
-    contentType: string;
-    content: string;
-}
 
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
@@ -160,4 +157,4 @@ declare class IntentSynchronizer {
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { type BRC20Content, type CollectibleContent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection, type TransactionIntentData };
+export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection, type TransactionIntentData };

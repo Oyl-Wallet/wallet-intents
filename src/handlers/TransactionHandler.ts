@@ -61,7 +61,31 @@ export class TransactionHandler {
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
 
-    const { brc20s, collectibles } = this.categorizeInscriptions(inscriptions);
+    const { brc20s, runes, collectibles } =
+      this.categorizeInscriptions(inscriptions);
+
+    const traits = new Set<string>();
+
+    if (brc20s.length > 0) {
+      traits.add("token");
+      traits.add("brc20");
+      brc20s.forEach((brc20) => {
+        traits.add(brc20.op);
+      });
+    }
+
+    if (runes.length > 0) {
+      traits.add("token");
+      traits.add("rune");
+      // TODO: Add rune traits like etching, mint, etc
+    }
+
+    if (collectibles.length > 0) {
+      traits.add("collectible");
+      collectibles.forEach((collectible) => {
+        traits.add(collectible.content_type);
+      });
+    }
 
     await this.manager.captureIntent({
       address: determineReceiverAddress(tx, this.addresses),
@@ -75,6 +99,7 @@ export class TransactionHandler {
         brc20s,
         collectibles,
         runes: [],
+        traits: Array.from(traits),
       },
     });
   }
@@ -133,7 +158,8 @@ export class TransactionHandler {
 
   private categorizeInscriptions(inscriptions: Inscription[]): {
     brc20s: BRC20Content[];
-    collectibles: any[];
+    runes: any[];
+    collectibles: Inscription[];
   } {
     const brc20s = [];
     const collectibles = [];
@@ -145,6 +171,6 @@ export class TransactionHandler {
         collectibles.push(inscription);
       }
     }
-    return { brc20s, collectibles };
+    return { brc20s, runes: [], collectibles };
   }
 }
