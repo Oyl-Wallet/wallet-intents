@@ -1,11 +1,16 @@
-import { Intent, IntentHandler, IntentStorage } from "./types";
+import {
+  Intent,
+  IntentHandler,
+  IntentProvider,
+  IntentStatus,
+  IntentStorage,
+} from "./types";
 
 export class IntentManager implements IntentHandler {
-  private storage: IntentStorage;
-
-  constructor(storage: IntentStorage) {
-    this.storage = storage;
-  }
+  constructor(
+    private storage: IntentStorage,
+    private addresses: string[] = []
+  ) {}
 
   async captureIntent(intent: Omit<Intent, "id" | "timestamp">): Promise<void> {
     await this.storage.save(intent as Intent);
@@ -15,7 +20,16 @@ export class IntentManager implements IntentHandler {
     return this.storage.getAllIntents();
   }
 
+  async retrievePendingIntents(): Promise<Intent[]> {
+    const intents = await this.retrieveAllIntents();
+    return intents.filter((intent) => intent.status === IntentStatus.Pending);
+  }
+
   async retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]> {
     return this.storage.getIntentsByAddresses(addresses);
+  }
+
+  async getAddresses(): Promise<string[]> {
+    return this.addresses;
   }
 }
