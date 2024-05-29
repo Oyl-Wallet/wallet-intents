@@ -19,16 +19,16 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  InMemoryStorageAdapter: () => InMemoryStorageAdapter,
+  InMemoryStorage: () => InMemoryStorage,
   IntentManager: () => IntentManager,
   IntentSynchronizer: () => IntentSynchronizer,
-  PlasmoStorageAdapter: () => PlasmoStorageAdapter,
+  PlasmoStorage: () => PlasmoStorage,
   SandshrewRpcProvider: () => SandshrewRpcProvider
 });
 module.exports = __toCommonJS(src_exports);
 
-// src/adapters/InMemoryStorageAdapter.ts
-var InMemoryStorageAdapter = class {
+// src/storage/InMemoryStorage.ts
+var InMemoryStorage = class {
   intents = [];
   async save(intent) {
     if (intent.id) {
@@ -63,9 +63,9 @@ var InMemoryStorageAdapter = class {
   }
 };
 
-// src/adapters/PlasmoStorageAdapter.ts
+// src/storage/PlasmoStorage.ts
 var import_storage = require("@plasmohq/storage");
-var PlasmoStorageAdapter = class {
+var PlasmoStorage = class {
   storage;
   key;
   constructor(key) {
@@ -267,107 +267,17 @@ function parseBrc20Inscription(inscription) {
   return null;
 }
 
-// src/IntentSynchronizer.ts
-var IntentSynchronizer = class {
-  provider;
-  manager;
+// src/handlers/TransactionHandler.ts
+var TransactionHandler = class {
   constructor(manager, provider) {
     this.manager = manager;
     this.provider = provider;
   }
-  async syncIntents() {
-    const intents = await this.manager.retrieveAllIntents();
-    for (const intent of intents) {
-      if (intent.type === "transaction" /* Transaction */) {
-        await this.syncTxIntent(intent);
-      }
-    }
+  addresses = [];
+  async setAddresses(addresses) {
+    this.addresses = addresses;
   }
-  async syncReceivedTxIntents(addresses) {
-    const intents = await this.manager.retrieveAllIntents();
-    if (intents.some(({ status }) => status === "pending" /* Pending */))
-      return;
-    const addressTxs = await Promise.all(
-      addresses.map((address) => this.provider.getAddressTxs(address))
-    );
-    const txs = addressTxs.flat();
-    for (let tx of txs) {
-      if (!isReceiveTx(tx, addresses))
-        continue;
-      if (txIntentExists(tx, intents))
-        continue;
-      const addressesVoutIndexes = tx.vout.map(
-        (output, index) => addresses.includes(output.scriptpubkey_address) ? index : null
-      ).filter((index) => index !== null);
-      const txOutputs = await Promise.all(
-        addressesVoutIndexes.map(
-          (voutIndex) => this.provider.getTxOutput(tx.id, voutIndex)
-        )
-      );
-      const inscriptions = [];
-      const txOutputsIndexed = txOutputs.every((output) => output.indexed);
-      if (txOutputsIndexed) {
-        const inscriptionIds = inscriptionIdsFromTxOutputs(txOutputs);
-        for (let inscriptionId of inscriptionIds) {
-          const inscription = await this.provider.getInscriptionById(
-            inscriptionId
-          );
-          if (inscription.content_type.startsWith("text")) {
-          } else {
-            inscriptions.push(inscription);
-          }
-        }
-      }
-      if (inscriptions.length === 0) {
-        const txPrevOutputs = await Promise.all(
-          tx.vin.map(({ txid, vout }) => this.provider.getTxOutput(txid, vout))
-        );
-        const inscriptionIds = inscriptionIdsFromTxOutputs(txPrevOutputs);
-        for (let inscriptionId of inscriptionIds) {
-          const inscription = await this.provider.getInscriptionById(
-            inscriptionId
-          );
-          if (inscription.content_type.startsWith("text")) {
-          } else {
-            inscriptions.push(inscription);
-          }
-        }
-      }
-      if (inscriptions.length === 0) {
-        for (let input of tx.vin) {
-          const decodedInscriptions = getInscriptionsFromInput(input);
-          inscriptions.push(...decodedInscriptions);
-        }
-      }
-      const collectibles = [];
-      const brc20s = [];
-      const runes = [];
-      for (let inscription of inscriptions) {
-        const brc20 = parseBrc20Inscription(inscription);
-        if (brc20) {
-          brc20s.push(brc20);
-        } else {
-          collectibles.push(inscription);
-        }
-      }
-      await this.manager.captureIntent({
-        address: determineReceiverAddress(tx, addresses),
-        type: "transaction" /* Transaction */,
-        status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
-        data: {
-          txIds: [tx.txid],
-          brc20s,
-          collectibles,
-          runes
-        }
-      });
-    }
-  }
-  async syncTxIntent(intent) {
-    if (intent.status !== "pending" /* Pending */)
-      return;
-    if (intent.data.txIds.length === 0)
-      return;
+  async handlePendingTransaction(intent) {
     const txs = await Promise.all(
       intent.data.txIds.map((txId) => this.provider.getTxById(txId))
     );
@@ -376,13 +286,123 @@ var IntentSynchronizer = class {
       await this.manager.captureIntent(intent);
     }
   }
+  async handleReceivedTransactions(addresses) {
+    this.addresses = addresses;
+    const intents = await this.manager.retrieveIntentsByAddresses(
+      this.addresses
+    );
+    if (intents.some(({ data }) => data.txIds.length === 0))
+      return;
+    const txs = (await Promise.all(
+      this.addresses.map((addr) => this.provider.getAddressTxs(addr))
+    )).flat();
+    for (let tx of txs) {
+      if (!isReceiveTx(tx, this.addresses) || txIntentExists(tx, intents))
+        continue;
+      await this.processTransaction(tx);
+    }
+  }
+  async processTransaction(tx) {
+    const inscriptions = await this.getInscriptions(tx);
+    const { brc20s, collectibles } = this.categorizeInscriptions(inscriptions);
+    await this.manager.captureIntent({
+      address: determineReceiverAddress(tx, this.addresses),
+      type: "transaction" /* Transaction */,
+      status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
+      data: {
+        txIds: [tx.txid],
+        brc20s,
+        collectibles,
+        runes: []
+      }
+    });
+  }
+  async getInscriptions(tx) {
+    let inscriptions = await this.getTxOutputsInscriptions(tx);
+    if (inscriptions.length === 0) {
+      inscriptions = await this.getPrevOutputsInscriptions(tx);
+    }
+    if (inscriptions.length === 0) {
+      inscriptions = this.getInputInscriptions(tx);
+    }
+    return inscriptions;
+  }
+  async getTxOutputsInscriptions(tx) {
+    const voutIndexes = tx.vout.map(
+      (output, index) => this.addresses.includes(output.scriptpubkey_address) ? index : null
+    ).filter((index) => index !== null);
+    const txOutputs = await Promise.all(
+      voutIndexes.map(
+        (voutIndex) => this.provider.getTxOutput(tx.txid, voutIndex)
+      )
+    );
+    if (txOutputs.every((output) => output.indexed)) {
+      return Promise.all(
+        inscriptionIdsFromTxOutputs(txOutputs).map(
+          (id) => this.provider.getInscriptionById(id)
+        )
+      );
+    }
+    return [];
+  }
+  async getPrevOutputsInscriptions(tx) {
+    const txPrevOutputs = await Promise.all(
+      tx.vin.map(({ txid, vout }) => this.provider.getTxOutput(txid, vout))
+    );
+    return Promise.all(
+      inscriptionIdsFromTxOutputs(txPrevOutputs).map(
+        (id) => this.provider.getInscriptionById(id)
+      )
+    );
+  }
+  getInputInscriptions(tx) {
+    return tx.vin.flatMap((input) => getInscriptionsFromInput(input));
+  }
+  categorizeInscriptions(inscriptions) {
+    const brc20s = [];
+    const collectibles = [];
+    for (let inscription of inscriptions) {
+      const brc20 = parseBrc20Inscription(inscription);
+      if (brc20) {
+        brc20s.push(brc20);
+      } else {
+        collectibles.push(inscription);
+      }
+    }
+    return { brc20s, collectibles };
+  }
+};
+
+// src/IntentSynchronizer.ts
+var IntentSynchronizer = class {
+  constructor(manager, provider) {
+    this.manager = manager;
+    this.transactionHandler = new TransactionHandler(manager, provider);
+  }
+  transactionHandler;
+  async syncPendingIntents() {
+    const pendingIntents = await this.manager.retrievePendingIntents();
+    await Promise.all(
+      pendingIntents.map(async (intent) => {
+        if (intent.type === "transaction" /* Transaction */) {
+          await this.transactionHandler.handlePendingTransaction(intent);
+        }
+      })
+    );
+  }
+  async syncReceivedTxIntents(addresses) {
+    const intents = await this.manager.retrieveAllIntents();
+    if (intents.some(({ data }) => data.txIds.length === 0))
+      return;
+    await this.transactionHandler.handleReceivedTransactions(addresses);
+  }
 };
 
 // src/IntentManager.ts
 var IntentManager = class {
-  storage;
-  constructor(storage) {
+  constructor(storage, addresses = []) {
     this.storage = storage;
+    this.addresses = addresses;
   }
   async captureIntent(intent) {
     await this.storage.save(intent);
@@ -390,15 +410,22 @@ var IntentManager = class {
   async retrieveAllIntents() {
     return this.storage.getAllIntents();
   }
+  async retrievePendingIntents() {
+    const intents = await this.retrieveAllIntents();
+    return intents.filter((intent) => intent.status === "pending" /* Pending */);
+  }
   async retrieveIntentsByAddresses(addresses) {
     return this.storage.getIntentsByAddresses(addresses);
+  }
+  async getAddresses() {
+    return this.addresses;
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  InMemoryStorageAdapter,
+  InMemoryStorage,
   IntentManager,
   IntentSynchronizer,
-  PlasmoStorageAdapter,
+  PlasmoStorage,
   SandshrewRpcProvider
 });

@@ -19,30 +19,79 @@ interface IntentHandler {
     retrieveAllIntents(): Promise<Intent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
-interface StorageAdapter {
+interface IntentStorage {
     save(intent: Intent): Promise<void>;
     getAllIntents(): Promise<Intent[]>;
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
-interface DataProvider {
+interface IntentProvider {
     baseUrl: string;
-    getTxById(txId: string): Promise<void>;
-    getAddressTxs(address: string): Promise<any>;
-    getTxOutput(txId: string, index: number): Promise<void>;
-    getInscriptionById(inscriptionId: string): Promise<EsploraInscription>;
+    getTxById(txId: string): Promise<EsploraTransaction>;
+    getAddressTxs(address: string): Promise<EsploraTransaction[]>;
+    getTxOutput(txId: string, index: number): Promise<OrdOutput>;
+    getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
 }
-type EsploraInscription = {
+interface EsploraTransaction {
+    txid: string;
+    version: number;
+    locktime: number;
+    vin: {
+        txid: string;
+        vout: number;
+        prevout: {
+            scriptpubkey: string;
+            scriptpubkey_asm: string;
+            scriptpubkey_type: string;
+            scriptpubkey_address: string;
+            value: number;
+        };
+        scriptsig: string;
+        scriptsig_asm: string;
+        witness: string[];
+        is_coinbase: boolean;
+        sequence: number;
+    }[];
+    vout: {
+        scriptpubkey: string;
+        scriptpubkey_asm: string;
+        scriptpubkey_type: string;
+        scriptpubkey_address: string;
+        value: number;
+    }[];
+    size: number;
+    weight: number;
+    fee: number;
+    status: {
+        confirmed: boolean;
+        block_height?: number;
+        block_hash?: string;
+        block_time?: number;
+    };
+}
+interface OrdOutput {
+    address: string;
+    indexed: boolean;
+    inscriptions: string[];
+    runes: any[];
+    sat_ranges: number[][];
+    script_pubkey: string;
+    spent: boolean;
+    transaction: string;
+    value: number;
+}
+type OrdInscription = {
     content_type: string;
+    content: string;
 };
 
-declare class InMemoryStorageAdapter implements StorageAdapter {
+declare class InMemoryStorage implements IntentStorage {
     private intents;
     save(intent: Intent): Promise<void>;
     getAllIntents(): Promise<Intent[]>;
     getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
-declare class PlasmoStorageAdapter implements StorageAdapter {
+declare class PlasmoStorage implements IntentStorage {
     private storage;
     private key;
     constructor(key: string);
@@ -52,33 +101,35 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     purgeIntentsByAddresses(addresses: string[]): Promise<void>;
 }
 
-declare class SandshrewRpcProvider implements DataProvider {
+declare class SandshrewRpcProvider implements IntentProvider {
     baseUrl: string;
     constructor({ network, projectId }: {
         network: string;
         projectId: string;
     });
-    getAddressTxs(address: string): Promise<any>;
-    getTxById(txId: string): Promise<any>;
-    getTxOutput(txId: string, voutIndex: number): Promise<any>;
-    getInscriptionById(inscriptionId: string): Promise<any>;
+    getAddressTxs(address: string): Promise<EsploraTransaction[]>;
+    getTxById(txId: string): Promise<EsploraTransaction>;
+    getTxOutput(txId: string, voutIndex: number): Promise<OrdOutput>;
+    getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
 }
 
 declare class IntentManager implements IntentHandler {
     private storage;
-    constructor(storage: StorageAdapter);
+    private addresses;
+    constructor(storage: IntentStorage, addresses?: string[]);
     captureIntent(intent: Omit<Intent, "id" | "timestamp">): Promise<void>;
     retrieveAllIntents(): Promise<Intent[]>;
+    retrievePendingIntents(): Promise<Intent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+    getAddresses(): Promise<string[]>;
 }
 
 declare class IntentSynchronizer {
-    private provider;
     private manager;
-    constructor(manager: IntentManager, provider: DataProvider);
-    syncIntents(): Promise<void>;
+    private transactionHandler;
+    constructor(manager: IntentManager, provider: IntentProvider);
+    syncPendingIntents(): Promise<void>;
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
-    private syncTxIntent;
 }
 
-export { InMemoryStorageAdapter, IntentManager, IntentSynchronizer, PlasmoStorageAdapter, SandshrewRpcProvider };
+export { InMemoryStorage, IntentManager, IntentSynchronizer, PlasmoStorage, SandshrewRpcProvider };
