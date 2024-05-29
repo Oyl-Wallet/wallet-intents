@@ -13,13 +13,21 @@ export enum TransactionDirection {
   Outbound = "Outbound",
 }
 
+export type TransactionIntentData = {
+  txIds: string[];
+  direction: TransactionDirection;
+  brc20s: BRC20Content[];
+  collectibles: CollectibleContent[];
+  runes: string[];
+};
+
 export type Intent = {
   id: string;
   timestamp: number;
   address: string;
   type: IntentType;
   status: IntentStatus;
-  data: Record<string, any>;
+  data: TransactionIntentData;
 };
 
 export interface IntentHandler {
@@ -114,4 +122,9 @@ export interface BRC20Content {
   tick: string;
   max?: string;
   lim?: string;
+}
+
+export interface CollectibleContent {
+  contentType: string;
+  content: string;
 }

@@ -10,13 +10,20 @@ declare enum TransactionDirection {
     Inbound = "Inbound",
     Outbound = "Outbound"
 }
+type TransactionIntentData = {
+    txIds: string[];
+    direction: TransactionDirection;
+    brc20s: BRC20Content[];
+    collectibles: CollectibleContent[];
+    runes: string[];
+};
 type Intent = {
     id: string;
     timestamp: number;
     address: string;
     type: IntentType;
     status: IntentStatus;
-    data: Record<string, any>;
+    data: TransactionIntentData;
 };
 interface IntentHandler {
     captureIntent(intent: Intent): Promise<void>;
@@ -100,6 +107,10 @@ interface BRC20Content {
     max?: string;
     lim?: string;
 }
+interface CollectibleContent {
+    contentType: string;
+    content: string;
+}
 
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
@@ -149,4 +160,4 @@ declare class IntentSynchronizer {
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection };
+export { type BRC20Content, type CollectibleContent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection, type TransactionIntentData };

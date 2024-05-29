@@ -4,7 +4,7 @@ import {
   IntentSynchronizer,
   SandshrewRpcProvider,
 } from "../src";
-import { IntentStatus, IntentType } from "../src/types";
+import { IntentStatus, IntentType, TransactionDirection } from "../src/types";
 
 import { IMAGE_BASE64, WITNESS_SCRIPTS } from "./mocks/constants";
 import { mockRpcResponse, setupMockServer } from "./mocks/utils";
@@ -33,7 +33,13 @@ test("Updates intent as completed for confirmed transactions", async () => {
     address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
     type: IntentType.Transaction,
     status: IntentStatus.Pending,
-    data: { txIds: ["confirmedTx"] },
+    data: {
+      direction: TransactionDirection.Outbound,
+      txIds: [],
+      brc20s: [],
+      collectibles: [],
+      runes: [],
+    },
   });
 
   let intents = await intentManager.retrieveAllIntents();

@@ -1,5 +1,5 @@
 import { InMemoryStorageAdapter, IntentManager } from "../src";
-import { IntentStatus, IntentType } from "../src/types";
+import { IntentStatus, IntentType, TransactionDirection } from "../src/types";
 
 const nativeSegwitAddress = "tb1q2nph3vjqsq4paqdy34f4qrk4x3uh4k2x3u3vq8";
 const taprootAddress =
@@ -10,21 +10,39 @@ const nativeSegwitIntent = {
   address: nativeSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: { message: "Hello, world!" },
+  data: {
+    direction: TransactionDirection.Outbound,
+    txIds: [],
+    brc20s: [],
+    collectibles: [],
+    runes: [],
+  },
 };
 
 const taprootIntent = {
   address: taprootAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: { message: "Hello, world!" },
+  data: {
+    direction: TransactionDirection.Outbound,
+    txIds: [],
+    brc20s: [],
+    collectibles: [],
+    runes: [],
+  },
 };
 
 const nestedSegwitIntent = {
   address: nestedSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: { message: "Hello, world!" },
+  data: {
+    direction: TransactionDirection.Outbound,
+    txIds: [],
+    brc20s: [],
+    collectibles: [],
+    runes: [],
+  },
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {
