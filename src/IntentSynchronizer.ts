@@ -21,8 +21,9 @@ export class IntentSynchronizer {
   }
 
   async syncReceivedTxIntents(addresses: string[]) {
-    const intents = await this.manager.retrieveAllIntents();
-    if (intents.some(({ data }) => data.txIds.length === 0)) return;
-    await this.transactionHandler.handleReceivedTransactions(addresses);
+    const intents = await this.manager.retrieveTransactionIntents();
+    if (intents.every(({ txIds }) => txIds.length > 0)) {
+      await this.transactionHandler.handleReceivedTransactions(addresses);
+    }
   }
 }

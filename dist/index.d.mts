@@ -11,7 +11,12 @@ declare enum TransactionType {
     Receive = "receive",
     Trade = "trade"
 }
-type TransactionIntentData = {
+type TransactionIntent = {
+    id: string;
+    timestamp: number;
+    address: string;
+    type: IntentType;
+    status: IntentStatus;
     txType: TransactionType;
     txIds: string[];
     amountSats: number;
@@ -20,23 +25,20 @@ type TransactionIntentData = {
     runes: string[];
     traits: string[];
 };
-type Intent = {
-    id: string;
-    timestamp: number;
-    address: string;
-    type: IntentType;
-    status: IntentStatus;
-    data: TransactionIntentData;
-};
+type Intent = TransactionIntent;
 interface IntentHandler {
     captureIntent(intent: Intent): Promise<void>;
     retrieveAllIntents(): Promise<Intent[]>;
+    retrievePendingIntents(): Promise<Intent[]>;
+    retrieveTransactionIntents(): Promise<Intent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 interface StorageAdapter {
     save(intent: Intent): Promise<void>;
-    getAllIntents(): Promise<Intent[]>;
-    getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+    findAll(): Promise<Intent[]>;
+    findByType(type: IntentType): Promise<Intent[]>;
+    findByStatus(status: IntentStatus): Promise<Intent[]>;
+    findByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 interface RpcProvider {
     baseUrl: string;
@@ -114,8 +116,10 @@ interface BRC20Content {
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
     save(intent: Intent): Promise<void>;
-    getAllIntents(): Promise<Intent[]>;
-    getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+    findAll(): Promise<Intent[]>;
+    findByType(type: IntentType): Promise<Intent[]>;
+    findByStatus(status: IntentStatus): Promise<Intent[]>;
+    findByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
 declare class PlasmoStorageAdapter implements StorageAdapter {
@@ -123,9 +127,10 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     private key;
     constructor(key: string);
     save(intent: Intent): Promise<void>;
-    getAllIntents(): Promise<Intent[]>;
-    getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
-    purgeIntentsByAddresses(addresses: string[]): Promise<void>;
+    findAll(): Promise<Intent[]>;
+    findByType(type: IntentType): Promise<Intent[]>;
+    findByStatus(status: IntentStatus): Promise<Intent[]>;
+    findByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
 declare class SandshrewRpcProvider implements RpcProvider {
@@ -148,6 +153,7 @@ declare class IntentManager implements IntentHandler {
     retrieveAllIntents(): Promise<Intent[]>;
     retrievePendingIntents(): Promise<Intent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+    retrieveTransactionIntents(): Promise<Intent[]>;
     getAddresses(): Promise<string[]>;
 }
 
@@ -159,4 +165,4 @@ declare class IntentSynchronizer {
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, type TransactionIntentData, TransactionType };
+export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType };

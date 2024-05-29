@@ -10,45 +10,39 @@ const nativeSegwitIntent = {
   address: nativeSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: {
-    txType: TransactionType.Send,
-    txIds: [],
-    amountSats: 10000,
-    brc20s: [],
-    collectibles: [],
-    runes: [],
-    traits: [],
-  },
+  txType: TransactionType.Send,
+  txIds: [],
+  amountSats: 10000,
+  brc20s: [],
+  collectibles: [],
+  runes: [],
+  traits: [],
 };
 
 const taprootIntent = {
   address: taprootAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: {
-    txType: TransactionType.Send,
-    txIds: [],
-    amountSats: 10000,
-    brc20s: [],
-    collectibles: [],
-    runes: [],
-    traits: [],
-  },
+  txType: TransactionType.Send,
+  txIds: [],
+  amountSats: 10000,
+  brc20s: [],
+  collectibles: [],
+  runes: [],
+  traits: [],
 };
 
 const nestedSegwitIntent = {
   address: nestedSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  data: {
-    txType: TransactionType.Send,
-    txIds: [],
-    amountSats: 10000,
-    brc20s: [],
-    collectibles: [],
-    runes: [],
-    traits: [],
-  },
+  txType: TransactionType.Send,
+  txIds: [],
+  amountSats: 10000,
+  brc20s: [],
+  collectibles: [],
+  runes: [],
+  traits: [],
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {

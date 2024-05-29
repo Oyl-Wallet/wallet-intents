@@ -30,7 +30,7 @@ export class TransactionHandler {
 
   async handlePendingTransaction(intent: Intent) {
     const txs = await Promise.all(
-      intent.data.txIds.map((txId: string) => this.provider.getTxById(txId))
+      intent.txIds.map((txId: string) => this.provider.getTxById(txId))
     );
 
     if (txs.every((tx) => tx.status.confirmed)) {
@@ -45,7 +45,7 @@ export class TransactionHandler {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    if (intents.some(({ data }) => data.txIds.length === 0)) return;
+    if (intents.some(({ txIds }) => txIds.length === 0)) return;
 
     const txs = (
       await Promise.all(
@@ -98,15 +98,13 @@ export class TransactionHandler {
       status: tx.status.confirmed
         ? IntentStatus.Completed
         : IntentStatus.Pending,
-      data: {
-        txType: TransactionType.Receive,
-        txIds: [tx.txid],
-        amountSats,
-        brc20s,
-        collectibles,
-        runes: [],
-        traits: Array.from(traits),
-      },
+      txType: TransactionType.Receive,
+      txIds: [tx.txid],
+      amountSats,
+      brc20s,
+      collectibles,
+      runes: [],
+      traits: Array.from(traits),
     });
   }
 

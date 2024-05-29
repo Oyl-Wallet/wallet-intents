@@ -1,4 +1,4 @@
-import { Intent, StorageAdapter } from "../types";
+import { Intent, IntentStatus, IntentType, StorageAdapter } from "../types";
 
 export class InMemoryStorageAdapter implements StorageAdapter {
   private intents: Intent[] = [];
@@ -27,14 +27,25 @@ export class InMemoryStorageAdapter implements StorageAdapter {
     }
   }
 
-  async getAllIntents(): Promise<Intent[]> {
+  async findAll(): Promise<Intent[]> {
     return structuredClone(this.intents);
   }
 
-  async getIntentsByAddresses(addresses: string[]): Promise<Intent[]> {
-    const intents = this.intents.filter((intent) =>
-      addresses.includes(intent.address)
+  async findByType(type: IntentType): Promise<Intent[]> {
+    return structuredClone(
+      this.intents.filter((intent) => intent.type === type)
     );
-    return structuredClone(intents);
+  }
+
+  async findByStatus(status: IntentStatus): Promise<Intent[]> {
+    return structuredClone(
+      this.intents.filter((intent) => intent.status === status)
+    );
+  }
+
+  async findByAddresses(addresses: string[]): Promise<Intent[]> {
+    return structuredClone(
+      this.intents.filter((intent) => addresses.includes(intent.address))
+    );
   }
 }

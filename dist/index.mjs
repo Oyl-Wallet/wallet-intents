@@ -41,14 +41,23 @@ var InMemoryStorageAdapter = class {
       );
     }
   }
-  async getAllIntents() {
+  async findAll() {
     return structuredClone(this.intents);
   }
-  async getIntentsByAddresses(addresses) {
-    const intents = this.intents.filter(
-      (intent) => addresses.includes(intent.address)
+  async findByType(type) {
+    return structuredClone(
+      this.intents.filter((intent) => intent.type === type)
     );
-    return structuredClone(intents);
+  }
+  async findByStatus(status) {
+    return structuredClone(
+      this.intents.filter((intent) => intent.status === status)
+    );
+  }
+  async findByAddresses(addresses) {
+    return structuredClone(
+      this.intents.filter((intent) => addresses.includes(intent.address))
+    );
   }
 };
 
@@ -64,7 +73,7 @@ var PlasmoStorageAdapter = class {
     });
   }
   async save(intent) {
-    const intents = await this.getAllIntents();
+    const intents = await this.findAll();
     if (intent.id) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
@@ -87,20 +96,23 @@ var PlasmoStorageAdapter = class {
       return this.storage.set(this.key, intents);
     }
   }
-  async getAllIntents() {
-    const intents = await this.storage.get(this.key);
-    return intents || [];
+  async findAll() {
+    return this.storage.get(this.key).then((intents) => intents || []);
   }
-  async getIntentsByAddresses(addresses) {
-    const intents = await this.getAllIntents();
-    return intents.filter((intent) => addresses.includes(intent.address));
-  }
-  async purgeIntentsByAddresses(addresses) {
-    const intents = await this.getAllIntents();
-    const purgedIntents = intents.filter(
-      (intent) => !addresses.includes(intent.address)
+  async findByType(type) {
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => intent.type === type)
     );
-    return this.storage.set(this.key, purgedIntents);
+  }
+  async findByStatus(status) {
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => intent.status === status)
+    );
+  }
+  async findByAddresses(addresses) {
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => addresses.includes(intent.address))
+    );
   }
 };
 
@@ -277,7 +289,7 @@ var TransactionHandler = class {
   }
   async handlePendingTransaction(intent) {
     const txs = await Promise.all(
-      intent.data.txIds.map((txId) => this.provider.getTxById(txId))
+      intent.txIds.map((txId) => this.provider.getTxById(txId))
     );
     if (txs.every((tx) => tx.status.confirmed)) {
       intent.status = "completed" /* Completed */;
@@ -289,7 +301,7 @@ var TransactionHandler = class {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    if (intents.some(({ data }) => data.txIds.length === 0))
+    if (intents.some(({ txIds }) => txIds.length === 0))
       return;
     const txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
@@ -328,15 +340,13 @@ var TransactionHandler = class {
       address: determineReceiverAddress(tx, this.addresses),
       type: "transaction" /* Transaction */,
       status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
-      data: {
-        txType: "receive" /* Receive */,
-        txIds: [tx.txid],
-        amountSats,
-        brc20s,
-        collectibles,
-        runes: [],
-        traits: Array.from(traits)
-      }
+      txType: "receive" /* Receive */,
+      txIds: [tx.txid],
+      amountSats,
+      brc20s,
+      collectibles,
+      runes: [],
+      traits: Array.from(traits)
     });
   }
   async getInscriptions(tx) {
@@ -413,10 +423,10 @@ var IntentSynchronizer = class {
     );
   }
   async syncReceivedTxIntents(addresses) {
-    const intents = await this.manager.retrieveAllIntents();
-    if (intents.some(({ data }) => data.txIds.length === 0))
-      return;
-    await this.transactionHandler.handleReceivedTransactions(addresses);
+    const intents = await this.manager.retrieveTransactionIntents();
+    if (intents.every(({ txIds }) => txIds.length > 0)) {
+      await this.transactionHandler.handleReceivedTransactions(addresses);
+    }
   }
 };
 
@@ -430,14 +440,18 @@ var IntentManager = class {
     await this.storage.save(intent);
   }
   async retrieveAllIntents() {
-    return this.storage.getAllIntents();
+    return this.storage.findAll();
   }
   async retrievePendingIntents() {
     const intents = await this.retrieveAllIntents();
     return intents.filter((intent) => intent.status === "pending" /* Pending */);
   }
   async retrieveIntentsByAddresses(addresses) {
-    return this.storage.getIntentsByAddresses(addresses);
+    return this.storage.findByAddresses(addresses);
+  }
+  async retrieveTransactionIntents() {
+    const intents = await this.retrieveAllIntents();
+    return intents.filter((intent) => intent.type === "transaction" /* Transaction */);
   }
   async getAddresses() {
     return this.addresses;

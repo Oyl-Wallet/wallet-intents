@@ -1,4 +1,4 @@
-import { Intent, StorageAdapter } from "../types";
+import { Intent, IntentStatus, IntentType, StorageAdapter } from "../types";
 import { Storage } from "@plasmohq/storage";
 
 export class PlasmoStorageAdapter implements StorageAdapter {
@@ -13,7 +13,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
   }
 
   async save(intent: Intent): Promise<void> {
-    const intents = await this.getAllIntents();
+    const intents = await this.findAll();
 
     if (intent.id) {
       const newIntents = intents.map((existingIntent) => {
@@ -40,21 +40,27 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     }
   }
 
-  async getAllIntents(): Promise<Intent[]> {
-    const intents = await this.storage.get<Intent[]>(this.key);
-    return intents || [];
+  async findAll(): Promise<Intent[]> {
+    return this.storage
+      .get<Intent[]>(this.key)
+      .then((intents) => intents || []);
   }
 
-  async getIntentsByAddresses(addresses: string[]): Promise<Intent[]> {
-    const intents = await this.getAllIntents();
-    return intents.filter((intent) => addresses.includes(intent.address));
-  }
-
-  async purgeIntentsByAddresses(addresses: string[]): Promise<void> {
-    const intents = await this.getAllIntents();
-    const purgedIntents = intents.filter(
-      (intent) => !addresses.includes(intent.address)
+  async findByType(type: IntentType): Promise<Intent[]> {
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => intent.type === type)
     );
-    return this.storage.set(this.key, purgedIntents);
+  }
+
+  async findByStatus(status: IntentStatus): Promise<Intent[]> {
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => intent.status === status)
+    );
+  }
+
+  async findByAddresses(addresses: string[]): Promise<Intent[]> {
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => addresses.includes(intent.address))
+    );
   }
 }

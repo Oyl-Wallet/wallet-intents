@@ -14,7 +14,12 @@ export enum TransactionType {
   Trade = "trade",
 }
 
-export type TransactionIntentData = {
+export type TransactionIntent = {
+  id: string;
+  timestamp: number;
+  address: string;
+  type: IntentType;
+  status: IntentStatus;
   txType: TransactionType;
   txIds: string[];
   amountSats: number;
@@ -24,18 +29,13 @@ export type TransactionIntentData = {
   traits: string[];
 };
 
-export type Intent = {
-  id: string;
-  timestamp: number;
-  address: string;
-  type: IntentType;
-  status: IntentStatus;
-  data: TransactionIntentData;
-};
+export type Intent = TransactionIntent; // Add more types here
 
 export interface IntentHandler {
   captureIntent(intent: Intent): Promise<void>;
   retrieveAllIntents(): Promise<Intent[]>;
+  retrievePendingIntents(): Promise<Intent[]>;
+  retrieveTransactionIntents(): Promise<Intent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
@@ -45,8 +45,10 @@ export interface IntentSynchronizer {
 
 export interface StorageAdapter {
   save(intent: Intent): Promise<void>;
-  getAllIntents(): Promise<Intent[]>;
-  getIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+  findAll(): Promise<Intent[]>;
+  findByType(type: IntentType): Promise<Intent[]>;
+  findByStatus(status: IntentStatus): Promise<Intent[]>;
+  findByAddresses(addresses: string[]): Promise<Intent[]>;
 }
 
 export interface RpcProvider {
