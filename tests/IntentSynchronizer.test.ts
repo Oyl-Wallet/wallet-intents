@@ -6,7 +6,11 @@ import {
 } from "../src";
 import { IntentStatus, IntentType, TransactionType } from "../src/types";
 
-import { IMAGE_BASE64, WITNESS_SCRIPTS } from "./mocks/constants";
+import {
+  IMAGE_BASE64,
+  BRC20_TRANSFER_BASE64,
+  WITNESS_SCRIPTS,
+} from "./mocks/constants";
 import { mockRpcResponse, setupMockServer } from "./mocks/utils";
 
 setupMockServer();
@@ -101,6 +105,7 @@ test("Receive BTC confirmed", async () => {
   expect(intents[0]).toHaveProperty("collectibles", []);
   expect(intents[0]).toHaveProperty("brc20s", []);
   expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["token", "btc"]);
 });
 
 test("Receive BTC unconfirmed", async () => {
@@ -153,6 +158,7 @@ test("Receive BTC unconfirmed", async () => {
   expect(intents[0]).toHaveProperty("collectibles", []);
   expect(intents[0]).toHaveProperty("brc20s", []);
   expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["token", "btc"]);
 });
 
 test("Confirmed TX with Collectible in Outputs", async () => {
@@ -224,6 +230,73 @@ test("Confirmed TX with Collectible in Outputs", async () => {
   expect(intents[0]).toHaveProperty("collectibles[0].content", IMAGE_BASE64);
   expect(intents[0]).toHaveProperty("brc20s", []);
   expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["collectible", "image/png"]);
+});
+
+test("Confirmed TX with BRC-20 in Outputs", async () => {
+  mockRpcResponse("esplora_address::txs", {
+    result: [
+      {
+        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+        vin: [],
+        vout: [
+          {
+            scriptpubkey_address:
+              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          },
+        ],
+        status: {
+          confirmed: true,
+        },
+      },
+    ],
+  });
+  mockRpcResponse("ord_output", {
+    result: {
+      indexed: true,
+      inscriptions: [
+        "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0",
+      ],
+      runes: [],
+    },
+  });
+  mockRpcResponse("ord_inscription", {
+    result: {
+      id: "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0",
+      content_type: "text/plain;charset=utf-8",
+    },
+  });
+  mockRpcResponse("ord_content", {
+    result: BRC20_TRANSFER_BASE64,
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const syncronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await syncronizer.syncReceivedTxIntents([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "completed");
+  expect(intents[0]).toHaveProperty("txIds", [
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+  ]);
+  expect(intents[0]).toHaveProperty("collectibles", []);
+  expect(intents[0]).toHaveProperty("brc20s[0].p", "brc-20");
+  expect(intents[0]).toHaveProperty("brc20s[0].op", "transfer");
+  expect(intents[0]).toHaveProperty("brc20s[0].tick", "VMPX");
+  expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["token", "brc-20", "transfer"]);
 });
 
 test("Unconfirmed TX with Collectible in Prevout", async () => {
@@ -311,6 +384,89 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
   expect(intents[0]).toHaveProperty("collectibles[0].content", IMAGE_BASE64);
   expect(intents[0]).toHaveProperty("brc20s", []);
   expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["collectible", "image/png"]);
+});
+
+test("Unconfirmed TX with BRC-20 in Prevout", async () => {
+  mockRpcResponse("esplora_address::txs", {
+    result: [
+      {
+        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+        vin: [
+          {
+            txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+            vout: 0,
+            prevout: {},
+            witness: [],
+          },
+        ],
+        vout: [
+          {
+            scriptpubkey_address:
+              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          },
+        ],
+        status: {
+          confirmed: false,
+        },
+      },
+    ],
+  });
+  // TX output
+  mockRpcResponse("ord_output", {
+    result: {
+      indexed: false,
+      inscriptions: [],
+      runes: [],
+    },
+  });
+  // TX input/prevout
+  mockRpcResponse("ord_output", {
+    result: {
+      indexed: true,
+      inscriptions: [
+        "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0",
+      ],
+      runes: [],
+    },
+  });
+  mockRpcResponse("ord_inscription", {
+    result: {
+      id: "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0",
+      content_type: "image/text;charset=utf-8",
+    },
+  });
+  mockRpcResponse("ord_content", {
+    result: BRC20_TRANSFER_BASE64,
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const synchronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await synchronizer.syncReceivedTxIntents([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "pending");
+  expect(intents[0]).toHaveProperty("txIds", [
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+  ]);
+  expect(intents[0]).toHaveProperty("collectibles", []);
+  expect(intents[0]).toHaveProperty("brc20s[0].p", "brc-20");
+  expect(intents[0]).toHaveProperty("brc20s[0].op", "transfer");
+  expect(intents[0]).toHaveProperty("brc20s[0].tick", "VMPX");
+  expect(intents[0]).toHaveProperty("runes", []);
+  expect(intents[0]).toHaveProperty("traits", ["token", "brc-20", "transfer"]);
 });
 
 test("Uconfirmed TX with Collectible in Input Witness", async () => {

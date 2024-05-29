@@ -69,8 +69,8 @@ export class TransactionHandler {
 
     if (brc20s.length > 0) {
       traits.add("token");
-      traits.add("brc20");
       brc20s.forEach((brc20) => {
+        traits.add(brc20.p);
         traits.add(brc20.op);
       });
     }
@@ -86,8 +86,11 @@ export class TransactionHandler {
       collectibles.forEach((collectible) => {
         traits.add(collectible.content_type);
       });
-    } else {
+    }
+
+    if (traits.size === 0) {
       traits.add("token");
+      traits.add("btc");
     }
 
     const amountSats = determineReceiverAmount(tx, this.addresses);
