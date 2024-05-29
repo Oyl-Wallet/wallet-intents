@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "Library for handling intents in a bitcoin wallet.",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "/dist"
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsup src/index.ts --dts",
-    "dev": "tsup src/index.ts --watch"
+    "build": "tsup",
+    "dev": "tsup --watch"
   },
   "author": "Jonathan P. Navarrete",
   "license": "ISC",

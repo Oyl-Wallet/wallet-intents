@@ -8,6 +8,11 @@ export enum IntentStatus {
   Failed = "failed",
 }
 
+export enum TransactionDirection {
+  Inbound = "Inbound",
+  Outbound = "Outbound",
+}
+
 export type Intent = {
   id: string;
   timestamp: number;

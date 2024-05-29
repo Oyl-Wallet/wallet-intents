@@ -15,6 +15,7 @@ import {
   BRC20Content,
   Inscription,
   RpcProvider,
+  TransactionDirection,
 } from "../types";
 
 export class TransactionHandler {
@@ -70,6 +71,7 @@ export class TransactionHandler {
         : IntentStatus.Pending,
       data: {
         txIds: [tx.txid],
+        direction: TransactionDirection.Inbound,
         brc20s,
         collectibles,
         runes: [],
