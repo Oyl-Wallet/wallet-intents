@@ -86,6 +86,8 @@ export class TransactionHandler {
       collectibles.forEach((collectible) => {
         traits.add(collectible.content_type);
       });
+    } else {
+      traits.add("token");
     }
 
     const amountSats = determineReceiverAmount(tx, this.addresses);

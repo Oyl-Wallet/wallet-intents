@@ -351,6 +351,8 @@ var TransactionHandler = class {
       collectibles.forEach((collectible) => {
         traits.add(collectible.content_type);
       });
+    } else {
+      traits.add("token");
     }
     const amountSats = determineReceiverAmount(tx, this.addresses);
     await this.manager.captureIntent({
