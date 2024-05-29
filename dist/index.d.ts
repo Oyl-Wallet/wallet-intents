@@ -6,6 +6,10 @@ declare enum IntentStatus {
     Completed = "completed",
     Failed = "failed"
 }
+declare enum TransactionDirection {
+    Inbound = "Inbound",
+    Outbound = "Outbound"
+}
 type Intent = {
     id: string;
     timestamp: number;
@@ -83,6 +87,19 @@ type OrdInscription = {
     content_type: string;
     content: string;
 };
+type Inscription = {
+    id: string;
+    content_type: string;
+    content: string;
+};
+interface BRC20Content {
+    p: string;
+    op: string;
+    amt: string;
+    tick: string;
+    max?: string;
+    lim?: string;
+}
 
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
@@ -132,4 +149,4 @@ declare class IntentSynchronizer {
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { InMemoryStorageAdapter, IntentManager, IntentSynchronizer, PlasmoStorageAdapter, SandshrewRpcProvider };
+export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection };

@@ -1,3 +1,20 @@
+// src/types.ts
+var IntentType = /* @__PURE__ */ ((IntentType2) => {
+  IntentType2["Transaction"] = "transaction";
+  return IntentType2;
+})(IntentType || {});
+var IntentStatus = /* @__PURE__ */ ((IntentStatus2) => {
+  IntentStatus2["Pending"] = "pending";
+  IntentStatus2["Completed"] = "completed";
+  IntentStatus2["Failed"] = "failed";
+  return IntentStatus2;
+})(IntentStatus || {});
+var TransactionDirection = /* @__PURE__ */ ((TransactionDirection2) => {
+  TransactionDirection2["Inbound"] = "Inbound";
+  TransactionDirection2["Outbound"] = "Outbound";
+  return TransactionDirection2;
+})(TransactionDirection || {});
+
 // src/adapters/InMemoryStorageAdapter.ts
 var InMemoryStorageAdapter = class {
   intents = [];
@@ -396,8 +413,11 @@ var IntentManager = class {
 export {
   InMemoryStorageAdapter,
   IntentManager,
+  IntentStatus,
   IntentSynchronizer,
+  IntentType,
   PlasmoStorageAdapter,
-  SandshrewRpcProvider
+  SandshrewRpcProvider,
+  TransactionDirection
 };
 //# sourceMappingURL=index.mjs.map
