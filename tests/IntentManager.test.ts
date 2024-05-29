@@ -1,5 +1,5 @@
 import { InMemoryStorageAdapter, IntentManager } from "../src";
-import { IntentStatus, IntentType, TransactionDirection } from "../src/types";
+import { IntentStatus, IntentType, TransactionType } from "../src/types";
 
 const nativeSegwitAddress = "tb1q2nph3vjqsq4paqdy34f4qrk4x3uh4k2x3u3vq8";
 const taprootAddress =
@@ -11,7 +11,7 @@ const nativeSegwitIntent = {
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
   data: {
-    direction: TransactionDirection.Outbound,
+    txType: TransactionType.Send,
     txIds: [],
     amountSats: 10000,
     brc20s: [],
@@ -26,7 +26,7 @@ const taprootIntent = {
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
   data: {
-    direction: TransactionDirection.Outbound,
+    txType: TransactionType.Send,
     txIds: [],
     amountSats: 10000,
     brc20s: [],
@@ -41,7 +41,7 @@ const nestedSegwitIntent = {
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
   data: {
-    direction: TransactionDirection.Outbound,
+    txType: TransactionType.Send,
     txIds: [],
     amountSats: 10000,
     brc20s: [],

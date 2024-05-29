@@ -26,7 +26,7 @@ __export(src_exports, {
   IntentType: () => IntentType,
   PlasmoStorageAdapter: () => PlasmoStorageAdapter,
   SandshrewRpcProvider: () => SandshrewRpcProvider,
-  TransactionDirection: () => TransactionDirection
+  TransactionType: () => TransactionType
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -41,11 +41,12 @@ var IntentStatus = /* @__PURE__ */ ((IntentStatus2) => {
   IntentStatus2["Failed"] = "failed";
   return IntentStatus2;
 })(IntentStatus || {});
-var TransactionDirection = /* @__PURE__ */ ((TransactionDirection2) => {
-  TransactionDirection2["Inbound"] = "Inbound";
-  TransactionDirection2["Outbound"] = "Outbound";
-  return TransactionDirection2;
-})(TransactionDirection || {});
+var TransactionType = /* @__PURE__ */ ((TransactionType2) => {
+  TransactionType2["Send"] = "send";
+  TransactionType2["Receive"] = "receive";
+  TransactionType2["Trade"] = "trade";
+  return TransactionType2;
+})(TransactionType || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
 var InMemoryStorageAdapter = class {
@@ -360,8 +361,8 @@ var TransactionHandler = class {
       type: "transaction" /* Transaction */,
       status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
       data: {
+        txType: "receive" /* Receive */,
         txIds: [tx.txid],
-        direction: "Inbound" /* Inbound */,
         amountSats,
         brc20s,
         collectibles,
@@ -483,6 +484,6 @@ var IntentManager = class {
   IntentType,
   PlasmoStorageAdapter,
   SandshrewRpcProvider,
-  TransactionDirection
+  TransactionType
 });
 //# sourceMappingURL=index.js.map

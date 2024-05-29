@@ -8,14 +8,15 @@ export enum IntentStatus {
   Failed = "failed",
 }
 
-export enum TransactionDirection {
-  Inbound = "Inbound",
-  Outbound = "Outbound",
+export enum TransactionType {
+  Send = "send",
+  Receive = "receive",
+  Trade = "trade",
 }
 
 export type TransactionIntentData = {
+  txType: TransactionType;
   txIds: string[];
-  direction: TransactionDirection;
   amountSats: number;
   brc20s: BRC20Content[];
   collectibles: Inscription[];

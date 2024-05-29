@@ -6,13 +6,14 @@ declare enum IntentStatus {
     Completed = "completed",
     Failed = "failed"
 }
-declare enum TransactionDirection {
-    Inbound = "Inbound",
-    Outbound = "Outbound"
+declare enum TransactionType {
+    Send = "send",
+    Receive = "receive",
+    Trade = "trade"
 }
 type TransactionIntentData = {
+    txType: TransactionType;
     txIds: string[];
-    direction: TransactionDirection;
     amountSats: number;
     brc20s: BRC20Content[];
     collectibles: Inscription[];
@@ -158,4 +159,4 @@ declare class IntentSynchronizer {
     syncReceivedTxIntents(addresses: string[]): Promise<void>;
 }
 
-export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, TransactionDirection, type TransactionIntentData };
+export { type BRC20Content, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type Intent, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, PlasmoStorageAdapter, type RpcProvider, SandshrewRpcProvider, type StorageAdapter, type TransactionIntentData, TransactionType };

@@ -4,7 +4,7 @@ import {
   IntentSynchronizer,
   SandshrewRpcProvider,
 } from "../src";
-import { IntentStatus, IntentType, TransactionDirection } from "../src/types";
+import { IntentStatus, IntentType, TransactionType } from "../src/types";
 
 import { IMAGE_BASE64, WITNESS_SCRIPTS } from "./mocks/constants";
 import { mockRpcResponse, setupMockServer } from "./mocks/utils";
@@ -34,7 +34,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
     type: IntentType.Transaction,
     status: IntentStatus.Pending,
     data: {
-      direction: TransactionDirection.Outbound,
+      txType: TransactionType.Send,
       txIds: [],
       amountSats: 10000,
       brc20s: [],
