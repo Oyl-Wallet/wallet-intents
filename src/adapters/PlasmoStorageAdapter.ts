@@ -48,7 +48,9 @@ export class PlasmoStorageAdapter implements StorageAdapter {
   async findAll(): Promise<WalletIntent[]> {
     return this.storage
       .get<WalletIntent[]>(this.key)
-      .then((intents) => intents || []);
+      .then(
+        (intents) => intents.sort((a, b) => b.timestamp - a.timestamp) || []
+      );
   }
 
   async findByType(type: IntentType): Promise<WalletIntent[]> {

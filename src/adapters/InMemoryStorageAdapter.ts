@@ -33,28 +33,30 @@ export class InMemoryStorageAdapter implements StorageAdapter {
   }
 
   async findAll(): Promise<WalletIntent[]> {
-    return structuredClone(this.intents);
+    return this.intents.toSorted((a, b) => b.timestamp - a.timestamp);
   }
 
   async findByType(type: IntentType): Promise<WalletIntent[]> {
-    return structuredClone(
-      this.intents.filter((intent) => intent.type === type)
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => intent.type === type)
     );
   }
 
   async findByStatus(status: IntentStatus): Promise<WalletIntent[]> {
-    return structuredClone(
-      this.intents.filter((intent) => intent.status === status)
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => intent.status === status)
     );
   }
 
   async findByAddresses(addresses: string[]): Promise<WalletIntent[]> {
-    return structuredClone(
-      this.intents.filter((intent) => addresses.includes(intent.address))
+    return this.findAll().then((intents) =>
+      intents.filter((intent) => addresses.includes(intent.address))
     );
   }
 
   async findById(intentId: string): Promise<WalletIntent> {
-    return structuredClone(this.intents.find(({ id }) => id === intentId));
+    return this.findAll().then((intents) =>
+      intents.find(({ id }) => id === intentId)
+    );
   }
 }

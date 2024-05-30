@@ -82,25 +82,27 @@ var InMemoryStorageAdapter = class {
     }
   }
   async findAll() {
-    return structuredClone(this.intents);
+    return this.intents.toSorted((a, b) => b.timestamp - a.timestamp);
   }
   async findByType(type) {
-    return structuredClone(
-      this.intents.filter((intent) => intent.type === type)
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => intent.type === type)
     );
   }
   async findByStatus(status) {
-    return structuredClone(
-      this.intents.filter((intent) => intent.status === status)
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => intent.status === status)
     );
   }
   async findByAddresses(addresses) {
-    return structuredClone(
-      this.intents.filter((intent) => addresses.includes(intent.address))
+    return this.findAll().then(
+      (intents) => intents.filter((intent) => addresses.includes(intent.address))
     );
   }
   async findById(intentId) {
-    return structuredClone(this.intents.find(({ id }) => id === intentId));
+    return this.findAll().then(
+      (intents) => intents.find(({ id }) => id === intentId)
+    );
   }
 };
 
@@ -140,7 +142,9 @@ var PlasmoStorageAdapter = class {
     }
   }
   async findAll() {
-    return this.storage.get(this.key).then((intents) => intents || []);
+    return this.storage.get(this.key).then(
+      (intents) => intents.sort((a, b) => b.timestamp - a.timestamp) || []
+    );
   }
   async findByType(type) {
     return this.findAll().then(
@@ -508,14 +512,13 @@ var IntentManager = class {
     this.addresses = addresses;
   }
   async captureIntent(intent) {
-    await this.storage.save(intent);
+    return this.storage.save(intent);
   }
   async retrieveAllIntents() {
     return this.storage.findAll();
   }
   async retrievePendingIntents() {
-    const intents = await this.retrieveAllIntents();
-    return intents.filter((intent) => intent.status === "pending" /* Pending */);
+    return this.storage.findByStatus("pending" /* Pending */);
   }
   async retrieveIntentsByAddresses(addresses) {
     return this.storage.findByAddresses(addresses);
@@ -524,8 +527,7 @@ var IntentManager = class {
     return this.storage.findById(intentId);
   }
   async retrieveTransactionIntents() {
-    const intents = await this.retrieveAllIntents();
-    return intents.filter((intent) => intent.type === "transaction" /* Transaction */);
+    return this.storage.findByType("transaction" /* Transaction */);
   }
   async getAddresses() {
     return this.addresses;
