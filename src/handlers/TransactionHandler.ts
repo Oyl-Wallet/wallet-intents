@@ -6,6 +6,7 @@ import {
   inscriptionIdsFromTxOutputs,
   isReceiveTx,
   txIntentExists,
+  determineReceiverAmount,
 } from "../helpers";
 import {
   IntentStatus,
@@ -76,6 +77,7 @@ export class TransactionHandler {
     const status = tx.status.confirmed
       ? IntentStatus.Completed
       : IntentStatus.Pending;
+    const amount = determineReceiverAmount(tx, this.addresses);
 
     switch (asset?.assetType) {
       case AssetType.BRC20:
@@ -88,7 +90,7 @@ export class TransactionHandler {
           transactionIds: [tx.txid],
           ticker: asset.tick,
           operation: asset.op,
-          amount: parseNumber(asset.amt),
+          amount: parseNumber(asset.amt) || amount,
           max: parseNumber(asset.max),
           limit: parseNumber(asset.lim),
         } as BRC20TransactionIntent);
@@ -98,6 +100,7 @@ export class TransactionHandler {
         await this.manager.captureIntent({
           address,
           status,
+          amount,
           type: IntentType.Transaction,
           assetType: AssetType.COLLECTIBLE,
           transactionType: TransactionType.Receive,
@@ -112,6 +115,7 @@ export class TransactionHandler {
         await this.manager.captureIntent({
           address,
           status,
+          amount,
           type: IntentType.Transaction,
           assetType: AssetType.BTC,
           transactionType: TransactionType.Receive,

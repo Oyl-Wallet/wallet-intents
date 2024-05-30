@@ -45,6 +45,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
     transactionType: TransactionType.Send,
     assetType: AssetType.BTC,
     transactionIds: [],
+    amount: 100000,
   });
 
   const pendingIntents = await manager.retrieveAllIntents();

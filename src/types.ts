@@ -33,6 +33,7 @@ export interface TransactionIntent extends BaseIntent {
   transactionType: TransactionType;
   assetType: AssetType;
   transactionIds: string[];
+  amount: number;
 }
 
 export interface BTCTransactionIntent extends TransactionIntent {
@@ -44,7 +45,6 @@ export interface BRC20TransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   ticker: string;
   operation: string;
-  amount?: number;
   max?: number;
   limit?: number;
 }
@@ -53,7 +53,6 @@ export interface RuneTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
   runeId: string;
   runeName: string;
-  amount: number;
 }
 
 export interface CollectibleTransactionIntent extends TransactionIntent {
@@ -67,7 +66,6 @@ export interface TradeBRC20Intent extends TransactionIntent {
   assetType: AssetType.BRC20;
   transactionType: TransactionType.Trade;
   ticker: string;
-  amount: number;
 }
 
 export type WalletIntent =
