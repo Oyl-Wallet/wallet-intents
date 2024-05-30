@@ -77,20 +77,21 @@ export class TransactionHandler {
     const status = tx.status.confirmed
       ? IntentStatus.Completed
       : IntentStatus.Pending;
-    const amount = determineReceiverAmount(tx, this.addresses);
+    const btcAmount = determineReceiverAmount(tx, this.addresses);
 
     switch (asset?.assetType) {
       case AssetType.BRC20:
         await this.manager.captureIntent({
           address,
           status,
+          btcAmount,
           type: IntentType.Transaction,
           assetType: AssetType.BRC20,
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: asset.tick,
+          tickerAmount: parseNumber(asset.amt),
           operation: asset.op,
-          amount: parseNumber(asset.amt) || amount,
           max: parseNumber(asset.max),
           limit: parseNumber(asset.lim),
         } as BRC20TransactionIntent);
@@ -100,7 +101,7 @@ export class TransactionHandler {
         await this.manager.captureIntent({
           address,
           status,
-          amount,
+          btcAmount,
           type: IntentType.Transaction,
           assetType: AssetType.COLLECTIBLE,
           transactionType: TransactionType.Receive,
@@ -115,7 +116,7 @@ export class TransactionHandler {
         await this.manager.captureIntent({
           address,
           status,
-          amount,
+          btcAmount,
           type: IntentType.Transaction,
           assetType: AssetType.BTC,
           transactionType: TransactionType.Receive,

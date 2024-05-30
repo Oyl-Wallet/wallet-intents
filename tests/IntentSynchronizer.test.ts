@@ -45,7 +45,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
     transactionType: TransactionType.Send,
     assetType: AssetType.BTC,
     transactionIds: [],
-    amount: 100000,
+    btcAmount: 100000,
   });
 
   const pendingIntents = await manager.retrieveAllIntents();
@@ -247,6 +247,7 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
           {
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
           },
         ],
         status: {
@@ -302,9 +303,10 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
   expect(intents[0]).toHaveProperty("transactionIds", [
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty("ticker", "VMPX");
+  expect(intents[0]).toHaveProperty("tickerAmount", 1000);
   expect(intents[0]).toHaveProperty("operation", "transfer");
-  expect(intents[0]).toHaveProperty("amount", 1000);
 });
 
 test("Unconfirmed TX with Collectible in Prevout", async () => {
@@ -324,6 +326,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
           {
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
           },
         ],
         status: {
@@ -388,6 +391,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
   expect(intents[0]).toHaveProperty("transactionIds", [
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty(
     "inscriptionId",
     "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0"
@@ -413,6 +417,7 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
           {
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
           },
         ],
         status: {
@@ -477,9 +482,10 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
   expect(intents[0]).toHaveProperty("transactionIds", [
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
+  expect(intents[0]).toHaveProperty("tickerAmount", 1000);
   expect(intents[0]).toHaveProperty("ticker", "VMPX");
   expect(intents[0]).toHaveProperty("operation", "transfer");
-  expect(intents[0]).toHaveProperty("amount", 1000);
 });
 
 test("Uconfirmed TX with Collectible in Input Witness", async () => {
@@ -499,6 +505,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
           {
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
           },
         ],
         status: {
@@ -543,6 +550,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
   expect(intents[0]).toHaveProperty("transactionIds", [
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty(
     "inscriptionId",
     "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105i0"
@@ -571,6 +579,7 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
           {
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
           },
         ],
         status: {
@@ -615,6 +624,8 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
   expect(intents[0]).toHaveProperty("transactionIds", [
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
+  expect(intents[0]).toHaveProperty("tickerAmount", null);
   expect(intents[0]).toHaveProperty("ticker", "PUPS");
   expect(intents[0]).toHaveProperty("operation", "deploy");
   expect(intents[0]).toHaveProperty("max", 7770000);
