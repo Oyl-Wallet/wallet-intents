@@ -55,6 +55,8 @@ interface CollectibleTransactionIntent extends TransactionIntent {
 interface TradeBRC20Intent extends TransactionIntent {
     assetType: AssetType.BRC20;
     transactionType: TransactionType.Trade;
+    ticker: string;
+    amount: number;
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | TradeBRC20Intent;
 interface IntentHandler {
