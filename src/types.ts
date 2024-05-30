@@ -45,7 +45,7 @@ export interface BRC20TransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   ticker: string;
   tickerAmount?: number;
-  operation: string;
+  operation: "deploy" | "mint" | "transfer";
   max?: number;
   limit?: number;
 }
