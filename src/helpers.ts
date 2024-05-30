@@ -1,7 +1,12 @@
 import { parseWitness } from "micro-ordinals";
-import { ParsedBRC20, EsploraTransaction, Inscription } from "./types";
+import {
+  ParsedBRC20,
+  EsploraTransaction,
+  Inscription,
+  WalletIntent,
+} from "./types";
 
-export function isReceiveTx(tx, addresses) {
+export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
   const outputsToAddress = tx.vout.filter((output) =>
     addresses.includes(output.scriptpubkey_address)
   );
@@ -12,8 +17,11 @@ export function isReceiveTx(tx, addresses) {
   return outputsToAddress.length > 0 && !inputsFromAddress;
 }
 
-export function txIntentExists(tx, intents) {
-  return intents.some((intent) => intent.data.txIds.includes(tx.txid));
+export function txIntentExists(
+  tx: EsploraTransaction,
+  intents: WalletIntent[]
+) {
+  return intents.some((intent) => intent.transactionIds.includes(tx.txid));
 }
 
 export function determineReceiverAddress(

@@ -223,7 +223,7 @@ function isReceiveTx(tx, addresses) {
   return outputsToAddress.length > 0 && !inputsFromAddress;
 }
 function txIntentExists(tx, intents) {
-  return intents.some((intent) => intent.data.txIds.includes(tx.txid));
+  return intents.some((intent) => intent.transactionIds.includes(tx.txid));
 }
 function determineReceiverAddress(tx, addresses) {
   for (const output of tx.vout) {
