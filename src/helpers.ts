@@ -87,7 +87,6 @@ export function parseBrc20Inscription(
   inscription: Inscription
 ): ParsedBRC20 | void {
   const contentBuffer = Buffer.from(inscription.content, "base64");
-
   try {
     let parsed = JSON.parse(contentBuffer.toString());
     if (parsed.p === "brc-20") {
