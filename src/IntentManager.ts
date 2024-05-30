@@ -33,6 +33,10 @@ export class IntentManager implements IntentHandler {
     return this.storage.findByAddresses(addresses);
   }
 
+  async retrieveIntentById(intentId: string): Promise<WalletIntent> {
+    return this.storage.findById(intentId);
+  }
+
   async retrieveTransactionIntents(): Promise<WalletIntent[]> {
     const intents = await this.retrieveAllIntents();
     return intents.filter((intent) => intent.type === IntentType.Transaction);

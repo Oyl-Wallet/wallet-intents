@@ -84,6 +84,7 @@ export interface IntentHandler {
   retrievePendingIntents(): Promise<WalletIntent[]>;
   retrieveTransactionIntents(): Promise<WalletIntent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+  retrieveIntentById(intentId: string): Promise<WalletIntent>;
 }
 
 export interface IntentSynchronizer {
@@ -96,6 +97,7 @@ export interface StorageAdapter {
   findByType(type: IntentType): Promise<WalletIntent[]>;
   findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
   findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+  findById(intentId: string): Promise<WalletIntent>;
 }
 
 export interface RpcProvider {

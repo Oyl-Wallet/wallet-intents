@@ -68,4 +68,10 @@ export class PlasmoStorageAdapter implements StorageAdapter {
       intents.filter((intent) => addresses.includes(intent.address))
     );
   }
+
+  async findById(intentId: string): Promise<WalletIntent> {
+    return this.findAll().then((intents) =>
+      intents.find((intent) => intent.id === intentId)
+    );
+  }
 }

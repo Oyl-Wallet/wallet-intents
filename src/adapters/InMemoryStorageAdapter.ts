@@ -53,4 +53,8 @@ export class InMemoryStorageAdapter implements StorageAdapter {
       this.intents.filter((intent) => addresses.includes(intent.address))
     );
   }
+
+  async findById(intentId: string): Promise<WalletIntent> {
+    return structuredClone(this.intents.find(({ id }) => id === intentId));
+  }
 }

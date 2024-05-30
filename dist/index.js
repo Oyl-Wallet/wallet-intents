@@ -99,6 +99,9 @@ var InMemoryStorageAdapter = class {
       this.intents.filter((intent) => addresses.includes(intent.address))
     );
   }
+  async findById(intentId) {
+    return structuredClone(this.intents.find(({ id }) => id === intentId));
+  }
 };
 
 // src/adapters/PlasmoStorageAdapter.ts
@@ -152,6 +155,11 @@ var PlasmoStorageAdapter = class {
   async findByAddresses(addresses) {
     return this.findAll().then(
       (intents) => intents.filter((intent) => addresses.includes(intent.address))
+    );
+  }
+  async findById(intentId) {
+    return this.findAll().then(
+      (intents) => intents.find((intent) => intent.id === intentId)
     );
   }
 };
@@ -511,6 +519,9 @@ var IntentManager = class {
   }
   async retrieveIntentsByAddresses(addresses) {
     return this.storage.findByAddresses(addresses);
+  }
+  async retrieveIntentById(intentId) {
+    return this.storage.findById(intentId);
   }
   async retrieveTransactionIntents() {
     const intents = await this.retrieveAllIntents();

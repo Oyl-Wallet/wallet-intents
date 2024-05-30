@@ -67,6 +67,7 @@ interface IntentHandler {
     retrievePendingIntents(): Promise<WalletIntent[]>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    retrieveIntentById(intentId: string): Promise<WalletIntent>;
 }
 interface StorageAdapter {
     save(intent: WalletIntent): Promise<void>;
@@ -74,6 +75,7 @@ interface StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    findById(intentId: string): Promise<WalletIntent>;
 }
 interface RpcProvider {
     baseUrl: string;
@@ -165,6 +167,7 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    findById(intentId: string): Promise<WalletIntent>;
 }
 
 declare class PlasmoStorageAdapter implements StorageAdapter {
@@ -176,6 +179,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    findById(intentId: string): Promise<WalletIntent>;
 }
 
 declare class SandshrewRpcProvider implements RpcProvider {
@@ -198,6 +202,7 @@ declare class IntentManager implements IntentHandler {
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntents(): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    retrieveIntentById(intentId: string): Promise<WalletIntent>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
     getAddresses(): Promise<string[]>;
 }
