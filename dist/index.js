@@ -19,6 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  AssetType: () => AssetType,
   InMemoryStorageAdapter: () => InMemoryStorageAdapter,
   IntentManager: () => IntentManager,
   IntentStatus: () => IntentStatus,
@@ -31,22 +32,29 @@ __export(src_exports, {
 module.exports = __toCommonJS(src_exports);
 
 // src/types.ts
-var IntentType = /* @__PURE__ */ ((IntentType2) => {
-  IntentType2["Transaction"] = "transaction";
-  return IntentType2;
-})(IntentType || {});
 var IntentStatus = /* @__PURE__ */ ((IntentStatus2) => {
   IntentStatus2["Pending"] = "pending";
   IntentStatus2["Completed"] = "completed";
   IntentStatus2["Failed"] = "failed";
   return IntentStatus2;
 })(IntentStatus || {});
+var IntentType = /* @__PURE__ */ ((IntentType2) => {
+  IntentType2["Transaction"] = "transaction";
+  return IntentType2;
+})(IntentType || {});
 var TransactionType = /* @__PURE__ */ ((TransactionType2) => {
   TransactionType2["Send"] = "send";
   TransactionType2["Receive"] = "receive";
   TransactionType2["Trade"] = "trade";
   return TransactionType2;
 })(TransactionType || {});
+var AssetType = /* @__PURE__ */ ((AssetType2) => {
+  AssetType2["BTC"] = "btc";
+  AssetType2["BRC20"] = "brc-20";
+  AssetType2["RUNE"] = "rune";
+  AssetType2["COLLECTIBLE"] = "collectible";
+  return AssetType2;
+})(AssetType || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
 var InMemoryStorageAdapter = class {
@@ -257,15 +265,6 @@ function determineReceiverAddress(tx, addresses) {
     }
   }
 }
-function determineReceiverAmount(tx, addresses) {
-  let amount = 0;
-  for (const output of tx.vout) {
-    if (addresses.includes(output.scriptpubkey_address)) {
-      amount += output.value;
-    }
-  }
-  return amount;
-}
 function inscriptionIdsFromTxOutputs(txOutputs) {
   let inscriptionIds = [];
   for (let output of txOutputs) {
@@ -306,7 +305,12 @@ function parseBrc20Inscription(inscription) {
     }
   } catch {
   }
-  return null;
+}
+
+// src/utils.ts
+function parseNumber(value) {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? null : parsed;
 }
 
 // src/handlers/TransactionHandler.ts
@@ -321,7 +325,7 @@ var TransactionHandler = class {
   }
   async handlePendingTransaction(intent) {
     const txs = await Promise.all(
-      intent.txIds.map((txId) => this.provider.getTxById(txId))
+      intent.transactionIds.map((txId) => this.provider.getTxById(txId))
     );
     if (txs.every((tx) => tx.status.confirmed)) {
       intent.status = "completed" /* Completed */;
@@ -333,7 +337,7 @@ var TransactionHandler = class {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    if (intents.some(({ txIds }) => txIds.length === 0))
+    if (intents.some(({ transactionIds }) => transactionIds.length === 0))
       return;
     const txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
@@ -341,45 +345,54 @@ var TransactionHandler = class {
     for (let tx of txs) {
       if (!isReceiveTx(tx, this.addresses) || txIntentExists(tx, intents))
         continue;
-      await this.processTransaction(tx);
+      await this.processReceiveTransaction(tx);
     }
   }
-  async processTransaction(tx) {
+  async processReceiveTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
-    const { brc20s, runes, collectibles } = this.categorizeInscriptions(inscriptions);
-    const traits = /* @__PURE__ */ new Set();
-    if (brc20s.length > 0) {
-      traits.add("token");
-      traits.add("brc20");
-      brc20s.forEach((brc20) => {
-        traits.add(brc20.op);
-      });
+    const categorizedAssets = this.categorizeInscriptions(inscriptions);
+    const [asset] = categorizedAssets;
+    const address = determineReceiverAddress(tx, this.addresses);
+    const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
+    switch (asset?.assetType) {
+      case "brc-20" /* BRC20 */:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: "transaction" /* Transaction */,
+          assetType: "brc-20" /* BRC20 */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid],
+          ticker: asset.tick,
+          operation: asset.op,
+          amount: parseNumber(asset.amt),
+          max: parseNumber(asset.max),
+          limit: parseNumber(asset.lim)
+        });
+        break;
+      case "collectible" /* COLLECTIBLE */:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: "transaction" /* Transaction */,
+          assetType: "collectible" /* COLLECTIBLE */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid],
+          inscriptionId: asset.id,
+          contentType: asset.content_type,
+          content: asset.content
+        });
+        break;
+      default:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: "transaction" /* Transaction */,
+          assetType: "btc" /* BTC */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid]
+        });
     }
-    if (runes.length > 0) {
-      traits.add("token");
-      traits.add("rune");
-    }
-    if (collectibles.length > 0) {
-      traits.add("collectible");
-      collectibles.forEach((collectible) => {
-        traits.add(collectible.content_type);
-      });
-    } else {
-      traits.add("token");
-    }
-    const amountSats = determineReceiverAmount(tx, this.addresses);
-    await this.manager.captureIntent({
-      address: determineReceiverAddress(tx, this.addresses),
-      type: "transaction" /* Transaction */,
-      status: tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */,
-      txType: "receive" /* Receive */,
-      txIds: [tx.txid],
-      amountSats,
-      brc20s,
-      collectibles,
-      runes: [],
-      traits: Array.from(traits)
-    });
   }
   async getInscriptions(tx) {
     let inscriptions = await this.getTxOutputsInscriptions(tx);
@@ -423,17 +436,22 @@ var TransactionHandler = class {
     return tx.vin.flatMap((input) => getInscriptionsFromInput(input));
   }
   categorizeInscriptions(inscriptions) {
-    const brc20s = [];
-    const collectibles = [];
+    const assets = [];
     for (let inscription of inscriptions) {
       const brc20 = parseBrc20Inscription(inscription);
       if (brc20) {
-        brc20s.push(brc20);
+        assets.push({
+          ...brc20,
+          assetType: "brc-20" /* BRC20 */
+        });
       } else {
-        collectibles.push(inscription);
+        assets.push({
+          ...inscription,
+          assetType: "collectible" /* COLLECTIBLE */
+        });
       }
     }
-    return { brc20s, runes: [], collectibles };
+    return assets;
   }
 };
 
@@ -456,7 +474,7 @@ var IntentSynchronizer = class {
   }
   async syncReceivedTxIntents(addresses) {
     const intents = await this.manager.retrieveTransactionIntents();
-    if (intents.every(({ txIds }) => txIds.length > 0)) {
+    if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleReceivedTransactions(addresses);
     }
   }
@@ -491,6 +509,7 @@ var IntentManager = class {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AssetType,
   InMemoryStorageAdapter,
   IntentManager,
   IntentStatus,

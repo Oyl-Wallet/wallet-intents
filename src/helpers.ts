@@ -1,5 +1,5 @@
 import { parseWitness } from "micro-ordinals";
-import { BRC20Content, EsploraTransaction, Inscription } from "./types";
+import { ParsedBRC20, EsploraTransaction, Inscription } from "./types";
 
 export function isReceiveTx(tx, addresses) {
   const outputsToAddress = tx.vout.filter((output) =>
@@ -85,7 +85,7 @@ export function uint8ArrayToBase64(uint8Array: Uint8Array) {
 
 export function parseBrc20Inscription(
   inscription: Inscription
-): BRC20Content | null {
+): ParsedBRC20 | void {
   const contentBuffer = Buffer.from(inscription.content, "base64");
 
   try {
@@ -94,6 +94,4 @@ export function parseBrc20Inscription(
       return parsed;
     }
   } catch {}
-
-  return null;
 }

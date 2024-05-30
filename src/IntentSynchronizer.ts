@@ -1,6 +1,6 @@
 import { IntentManager } from "./IntentManager";
 import { TransactionHandler } from "./handlers";
-import { RpcProvider, IntentType } from "./types";
+import { IntentType, RpcProvider } from "./types";
 
 export class IntentSynchronizer {
   private transactionHandler: TransactionHandler;
@@ -22,7 +22,7 @@ export class IntentSynchronizer {
 
   async syncReceivedTxIntents(addresses: string[]) {
     const intents = await this.manager.retrieveTransactionIntents();
-    if (intents.every(({ txIds }) => txIds.length > 0)) {
+    if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleReceivedTransactions(addresses);
     }
   }

@@ -1,5 +1,10 @@
 import { InMemoryStorageAdapter, IntentManager } from "../src";
-import { IntentStatus, IntentType, TransactionType } from "../src/types";
+import {
+  AssetType,
+  IntentStatus,
+  IntentType,
+  TransactionType,
+} from "../src/types";
 
 const nativeSegwitAddress = "tb1q2nph3vjqsq4paqdy34f4qrk4x3uh4k2x3u3vq8";
 const taprootAddress =
@@ -10,39 +15,33 @@ const nativeSegwitIntent = {
   address: nativeSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  txType: TransactionType.Send,
-  txIds: [],
-  amountSats: 10000,
-  brc20s: [],
-  collectibles: [],
-  runes: [],
-  traits: [],
+  transactionType: TransactionType.Send,
+  assetType: AssetType.BTC,
+  transactionIds: [
+    "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
+  ],
 };
 
 const taprootIntent = {
   address: taprootAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  txType: TransactionType.Send,
-  txIds: [],
-  amountSats: 10000,
-  brc20s: [],
-  collectibles: [],
-  runes: [],
-  traits: [],
+  transactionType: TransactionType.Send,
+  assetType: AssetType.BTC,
+  transactionIds: [
+    "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
+  ],
 };
 
 const nestedSegwitIntent = {
   address: nestedSegwitAddress,
   type: IntentType.Transaction,
   status: IntentStatus.Pending,
-  txType: TransactionType.Send,
-  txIds: [],
-  amountSats: 10000,
-  brc20s: [],
-  collectibles: [],
-  runes: [],
-  traits: [],
+  transactionType: TransactionType.Send,
+  assetType: AssetType.BTC,
+  transactionIds: [
+    "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
+  ],
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {

@@ -1,11 +1,18 @@
-export enum IntentType {
-  Transaction = "transaction",
-}
-
 export enum IntentStatus {
   Pending = "pending",
   Completed = "completed",
   Failed = "failed",
+}
+
+export enum IntentType {
+  Transaction = "transaction",
+}
+
+export interface BaseIntent {
+  id: string;
+  timestamp: number;
+  address: string;
+  status: IntentStatus;
 }
 
 export enum TransactionType {
@@ -14,29 +21,65 @@ export enum TransactionType {
   Trade = "trade",
 }
 
-export type TransactionIntent = {
-  id: string;
-  timestamp: number;
-  address: string;
-  type: IntentType;
-  status: IntentStatus;
-  txType: TransactionType;
-  txIds: string[];
-  amountSats: number;
-  brc20s: BRC20Content[];
-  collectibles: Inscription[];
-  runes: string[];
-  traits: string[];
-};
+export enum AssetType {
+  BTC = "btc",
+  BRC20 = "brc-20",
+  RUNE = "rune",
+  COLLECTIBLE = "collectible",
+}
 
-export type Intent = TransactionIntent; // Add more types here
+export interface TransactionIntent extends BaseIntent {
+  type: IntentType.Transaction;
+  transactionType: TransactionType;
+  transactionIds: string[];
+}
+
+export interface BTCTransactionIntent extends TransactionIntent {
+  assetType: AssetType.BTC;
+  amount: number;
+}
+
+export interface BRC20TransactionIntent extends TransactionIntent {
+  assetType: AssetType.BRC20;
+  ticker: string;
+  operation: string;
+  amount?: number;
+  max?: number;
+  limit?: number;
+}
+
+export interface RuneTransactionIntent extends TransactionIntent {
+  assetType: AssetType.RUNE;
+  runeId: string;
+  runeName: string;
+  amount: number;
+}
+
+export interface CollectibleTransactionIntent extends TransactionIntent {
+  assetType: AssetType.COLLECTIBLE;
+  inscriptionId: string;
+  contentType: string;
+  content: string;
+}
+
+export interface TradeBRC20Intent extends TransactionIntent {
+  assetType: AssetType.BRC20;
+  transactionType: TransactionType.Trade;
+}
+
+export type WalletIntent =
+  | BTCTransactionIntent
+  | BRC20TransactionIntent
+  | RuneTransactionIntent
+  | CollectibleTransactionIntent
+  | TradeBRC20Intent; // Add other intent types here
 
 export interface IntentHandler {
-  captureIntent(intent: Intent): Promise<void>;
-  retrieveAllIntents(): Promise<Intent[]>;
-  retrievePendingIntents(): Promise<Intent[]>;
-  retrieveTransactionIntents(): Promise<Intent[]>;
-  retrieveIntentsByAddresses(addresses: string[]): Promise<Intent[]>;
+  captureIntent(intent: WalletIntent): Promise<void>;
+  retrieveAllIntents(): Promise<WalletIntent[]>;
+  retrievePendingIntents(): Promise<WalletIntent[]>;
+  retrieveTransactionIntents(): Promise<WalletIntent[]>;
+  retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
 }
 
 export interface IntentSynchronizer {
@@ -44,11 +87,11 @@ export interface IntentSynchronizer {
 }
 
 export interface StorageAdapter {
-  save(intent: Intent): Promise<void>;
-  findAll(): Promise<Intent[]>;
-  findByType(type: IntentType): Promise<Intent[]>;
-  findByStatus(status: IntentStatus): Promise<Intent[]>;
-  findByAddresses(addresses: string[]): Promise<Intent[]>;
+  save(intent: WalletIntent): Promise<void>;
+  findAll(): Promise<WalletIntent[]>;
+  findByType(type: IntentType): Promise<WalletIntent[]>;
+  findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
+  findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
 }
 
 export interface RpcProvider {
@@ -120,7 +163,7 @@ export type Inscription = {
   content: string;
 };
 
-export interface BRC20Content {
+export interface ParsedBRC20 {
   p: string;
   op: string;
   amt: string;
@@ -128,3 +171,17 @@ export interface BRC20Content {
   max?: string;
   lim?: string;
 }
+
+export interface CollectibleAsset extends Inscription {
+  assetType: AssetType.COLLECTIBLE;
+}
+
+export interface Brc20Asset extends ParsedBRC20 {
+  assetType: AssetType.BRC20;
+}
+
+export type RuneAsset = {
+  assetType: AssetType.RUNE;
+};
+
+export type CategorizedAsset = RuneAsset | Brc20Asset | CollectibleAsset;

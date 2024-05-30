@@ -6,18 +6,22 @@ import {
   inscriptionIdsFromTxOutputs,
   isReceiveTx,
   txIntentExists,
-  determineReceiverAmount,
 } from "../helpers";
 import {
-  IntentType,
   IntentStatus,
   EsploraTransaction,
-  Intent,
-  BRC20Content,
   Inscription,
   RpcProvider,
+  WalletIntent,
+  IntentType,
+  CategorizedAsset,
+  AssetType,
   TransactionType,
+  BRC20TransactionIntent,
+  CollectibleTransactionIntent,
+  BTCTransactionIntent,
 } from "../types";
+import { parseNumber } from "../utils";
 
 export class TransactionHandler {
   private addresses: string[] = [];
@@ -28,12 +32,12 @@ export class TransactionHandler {
     this.addresses = addresses;
   }
 
-  async handlePendingTransaction(intent: Intent) {
+  async handlePendingTransaction(intent: WalletIntent) {
     const txs = await Promise.all(
-      intent.txIds.map((txId: string) => this.provider.getTxById(txId))
+      intent.transactionIds.map((txId: string) => this.provider.getTxById(txId))
     );
 
-    if (txs.every((tx) => tx.status.confirmed)) {
+    if (txs.every((tx: EsploraTransaction) => tx.status.confirmed)) {
       intent.status = IntentStatus.Completed;
       await this.manager.captureIntent(intent);
     }
@@ -45,7 +49,9 @@ export class TransactionHandler {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    if (intents.some(({ txIds }) => txIds.length === 0)) return;
+
+    if (intents.some(({ transactionIds }) => transactionIds.length === 0))
+      return;
 
     const txs = (
       await Promise.all(
@@ -55,60 +61,63 @@ export class TransactionHandler {
     for (let tx of txs) {
       if (!isReceiveTx(tx, this.addresses) || txIntentExists(tx, intents))
         continue;
-      await this.processTransaction(tx);
+      await this.processReceiveTransaction(tx);
     }
   }
 
-  private async processTransaction(tx: EsploraTransaction) {
+  private async processReceiveTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
 
-    const { brc20s, runes, collectibles } =
-      this.categorizeInscriptions(inscriptions);
+    const categorizedAssets = this.categorizeInscriptions(inscriptions);
 
-    const traits = new Set<string>();
+    const [asset] = categorizedAssets;
 
-    if (brc20s.length > 0) {
-      traits.add("token");
-      brc20s.forEach((brc20) => {
-        traits.add(brc20.p);
-        traits.add(brc20.op);
-      });
+    const address = determineReceiverAddress(tx, this.addresses);
+    const status = tx.status.confirmed
+      ? IntentStatus.Completed
+      : IntentStatus.Pending;
+
+    switch (asset?.assetType) {
+      case AssetType.BRC20:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: IntentType.Transaction,
+          assetType: AssetType.BRC20,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          ticker: asset.tick,
+          operation: asset.op,
+          amount: parseNumber(asset.amt),
+          max: parseNumber(asset.max),
+          limit: parseNumber(asset.lim),
+        } as BRC20TransactionIntent);
+        break;
+
+      case AssetType.COLLECTIBLE:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: IntentType.Transaction,
+          assetType: AssetType.COLLECTIBLE,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          inscriptionId: asset.id,
+          contentType: asset.content_type,
+          content: asset.content,
+        } as CollectibleTransactionIntent);
+        break;
+
+      default:
+        await this.manager.captureIntent({
+          address,
+          status,
+          type: IntentType.Transaction,
+          assetType: AssetType.BTC,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+        } as BTCTransactionIntent);
     }
-
-    if (runes.length > 0) {
-      traits.add("token");
-      traits.add("rune");
-      // TODO: Add rune traits like etching, mint, etc
-    }
-
-    if (collectibles.length > 0) {
-      traits.add("collectible");
-      collectibles.forEach((collectible) => {
-        traits.add(collectible.content_type);
-      });
-    }
-
-    if (traits.size === 0) {
-      traits.add("token");
-      traits.add("btc");
-    }
-
-    const amountSats = determineReceiverAmount(tx, this.addresses);
-
-    await this.manager.captureIntent({
-      address: determineReceiverAddress(tx, this.addresses),
-      type: IntentType.Transaction,
-      status: tx.status.confirmed
-        ? IntentStatus.Completed
-        : IntentStatus.Pending,
-      txType: TransactionType.Receive,
-      txIds: [tx.txid],
-      amountSats,
-      brc20s,
-      collectibles,
-      runes: [],
-      traits: Array.from(traits),
-    });
   }
 
   private async getInscriptions(tx: EsploraTransaction): Promise<any[]> {
@@ -163,21 +172,26 @@ export class TransactionHandler {
     return tx.vin.flatMap((input) => getInscriptionsFromInput(input));
   }
 
-  private categorizeInscriptions(inscriptions: Inscription[]): {
-    brc20s: BRC20Content[];
-    runes: any[];
-    collectibles: Inscription[];
-  } {
-    const brc20s = [];
-    const collectibles = [];
+  private categorizeInscriptions(
+    inscriptions: Inscription[]
+  ): CategorizedAsset[] {
+    const assets: CategorizedAsset[] = [];
+
     for (let inscription of inscriptions) {
       const brc20 = parseBrc20Inscription(inscription);
+
       if (brc20) {
-        brc20s.push(brc20);
+        assets.push({
+          ...brc20,
+          assetType: AssetType.BRC20,
+        });
       } else {
-        collectibles.push(inscription);
+        assets.push({
+          ...inscription,
+          assetType: AssetType.COLLECTIBLE,
+        });
       }
     }
-    return { brc20s, runes: [], collectibles };
+    return assets;
   }
 }

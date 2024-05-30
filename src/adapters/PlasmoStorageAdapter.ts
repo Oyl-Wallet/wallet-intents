@@ -1,4 +1,9 @@
-import { Intent, IntentStatus, IntentType, StorageAdapter } from "../types";
+import {
+  WalletIntent,
+  IntentStatus,
+  IntentType,
+  StorageAdapter,
+} from "../types";
 import { Storage } from "@plasmohq/storage";
 
 export class PlasmoStorageAdapter implements StorageAdapter {
@@ -12,7 +17,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     });
   }
 
-  async save(intent: Intent): Promise<void> {
+  async save(intent: WalletIntent): Promise<void> {
     const intents = await this.findAll();
 
     if (intent.id) {
@@ -40,25 +45,25 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     }
   }
 
-  async findAll(): Promise<Intent[]> {
+  async findAll(): Promise<WalletIntent[]> {
     return this.storage
-      .get<Intent[]>(this.key)
+      .get<WalletIntent[]>(this.key)
       .then((intents) => intents || []);
   }
 
-  async findByType(type: IntentType): Promise<Intent[]> {
+  async findByType(type: IntentType): Promise<WalletIntent[]> {
     return this.findAll().then((intents) =>
       intents.filter((intent) => intent.type === type)
     );
   }
 
-  async findByStatus(status: IntentStatus): Promise<Intent[]> {
+  async findByStatus(status: IntentStatus): Promise<WalletIntent[]> {
     return this.findAll().then((intents) =>
       intents.filter((intent) => intent.status === status)
     );
   }
 
-  async findByAddresses(addresses: string[]): Promise<Intent[]> {
+  async findByAddresses(addresses: string[]): Promise<WalletIntent[]> {
     return this.findAll().then((intents) =>
       intents.filter((intent) => addresses.includes(intent.address))
     );
