@@ -26,6 +26,7 @@ declare enum AssetType {
 interface TransactionIntent extends BaseIntent {
     type: IntentType.Transaction;
     transactionType: TransactionType;
+    assetType: AssetType;
     transactionIds: string[];
 }
 interface BTCTransactionIntent extends TransactionIntent {

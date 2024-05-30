@@ -31,6 +31,7 @@ export enum AssetType {
 export interface TransactionIntent extends BaseIntent {
   type: IntentType.Transaction;
   transactionType: TransactionType;
+  assetType: AssetType;
   transactionIds: string[];
 }
 
