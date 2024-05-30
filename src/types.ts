@@ -68,6 +68,7 @@ export interface TradeBRC20Intent extends TransactionIntent {
   assetType: AssetType.BRC20;
   transactionType: TransactionType.Trade;
   ticker: string;
+  tickerAmount: number;
 }
 
 export type WalletIntent =
