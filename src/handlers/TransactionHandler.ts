@@ -44,29 +44,26 @@ export class TransactionHandler {
     }
   }
 
-  async handleReceivedTransactions(addresses: string[]) {
+  async handleTransactions(addresses: string[]) {
     this.addresses = addresses;
-
-    const intents = await this.manager.retrieveIntentsByAddresses(
-      this.addresses
-    );
-
-    if (intents.some(({ transactionIds }) => transactionIds.length === 0))
-      return;
 
     const txs = (
       await Promise.all(
         this.addresses.map((addr) => this.provider.getAddressTxs(addr))
       )
     ).flat();
+
+    const intents = await this.manager.retrieveIntentsByAddresses(
+      this.addresses
+    );
+
     for (let tx of txs) {
-      if (!isReceiveTx(tx, this.addresses) || txIntentExists(tx, intents))
-        continue;
-      await this.processReceiveTransaction(tx);
+      if (txIntentExists(tx, intents)) continue;
+      await this.processTransaction(tx);
     }
   }
 
-  private async processReceiveTransaction(tx: EsploraTransaction) {
+  private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
 
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
@@ -79,15 +76,19 @@ export class TransactionHandler {
       : IntentStatus.Pending;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
 
+    const transactionType = isReceiveTx(tx, this.addresses)
+      ? TransactionType.Receive
+      : TransactionType.Send;
+
     switch (asset?.assetType) {
       case AssetType.BRC20:
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
+          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.BRC20,
-          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: asset.tick,
           tickerAmount: parseNumber(asset.amt),
@@ -102,9 +103,9 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
+          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.COLLECTIBLE,
-          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           inscriptionId: asset.id,
           contentType: asset.content_type,
@@ -117,9 +118,9 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
+          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.BTC,
-          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
         } as BTCTransactionIntent);
     }

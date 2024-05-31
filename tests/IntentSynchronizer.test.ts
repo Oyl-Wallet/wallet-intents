@@ -92,7 +92,7 @@ test("Receive BTC confirmed", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -141,7 +141,7 @@ test("Receive BTC unconfirmed", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -210,7 +210,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -284,7 +284,7 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -372,7 +372,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
     })
   );
 
-  await synchronizer.syncReceivedTxIntents([
+  await synchronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -463,7 +463,7 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
     })
   );
 
-  await synchronizer.syncReceivedTxIntents([
+  await synchronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -531,7 +531,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 
@@ -605,7 +605,7 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
     })
   );
 
-  await syncronizer.syncReceivedTxIntents([
+  await syncronizer.syncIntentsFromChain([
     "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
   ]);
 

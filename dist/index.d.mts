@@ -212,7 +212,7 @@ declare class IntentSynchronizer {
     private transactionHandler;
     constructor(manager: IntentManager, provider: RpcProvider);
     syncPendingIntents(): Promise<void>;
-    syncReceivedTxIntents(addresses: string[]): Promise<void>;
+    syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 
 export { AssetType, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, type ParsedBRC20, PlasmoStorageAdapter, type RpcProvider, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type WalletIntent };

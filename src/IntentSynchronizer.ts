@@ -20,10 +20,10 @@ export class IntentSynchronizer {
     );
   }
 
-  async syncReceivedTxIntents(addresses: string[]) {
+  async syncIntentsFromChain(addresses: string[]) {
     const intents = await this.manager.retrieveTransactionIntents();
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
-      await this.transactionHandler.handleReceivedTransactions(addresses);
+      await this.transactionHandler.handleTransactions(addresses);
     }
   }
 }

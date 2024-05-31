@@ -235,7 +235,7 @@ function isReceiveTx(tx, addresses) {
   return outputsToAddress.length > 0 && !inputsFromAddress;
 }
 function txIntentExists(tx, intents) {
-  return intents.some((intent) => intent.transactionIds.includes(tx.txid));
+  return intents.find((intent) => intent.transactionIds.includes(tx.txid));
 }
 function determineReceiverAddress(tx, addresses) {
   for (const output of tx.vout) {
@@ -267,8 +267,6 @@ function getInscriptionsFromInput(input, parentTxId) {
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
-  console.log("parsedInscriptions", parsedInscriptions);
-  console.log(parentTxId);
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
       id: `${parentTxId}i0`,
@@ -322,38 +320,37 @@ var TransactionHandler = class {
       await this.manager.captureIntent(intent);
     }
   }
-  async handleReceivedTransactions(addresses) {
+  async handleTransactions(addresses) {
     this.addresses = addresses;
-    const intents = await this.manager.retrieveIntentsByAddresses(
-      this.addresses
-    );
-    if (intents.some(({ transactionIds }) => transactionIds.length === 0))
-      return;
     const txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     )).flat();
+    const intents = await this.manager.retrieveIntentsByAddresses(
+      this.addresses
+    );
     for (let tx of txs) {
-      if (!isReceiveTx(tx, this.addresses) || txIntentExists(tx, intents))
+      if (txIntentExists(tx, intents))
         continue;
-      await this.processReceiveTransaction(tx);
+      await this.processTransaction(tx);
     }
   }
-  async processReceiveTransaction(tx) {
+  async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
     const [asset] = categorizedAssets;
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
+    const transactionType = isReceiveTx(tx, this.addresses) ? "receive" /* Receive */ : "send" /* Send */;
     switch (asset?.assetType) {
       case "brc-20" /* BRC20 */:
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
+          transactionType,
           type: "transaction" /* Transaction */,
           assetType: "brc-20" /* BRC20 */,
-          transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           ticker: asset.tick,
           tickerAmount: parseNumber(asset.amt),
@@ -367,9 +364,9 @@ var TransactionHandler = class {
           address,
           status,
           btcAmount,
+          transactionType,
           type: "transaction" /* Transaction */,
           assetType: "collectible" /* COLLECTIBLE */,
-          transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           inscriptionId: asset.id,
           contentType: asset.content_type,
@@ -381,9 +378,9 @@ var TransactionHandler = class {
           address,
           status,
           btcAmount,
+          transactionType,
           type: "transaction" /* Transaction */,
           assetType: "btc" /* BTC */,
-          transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid]
         });
     }
@@ -466,10 +463,10 @@ var IntentSynchronizer = class {
       })
     );
   }
-  async syncReceivedTxIntents(addresses) {
+  async syncIntentsFromChain(addresses) {
     const intents = await this.manager.retrieveTransactionIntents();
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
-      await this.transactionHandler.handleReceivedTransactions(addresses);
+      await this.transactionHandler.handleTransactions(addresses);
     }
   }
 };

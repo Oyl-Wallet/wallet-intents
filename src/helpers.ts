@@ -22,7 +22,7 @@ export function txIntentExists(
   tx: EsploraTransaction,
   intents: WalletIntent[]
 ) {
-  return intents.some((intent) => intent.transactionIds.includes(tx.txid));
+  return intents.find((intent) => intent.transactionIds.includes(tx.txid));
 }
 
 export function determineReceiverAddress(
@@ -74,9 +74,6 @@ export function getInscriptionsFromInput(
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
-
-  console.log("parsedInscriptions", parsedInscriptions);
-  console.log(parentTxId);
 
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
