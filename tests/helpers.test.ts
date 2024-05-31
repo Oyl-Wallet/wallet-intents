@@ -2,15 +2,18 @@ import { getInscriptionsFromInput } from "../src/helpers";
 import { WITNESS_SCRIPTS } from "./mocks/constants";
 
 test("Decodes inscriptions from input witness correctly", async () => {
-  const inscriptions = getInscriptionsFromInput({
-    txid: "dbee942f3bfcc86996e26d60d14c96cde75c49ab410fc5429f298ec2af454aee",
-    witness: WITNESS_SCRIPTS.IMAGE_PNG,
-  });
+  const inscriptions = getInscriptionsFromInput(
+    {
+      txid: "dbee942f3bfcc86996e26d60d14c96cde75c49ab410fc5429f298ec2af454aee",
+      witness: WITNESS_SCRIPTS.IMAGE_PNG,
+    },
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f"
+  );
 
   expect(inscriptions).toHaveLength(1);
   expect(inscriptions[0]).toHaveProperty(
     "id",
-    "dbee942f3bfcc86996e26d60d14c96cde75c49ab410fc5429f298ec2af454aeei0"
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88fi0"
   );
   expect(inscriptions[0]).toHaveProperty("content_type", "image/png");
   expect(inscriptions[0]).toHaveProperty(

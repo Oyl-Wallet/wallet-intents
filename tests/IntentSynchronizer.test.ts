@@ -553,7 +553,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
   expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty(
     "inscriptionId",
-    "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105i0"
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88fi0"
   );
   expect(intents[0]).toHaveProperty(
     "content",

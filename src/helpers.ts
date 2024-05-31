@@ -4,6 +4,7 @@ import {
   EsploraTransaction,
   Inscription,
   WalletIntent,
+  OrdOutput,
 } from "./types";
 
 export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
@@ -50,7 +51,7 @@ export function determineReceiverAmount(
   return amount;
 }
 
-export function inscriptionIdsFromTxOutputs(txOutputs) {
+export function inscriptionIdsFromTxOutputs(txOutputs: OrdOutput[]) {
   let inscriptionIds = [];
   for (let output of txOutputs) {
     inscriptionIds = inscriptionIds.concat(output.inscriptions);
@@ -59,10 +60,13 @@ export function inscriptionIdsFromTxOutputs(txOutputs) {
   return inscriptionIds;
 }
 
-export function getInscriptionsFromInput(input: {
-  txid: string;
-  witness: string[];
-}) {
+export function getInscriptionsFromInput(
+  input: {
+    txid: string;
+    witness: string[];
+  },
+  parentTxId: string
+) {
   if (input.witness.length < 3) return [];
 
   const inscriptions = [];
@@ -73,7 +77,7 @@ export function getInscriptionsFromInput(input: {
 
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
-      id: `${input.txid}i0`,
+      id: `${parentTxId}i0`,
       content_type: inscription.tags.contentType,
       content: uint8ArrayToBase64(inscription.body),
     });

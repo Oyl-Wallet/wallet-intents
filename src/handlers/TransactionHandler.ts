@@ -174,7 +174,7 @@ export class TransactionHandler {
   }
 
   private getInputInscriptions(tx: EsploraTransaction): any[] {
-    return tx.vin.flatMap((input) => getInscriptionsFromInput(input));
+    return tx.vin.flatMap((input) => getInscriptionsFromInput(input, tx.txid));
   }
 
   private categorizeInscriptions(

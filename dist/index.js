@@ -293,7 +293,7 @@ function inscriptionIdsFromTxOutputs(txOutputs) {
   }
   return inscriptionIds;
 }
-function getInscriptionsFromInput(input) {
+function getInscriptionsFromInput(input, parentTxId) {
   if (input.witness.length < 3)
     return [];
   const inscriptions = [];
@@ -302,7 +302,7 @@ function getInscriptionsFromInput(input) {
   );
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
-      id: `${input.txid}i0`,
+      id: `${parentTxId}i0`,
       content_type: inscription.tags.contentType,
       content: uint8ArrayToBase64(inscription.body)
     });
@@ -458,7 +458,7 @@ var TransactionHandler = class {
     );
   }
   getInputInscriptions(tx) {
-    return tx.vin.flatMap((input) => getInscriptionsFromInput(input));
+    return tx.vin.flatMap((input) => getInscriptionsFromInput(input, tx.txid));
   }
   categorizeInscriptions(inscriptions) {
     const assets = [];
