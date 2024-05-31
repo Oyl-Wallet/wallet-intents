@@ -11,6 +11,7 @@ interface BaseIntent {
     timestamp: number;
     address: string;
     status: IntentStatus;
+    reason?: string;
 }
 declare enum TransactionType {
     Send = "send",

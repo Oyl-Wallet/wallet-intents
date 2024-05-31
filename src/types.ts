@@ -13,6 +13,7 @@ export interface BaseIntent {
   timestamp: number;
   address: string;
   status: IntentStatus;
+  reason?: string;
 }
 
 export enum TransactionType {
