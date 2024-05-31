@@ -15,7 +15,7 @@ export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
     addresses.includes(input.prevout.scriptpubkey_address)
   );
 
-  return addressInOutput && !addressInInput;
+  return !!addressInOutput && !addressInInput;
 }
 
 export function txIntentExists(
@@ -52,7 +52,7 @@ export function determineReceiverAmount(
 }
 
 export function inscriptionIdsFromTxOutputs(txOutputs: OrdOutput[]) {
-  let inscriptionIds = [];
+  let inscriptionIds: string[] = [];
   for (let output of txOutputs) {
     inscriptionIds = inscriptionIds.concat(output.inscriptions);
   }
@@ -69,16 +69,20 @@ export function getInscriptionsFromInput(
 ) {
   if (input.witness.length < 3) return [];
 
-  const inscriptions = [];
+  const inscriptions: Inscription[] = [];
 
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
 
+  if (!parsedInscriptions) {
+    return inscriptions;
+  }
+
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
       id: `${parentTxId}i0`,
-      content_type: inscription.tags.contentType,
+      content_type: inscription.tags.contentType!!,
       content: uint8ArrayToBase64(inscription.body),
     });
   }

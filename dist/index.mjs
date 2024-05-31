@@ -232,7 +232,7 @@ function isReceiveTx(tx, addresses) {
   const addressInInput = tx.vin.find(
     (input) => addresses.includes(input.prevout.scriptpubkey_address)
   );
-  return addressInOutput && !addressInInput;
+  return !!addressInOutput && !addressInInput;
 }
 function txIntentExists(tx, intents) {
   return intents.find((intent) => intent.transactionIds.includes(tx.txid));
@@ -267,6 +267,9 @@ function getInscriptionsFromInput(input, parentTxId) {
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
+  if (!parsedInscriptions) {
+    return inscriptions;
+  }
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
       id: `${parentTxId}i0`,
@@ -297,6 +300,8 @@ function parseBrc20Inscription(inscription) {
 
 // src/utils.ts
 function parseNumber(value) {
+  if (!value)
+    return null;
   const parsed = parseFloat(value);
   return isNaN(parsed) ? null : parsed;
 }

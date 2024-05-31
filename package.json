@@ -12,6 +12,7 @@
     "test": "jest",
     "build": "tsup",
     "dev": "tsup --watch",
+    "sandbox": "tsx sandbox/index.ts",
     "prepare": "husky"
   },
   "author": "Jonathan P. Navarrete",
@@ -26,6 +27,7 @@
     "jest": "^29.7.0",
     "msw": "^2.3.0",
     "tsup": "^8.0.2",
+    "tsx": "^4.11.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {
