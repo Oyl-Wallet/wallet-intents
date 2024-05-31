@@ -82,7 +82,7 @@ export type WalletIntent =
 export type CapturableIntent = Omit<WalletIntent, "id" | "timestamp">;
 
 export type UpdatableIntent = Partial<
-  Pick<WalletIntent, "transactionIds" | "status">
+  Pick<WalletIntent, "transactionIds" | "status" | "reason">
 >;
 
 export interface CapturedIntent {

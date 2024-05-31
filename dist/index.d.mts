@@ -63,7 +63,7 @@ interface TradeBRC20Intent extends TransactionIntent {
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | TradeBRC20Intent;
 type CapturableIntent = Omit<WalletIntent, "id" | "timestamp">;
-type UpdatableIntent = Partial<Pick<WalletIntent, "transactionIds" | "status">>;
+type UpdatableIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
 interface CapturedIntent {
     intent: WalletIntent;
     update: (intent: UpdatableIntent) => Promise<WalletIntent>;
