@@ -163,7 +163,7 @@ var PlasmoStorageAdapter = class {
   }
   async findAll() {
     return this.storage.get(this.key).then(
-      (intents) => intents.sort((a, b) => b.timestamp - a.timestamp) || []
+      (intents) => (intents || []).sort((a, b) => b.timestamp - a.timestamp)
     );
   }
   async findByType(type) {
