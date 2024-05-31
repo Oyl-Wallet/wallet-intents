@@ -212,7 +212,7 @@ declare class IntentSynchronizer {
     private manager;
     private transactionHandler;
     constructor(manager: IntentManager, provider: RpcProvider);
-    syncIntents(addresses: string[]): Promise<void>;
+    syncPendingIntents(addresses: string[]): Promise<void>;
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 

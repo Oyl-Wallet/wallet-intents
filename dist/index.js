@@ -504,7 +504,7 @@ var IntentSynchronizer = class {
     this.transactionHandler = new TransactionHandler(manager, provider);
   }
   transactionHandler;
-  async syncIntents(addresses) {
+  async syncPendingIntents(addresses) {
     const intents = await this.manager.retrievePendingIntentsByAddresses(
       addresses
     );

@@ -51,7 +51,9 @@ test("Updates intent as completed for confirmed transactions", async () => {
   const pendingIntents = await manager.retrieveAllIntents();
   expect(pendingIntents[0]).toHaveProperty("status", "pending");
 
-  await synchronizer.syncPendingIntents();
+  await synchronizer.syncPendingIntents([
+    "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+  ]);
 
   const syncedIntents = await manager.retrieveAllIntents();
   expect(syncedIntents[0]).toHaveProperty("status", "completed");

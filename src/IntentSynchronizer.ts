@@ -9,7 +9,7 @@ export class IntentSynchronizer {
     this.transactionHandler = new TransactionHandler(manager, provider);
   }
 
-  async syncIntents(addresses: string[]) {
+  async syncPendingIntents(addresses: string[]) {
     const intents = await this.manager.retrievePendingIntentsByAddresses(
       addresses
     );

@@ -20,6 +20,7 @@ const nativeSegwitIntent = {
   transactionIds: [
     "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
   ],
+  btcAmount: 10000,
 };
 
 const taprootIntent = {
@@ -31,6 +32,7 @@ const taprootIntent = {
   transactionIds: [
     "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
   ],
+  btcAmount: 10000,
 };
 
 const nestedSegwitIntent = {
@@ -42,6 +44,7 @@ const nestedSegwitIntent = {
   transactionIds: [
     "b3a8ab2cefdc960e398985b153674fcf764960fadf51f3e4ce119bfe47d88d52",
   ],
+  btcAmount: 10000,
 };
 
 test("IntentManager can retrieve all intents correctly", async () => {
