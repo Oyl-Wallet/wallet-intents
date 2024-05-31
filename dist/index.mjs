@@ -22,6 +22,12 @@ var AssetType = /* @__PURE__ */ ((AssetType2) => {
   AssetType2["COLLECTIBLE"] = "collectible";
   return AssetType2;
 })(AssetType || {});
+var BRC20Operation = /* @__PURE__ */ ((BRC20Operation2) => {
+  BRC20Operation2["Deploy"] = "deploy";
+  BRC20Operation2["Mint"] = "mint";
+  BRC20Operation2["Transfer"] = "transfer";
+  return BRC20Operation2;
+})(BRC20Operation || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
 import { v4 as uuidv4 } from "uuid";
@@ -530,6 +536,7 @@ var IntentManager = class {
 };
 export {
   AssetType,
+  BRC20Operation,
   InMemoryStorageAdapter,
   IntentManager,
   IntentStatus,

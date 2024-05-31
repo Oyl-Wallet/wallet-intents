@@ -24,6 +24,11 @@ declare enum AssetType {
     RUNE = "rune",
     COLLECTIBLE = "collectible"
 }
+declare enum BRC20Operation {
+    Deploy = "deploy",
+    Mint = "mint",
+    Transfer = "transfer"
+}
 interface TransactionIntent extends BaseIntent {
     type: IntentType.Transaction;
     transactionType: TransactionType;
@@ -39,7 +44,7 @@ interface BRC20TransactionIntent extends TransactionIntent {
     assetType: AssetType.BRC20;
     ticker: string;
     tickerAmount?: number;
-    operation: "deploy" | "mint" | "transfer";
+    operation: BRC20Operation;
     max?: number;
     limit?: number;
 }
@@ -224,4 +229,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 
-export { AssetType, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };

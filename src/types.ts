@@ -29,6 +29,12 @@ export enum AssetType {
   COLLECTIBLE = "collectible",
 }
 
+export enum BRC20Operation {
+  Deploy = "deploy",
+  Mint = "mint",
+  Transfer = "transfer",
+}
+
 export interface TransactionIntent extends BaseIntent {
   type: IntentType.Transaction;
   transactionType: TransactionType;
@@ -46,7 +52,7 @@ export interface BRC20TransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   ticker: string;
   tickerAmount?: number;
-  operation: "deploy" | "mint" | "transfer";
+  operation: BRC20Operation;
   max?: number;
   limit?: number;
 }

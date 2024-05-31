@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var src_exports = {};
 __export(src_exports, {
   AssetType: () => AssetType,
+  BRC20Operation: () => BRC20Operation,
   InMemoryStorageAdapter: () => InMemoryStorageAdapter,
   IntentManager: () => IntentManager,
   IntentStatus: () => IntentStatus,
@@ -55,6 +56,12 @@ var AssetType = /* @__PURE__ */ ((AssetType2) => {
   AssetType2["COLLECTIBLE"] = "collectible";
   return AssetType2;
 })(AssetType || {});
+var BRC20Operation = /* @__PURE__ */ ((BRC20Operation2) => {
+  BRC20Operation2["Deploy"] = "deploy";
+  BRC20Operation2["Mint"] = "mint";
+  BRC20Operation2["Transfer"] = "transfer";
+  return BRC20Operation2;
+})(BRC20Operation || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
 var import_uuid = require("uuid");
@@ -564,6 +571,7 @@ var IntentManager = class {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AssetType,
+  BRC20Operation,
   InMemoryStorageAdapter,
   IntentManager,
   IntentStatus,
