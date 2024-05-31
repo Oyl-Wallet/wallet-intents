@@ -9,10 +9,12 @@ export class IntentSynchronizer {
     this.transactionHandler = new TransactionHandler(manager, provider);
   }
 
-  async syncPendingIntents() {
-    const pendingIntents = await this.manager.retrievePendingIntents();
+  async syncIntents(addresses: string[]) {
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
+    );
     await Promise.all(
-      pendingIntents.map(async (intent) => {
+      intents.map(async (intent) => {
         if (intent.type === IntentType.Transaction) {
           await this.transactionHandler.handlePendingTransaction(intent);
         }
@@ -21,7 +23,7 @@ export class IntentSynchronizer {
   }
 
   async syncIntentsFromChain(addresses: string[]) {
-    const intents = await this.manager.retrieveTransactionIntents();
+    const intents = await this.manager.retrieveIntentsByAddresses(addresses);
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);
     }

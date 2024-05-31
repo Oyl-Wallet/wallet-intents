@@ -64,7 +64,7 @@ type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransact
 interface IntentHandler {
     captureIntent(intent: WalletIntent): Promise<void>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
-    retrievePendingIntents(): Promise<WalletIntent[]>;
+    retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
@@ -73,7 +73,7 @@ interface StorageAdapter {
     save(intent: WalletIntent): Promise<void>;
     findAll(): Promise<WalletIntent[]>;
     findByType(type: IntentType): Promise<WalletIntent[]>;
-    findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
+    findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
 }
@@ -167,6 +167,7 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
 }
 
@@ -179,6 +180,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
+    findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
 }
 
@@ -200,7 +202,7 @@ declare class IntentManager implements IntentHandler {
     constructor(storage: StorageAdapter, debug?: boolean);
     captureIntent(intent: Omit<WalletIntent, "id" | "timestamp">): Promise<void>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
-    retrievePendingIntents(): Promise<WalletIntent[]>;
+    retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
@@ -210,7 +212,7 @@ declare class IntentSynchronizer {
     private manager;
     private transactionHandler;
     constructor(manager: IntentManager, provider: RpcProvider);
-    syncPendingIntents(): Promise<void>;
+    syncIntents(addresses: string[]): Promise<void>;
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 

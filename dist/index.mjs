@@ -66,6 +66,13 @@ var InMemoryStorageAdapter = class {
       (intents) => intents.filter((intent) => addresses.includes(intent.address))
     );
   }
+  async findByStatusAndAddresses(status, addresses) {
+    return this.findAll().then(
+      (intents) => intents.filter(
+        (intent) => intent.status === status && addresses.includes(intent.address)
+      )
+    );
+  }
   async findById(intentId) {
     return this.findAll().then(
       (intents) => intents.find(({ id }) => id === intentId)
@@ -126,6 +133,13 @@ var PlasmoStorageAdapter = class {
   async findByAddresses(addresses) {
     return this.findAll().then(
       (intents) => intents.filter((intent) => addresses.includes(intent.address))
+    );
+  }
+  async findByStatusAndAddresses(status, addresses) {
+    return this.findAll().then(
+      (intents) => intents.filter(
+        (intent) => intent.status === status && addresses.includes(intent.address)
+      )
     );
   }
   async findById(intentId) {
@@ -458,10 +472,12 @@ var IntentSynchronizer = class {
     this.transactionHandler = new TransactionHandler(manager, provider);
   }
   transactionHandler;
-  async syncPendingIntents() {
-    const pendingIntents = await this.manager.retrievePendingIntents();
+  async syncIntents(addresses) {
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
+    );
     await Promise.all(
-      pendingIntents.map(async (intent) => {
+      intents.map(async (intent) => {
         if (intent.type === "transaction" /* Transaction */) {
           await this.transactionHandler.handlePendingTransaction(intent);
         }
@@ -469,7 +485,7 @@ var IntentSynchronizer = class {
     );
   }
   async syncIntentsFromChain(addresses) {
-    const intents = await this.manager.retrieveTransactionIntents();
+    const intents = await this.manager.retrieveIntentsByAddresses(addresses);
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);
     }
@@ -492,8 +508,11 @@ var IntentManager = class {
   async retrieveAllIntents() {
     return this.storage.findAll();
   }
-  async retrievePendingIntents() {
-    return this.storage.findByStatus("pending" /* Pending */);
+  async retrievePendingIntentsByAddresses(addresses) {
+    return this.storage.findByStatusAndAddresses(
+      "pending" /* Pending */,
+      addresses
+    );
   }
   async retrieveIntentsByAddresses(addresses) {
     return this.storage.findByAddresses(addresses);

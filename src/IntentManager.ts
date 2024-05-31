@@ -26,8 +26,11 @@ export class IntentManager implements IntentHandler {
     return this.storage.findAll();
   }
 
-  async retrievePendingIntents() {
-    return this.storage.findByStatus(IntentStatus.Pending);
+  async retrievePendingIntentsByAddresses(addresses: string[]) {
+    return this.storage.findByStatusAndAddresses(
+      IntentStatus.Pending,
+      addresses
+    );
   }
 
   async retrieveIntentsByAddresses(addresses: string[]) {

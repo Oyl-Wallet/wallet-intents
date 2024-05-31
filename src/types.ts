@@ -81,7 +81,9 @@ export type WalletIntent =
 export interface IntentHandler {
   captureIntent(intent: WalletIntent): Promise<void>;
   retrieveAllIntents(): Promise<WalletIntent[]>;
-  retrievePendingIntents(): Promise<WalletIntent[]>;
+  retrievePendingIntentsByAddresses(
+    addresses: string[]
+  ): Promise<WalletIntent[]>;
   retrieveTransactionIntents(): Promise<WalletIntent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
   retrieveIntentById(intentId: string): Promise<WalletIntent>;
@@ -95,7 +97,10 @@ export interface StorageAdapter {
   save(intent: WalletIntent): Promise<void>;
   findAll(): Promise<WalletIntent[]>;
   findByType(type: IntentType): Promise<WalletIntent[]>;
-  findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
+  findByStatusAndAddresses(
+    status: IntentStatus,
+    addresses: string[]
+  ): Promise<WalletIntent[]>;
   findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
   findById(intentId: string): Promise<WalletIntent>;
 }
