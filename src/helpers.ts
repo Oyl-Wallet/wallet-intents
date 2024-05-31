@@ -8,14 +8,14 @@ import {
 } from "./types";
 
 export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
-  const outputsToAddress = tx.vout.filter((output) =>
+  const addressInOutput = tx.vout.find((output) =>
     addresses.includes(output.scriptpubkey_address)
   );
-  const inputsFromAddress = tx.vin.some((input) =>
+  const addressInInput = tx.vin.find((input) =>
     addresses.includes(input.prevout.scriptpubkey_address)
   );
 
-  return outputsToAddress.length > 0 && !inputsFromAddress;
+  return addressInOutput && !addressInInput;
 }
 
 export function txIntentExists(

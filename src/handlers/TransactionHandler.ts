@@ -29,7 +29,7 @@ export class TransactionHandler {
 
   constructor(private manager: IntentManager, private provider: RpcProvider) {}
 
-  async setAddresses(addresses: string[]) {
+  private async setAddresses(addresses: string[]) {
     this.addresses = addresses;
   }
 
@@ -45,7 +45,7 @@ export class TransactionHandler {
   }
 
   async handleTransactions(addresses: string[]) {
-    this.addresses = addresses;
+    this.setAddresses(addresses);
 
     const txs = (
       await Promise.all(

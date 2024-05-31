@@ -196,16 +196,14 @@ declare class SandshrewRpcProvider implements RpcProvider {
 
 declare class IntentManager implements IntentHandler {
     private storage;
-    private addresses;
     private debug;
-    constructor(storage: StorageAdapter, addresses?: string[], debug?: boolean);
+    constructor(storage: StorageAdapter, debug?: boolean);
     captureIntent(intent: Omit<WalletIntent, "id" | "timestamp">): Promise<void>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntents(): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
-    getAddresses(): Promise<string[]>;
 }
 
 declare class IntentSynchronizer {

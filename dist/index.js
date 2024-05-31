@@ -259,13 +259,13 @@ var SandshrewRpcProvider = class {
 // src/helpers.ts
 var import_micro_ordinals = require("micro-ordinals");
 function isReceiveTx(tx, addresses) {
-  const outputsToAddress = tx.vout.filter(
+  const addressInOutput = tx.vout.find(
     (output) => addresses.includes(output.scriptpubkey_address)
   );
-  const inputsFromAddress = tx.vin.some(
+  const addressInInput = tx.vin.find(
     (input) => addresses.includes(input.prevout.scriptpubkey_address)
   );
-  return outputsToAddress.length > 0 && !inputsFromAddress;
+  return addressInOutput && !addressInInput;
 }
 function txIntentExists(tx, intents) {
   return intents.find((intent) => intent.transactionIds.includes(tx.txid));
@@ -354,7 +354,7 @@ var TransactionHandler = class {
     }
   }
   async handleTransactions(addresses) {
-    this.addresses = addresses;
+    this.setAddresses(addresses);
     const txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     )).flat();
@@ -506,9 +506,8 @@ var IntentSynchronizer = class {
 
 // src/IntentManager.ts
 var IntentManager = class {
-  constructor(storage, addresses = [], debug = false) {
+  constructor(storage, debug = false) {
     this.storage = storage;
-    this.addresses = addresses;
     this.debug = debug;
   }
   async captureIntent(intent) {
@@ -532,9 +531,6 @@ var IntentManager = class {
   }
   async retrieveTransactionIntents() {
     return this.storage.findByType("transaction" /* Transaction */);
-  }
-  async getAddresses() {
-    return this.addresses;
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

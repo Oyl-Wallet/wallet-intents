@@ -9,7 +9,6 @@ import {
 export class IntentManager implements IntentHandler {
   constructor(
     private storage: StorageAdapter,
-    private addresses: string[] = [],
     private debug: boolean = false
   ) {}
 
@@ -41,9 +40,5 @@ export class IntentManager implements IntentHandler {
 
   async retrieveTransactionIntents() {
     return this.storage.findByType(IntentType.Transaction);
-  }
-
-  async getAddresses(): Promise<string[]> {
-    return this.addresses;
   }
 }
