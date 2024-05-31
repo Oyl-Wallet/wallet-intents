@@ -58,7 +58,8 @@ export class TransactionHandler {
     );
 
     for (let tx of txs) {
-      if (txIntentExists(tx, intents)) continue;
+      if (txIntentExists(tx, intents) || !isReceiveTx(tx, this.addresses))
+        continue;
       await this.processTransaction(tx);
     }
   }
@@ -76,19 +77,15 @@ export class TransactionHandler {
       : IntentStatus.Pending;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
 
-    const transactionType = isReceiveTx(tx, this.addresses)
-      ? TransactionType.Receive
-      : TransactionType.Send;
-
     switch (asset?.assetType) {
       case AssetType.BRC20:
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
-          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.BRC20,
+          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: asset.tick,
           tickerAmount: parseNumber(asset.amt),
@@ -103,9 +100,9 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
-          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.COLLECTIBLE,
+          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           inscriptionId: asset.id,
           contentType: asset.content_type,
@@ -118,9 +115,9 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
-          transactionType,
           type: IntentType.Transaction,
           assetType: AssetType.BTC,
+          transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
         } as BTCTransactionIntent);
     }
