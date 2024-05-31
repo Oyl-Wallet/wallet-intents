@@ -4,32 +4,35 @@ import {
   StorageAdapter,
   WalletIntent,
 } from "../types";
+import { v4 as uuidv4 } from "uuid";
 
 export class InMemoryStorageAdapter implements StorageAdapter {
   private intents: WalletIntent[] = [];
 
-  async save(intent: WalletIntent): Promise<void> {
+  async save(intent: WalletIntent): Promise<WalletIntent> {
+    let savedIntent: WalletIntent;
+
     if (intent.id) {
-      const newIntents = this.intents.map((existingIntent) => {
+      this.intents = this.intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
-          return structuredClone({
+          savedIntent = structuredClone({
             ...existingIntent,
             ...intent,
           });
+          return savedIntent;
         }
         return existingIntent;
       });
-
-      this.intents = newIntents;
     } else {
-      this.intents.push(
-        structuredClone({
-          ...intent,
-          id: Math.random().toString(36).substring(7),
-          timestamp: Date.now(),
-        })
-      );
+      savedIntent = structuredClone({
+        ...intent,
+        id: uuidv4(),
+        timestamp: Date.now(),
+      });
+      this.intents.push(savedIntent);
     }
+
+    return savedIntent;
   }
 
   async findAll(): Promise<WalletIntent[]> {

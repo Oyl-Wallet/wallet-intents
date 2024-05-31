@@ -57,29 +57,31 @@ var AssetType = /* @__PURE__ */ ((AssetType2) => {
 })(AssetType || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
+var import_uuid = require("uuid");
 var InMemoryStorageAdapter = class {
   intents = [];
   async save(intent) {
+    let savedIntent;
     if (intent.id) {
-      const newIntents = this.intents.map((existingIntent) => {
+      this.intents = this.intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
-          return structuredClone({
+          savedIntent = structuredClone({
             ...existingIntent,
             ...intent
           });
+          return savedIntent;
         }
         return existingIntent;
       });
-      this.intents = newIntents;
     } else {
-      this.intents.push(
-        structuredClone({
-          ...intent,
-          id: Math.random().toString(36).substring(7),
-          timestamp: Date.now()
-        })
-      );
+      savedIntent = structuredClone({
+        ...intent,
+        id: (0, import_uuid.v4)(),
+        timestamp: Date.now()
+      });
+      this.intents.push(savedIntent);
     }
+    return savedIntent;
   }
   async findAll() {
     return this.intents.toSorted((a, b) => b.timestamp - a.timestamp);
@@ -115,6 +117,7 @@ var InMemoryStorageAdapter = class {
 
 // src/adapters/PlasmoStorageAdapter.ts
 var import_storage = require("@plasmohq/storage");
+var import_uuid2 = require("uuid");
 var PlasmoStorageAdapter = class {
   storage;
   key;
@@ -126,27 +129,29 @@ var PlasmoStorageAdapter = class {
   }
   async save(intent) {
     const intents = await this.findAll();
+    let updatedIntent;
     if (intent.id) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
-          return {
+          updatedIntent = {
             ...existingIntent,
             ...intent
           };
+          return updatedIntent;
         }
         return existingIntent;
       });
-      return this.storage.set(this.key, newIntents);
+      await this.storage.set(this.key, newIntents);
     } else {
-      intents.push(
-        structuredClone({
-          ...intent,
-          id: Math.random().toString(36).substring(7),
-          timestamp: Date.now()
-        })
-      );
-      return this.storage.set(this.key, intents);
+      updatedIntent = structuredClone({
+        ...intent,
+        id: (0, import_uuid2.v4)(),
+        timestamp: Date.now()
+      });
+      intents.push(updatedIntent);
+      await this.storage.set(this.key, intents);
     }
+    return updatedIntent;
   }
   async findAll() {
     return this.storage.get(this.key).then(

@@ -79,7 +79,7 @@ export type WalletIntent =
   | TradeBRC20Intent; // Add other intent types here
 
 export interface IntentHandler {
-  captureIntent(intent: WalletIntent): Promise<void>;
+  captureIntent(intent: WalletIntent): Promise<WalletIntent>;
   retrieveAllIntents(): Promise<WalletIntent[]>;
   retrievePendingIntentsByAddresses(
     addresses: string[]
@@ -94,7 +94,7 @@ export interface IntentSynchronizer {
 }
 
 export interface StorageAdapter {
-  save(intent: WalletIntent): Promise<void>;
+  save(intent: WalletIntent): Promise<WalletIntent>;
   findAll(): Promise<WalletIntent[]>;
   findByType(type: IntentType): Promise<WalletIntent[]>;
   findByStatusAndAddresses(

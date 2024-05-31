@@ -14,7 +14,7 @@ export class IntentManager implements IntentHandler {
 
   async captureIntent(
     intent: Omit<WalletIntent, "id" | "timestamp">
-  ): Promise<void> {
+  ): Promise<WalletIntent> {
     if (this.debug) {
       console.log("Capturing intent", intent);
     } else {

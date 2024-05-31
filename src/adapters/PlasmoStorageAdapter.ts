@@ -5,6 +5,7 @@ import {
   StorageAdapter,
 } from "../types";
 import { Storage } from "@plasmohq/storage";
+import { v4 as uuidv4 } from "uuid";
 
 export class PlasmoStorageAdapter implements StorageAdapter {
   private storage: Storage;
@@ -17,32 +18,35 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     });
   }
 
-  async save(intent: WalletIntent): Promise<void> {
+  async save(intent: WalletIntent): Promise<WalletIntent> {
     const intents = await this.findAll();
+    let updatedIntent: WalletIntent;
 
     if (intent.id) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
-          return {
+          updatedIntent = {
             ...existingIntent,
             ...intent,
           };
+          return updatedIntent;
         }
         return existingIntent;
       });
 
-      return this.storage.set(this.key, newIntents);
+      await this.storage.set(this.key, newIntents);
     } else {
-      intents.push(
-        structuredClone({
-          ...intent,
-          id: Math.random().toString(36).substring(7),
-          timestamp: Date.now(),
-        })
-      );
+      updatedIntent = structuredClone({
+        ...intent,
+        id: uuidv4(),
+        timestamp: Date.now(),
+      });
 
-      return this.storage.set(this.key, intents);
+      intents.push(updatedIntent);
+      await this.storage.set(this.key, intents);
     }
+
+    return updatedIntent;
   }
 
   async findAll(): Promise<WalletIntent[]> {

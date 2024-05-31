@@ -62,7 +62,7 @@ interface TradeBRC20Intent extends TransactionIntent {
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | TradeBRC20Intent;
 interface IntentHandler {
-    captureIntent(intent: WalletIntent): Promise<void>;
+    captureIntent(intent: WalletIntent): Promise<WalletIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveTransactionIntents(): Promise<WalletIntent[]>;
@@ -70,7 +70,7 @@ interface IntentHandler {
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
 }
 interface StorageAdapter {
-    save(intent: WalletIntent): Promise<void>;
+    save(intent: WalletIntent): Promise<WalletIntent>;
     findAll(): Promise<WalletIntent[]>;
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
@@ -162,7 +162,7 @@ type CategorizedAsset = RuneAsset | Brc20Asset | CollectibleAsset;
 
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
-    save(intent: WalletIntent): Promise<void>;
+    save(intent: WalletIntent): Promise<WalletIntent>;
     findAll(): Promise<WalletIntent[]>;
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
@@ -175,7 +175,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     private storage;
     private key;
     constructor(key: string);
-    save(intent: WalletIntent): Promise<void>;
+    save(intent: WalletIntent): Promise<WalletIntent>;
     findAll(): Promise<WalletIntent[]>;
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
@@ -200,7 +200,7 @@ declare class IntentManager implements IntentHandler {
     private storage;
     private debug;
     constructor(storage: StorageAdapter, debug?: boolean);
-    captureIntent(intent: Omit<WalletIntent, "id" | "timestamp">): Promise<void>;
+    captureIntent(intent: Omit<WalletIntent, "id" | "timestamp">): Promise<WalletIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
