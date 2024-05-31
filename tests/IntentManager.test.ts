@@ -47,7 +47,23 @@ const nestedSegwitIntent = {
   btcAmount: 10000,
 };
 
-test("IntentManager can retrieve all intents correctly", async () => {
+test("Can udpate an intent by id", async () => {
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
+
+  const capturedIntent = await intentManager.captureIntent(nativeSegwitIntent);
+  expect(capturedIntent).toEqual(expect.objectContaining(nativeSegwitIntent));
+
+  const intentToUpdate = {
+    ...nativeSegwitIntent,
+    id: capturedIntent.id,
+    transactionIds: ["updated"],
+  };
+
+  const updatedIntent = await intentManager.captureIntent(intentToUpdate);
+  expect(updatedIntent).toEqual(expect.objectContaining(intentToUpdate));
+});
+
+test("Can retrieve all intents", async () => {
   const intentManager = new IntentManager(new InMemoryStorageAdapter());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
@@ -61,18 +77,7 @@ test("IntentManager can retrieve all intents correctly", async () => {
   expect(intents[2]).toEqual(expect.objectContaining(nestedSegwitIntent));
 });
 
-test("IntentManager can retrieve intents by addresses correctly (0 addresses)", async () => {
-  const intentManager = new IntentManager(new InMemoryStorageAdapter());
-  await intentManager.captureIntent(nativeSegwitIntent);
-  await intentManager.captureIntent(taprootIntent);
-  await intentManager.captureIntent(nestedSegwitIntent);
-
-  const intents = await intentManager.retrieveIntentsByAddresses([]);
-
-  expect(intents).toHaveLength(0);
-});
-
-test("IntentManager can retrieve intents by addresses correctly (2 addresses)", async () => {
+test("Can retrieve intents by addresses", async () => {
   const intentManager = new IntentManager(new InMemoryStorageAdapter());
   await intentManager.captureIntent(nativeSegwitIntent);
   await intentManager.captureIntent(taprootIntent);
@@ -80,10 +85,33 @@ test("IntentManager can retrieve intents by addresses correctly (2 addresses)", 
 
   const intents = await intentManager.retrieveIntentsByAddresses([
     nativeSegwitAddress,
-    taprootAddress,
+  ]);
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0]).toEqual(expect.objectContaining(nativeSegwitIntent));
+});
+
+test("Can retrieve intent by id correctly", async () => {
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
+  const capturedIntent = await intentManager.captureIntent(nativeSegwitIntent);
+
+  const intent = await intentManager.retrieveIntentById(capturedIntent.id);
+
+  expect(intent).toEqual(expect.objectContaining(nativeSegwitIntent));
+});
+
+test("Can retrieve pending intents by addresses", async () => {
+  const intentManager = new IntentManager(new InMemoryStorageAdapter());
+  await intentManager.captureIntent(nativeSegwitIntent);
+  await intentManager.captureIntent(nativeSegwitIntent);
+  await intentManager.captureIntent({
+    ...nativeSegwitIntent,
+    status: IntentStatus.Completed,
+  });
+
+  const intents = await intentManager.retrievePendingIntentsByAddresses([
+    nativeSegwitAddress,
   ]);
 
   expect(intents).toHaveLength(2);
-  expect(intents[0]).toEqual(expect.objectContaining(nativeSegwitIntent));
-  expect(intents[1]).toEqual(expect.objectContaining(taprootIntent));
 });

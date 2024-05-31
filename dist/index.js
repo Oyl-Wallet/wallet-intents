@@ -557,9 +557,6 @@ var IntentManager = class {
   async retrieveIntentById(intentId) {
     return this.storage.findById(intentId);
   }
-  async retrieveTransactionIntents() {
-    return this.storage.findByType("transaction" /* Transaction */);
-  }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

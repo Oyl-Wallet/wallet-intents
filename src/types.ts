@@ -78,13 +78,16 @@ export type WalletIntent =
   | CollectibleTransactionIntent
   | TradeBRC20Intent; // Add other intent types here
 
+export type CapturableWalletIntent =
+  | Omit<WalletIntent, "timestamp">
+  | Omit<WalletIntent, "id" | "timestamp">;
+
 export interface IntentHandler {
-  captureIntent(intent: WalletIntent): Promise<WalletIntent>;
+  captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent>;
   retrieveAllIntents(): Promise<WalletIntent[]>;
   retrievePendingIntentsByAddresses(
     addresses: string[]
   ): Promise<WalletIntent[]>;
-  retrieveTransactionIntents(): Promise<WalletIntent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
   retrieveIntentById(intentId: string): Promise<WalletIntent>;
 }

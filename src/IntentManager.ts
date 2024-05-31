@@ -1,7 +1,7 @@
 import {
+  CapturableWalletIntent,
   IntentHandler,
   IntentStatus,
-  IntentType,
   StorageAdapter,
   WalletIntent,
 } from "./types";
@@ -12,9 +12,7 @@ export class IntentManager implements IntentHandler {
     private debug: boolean = false
   ) {}
 
-  async captureIntent(
-    intent: Omit<WalletIntent, "id" | "timestamp">
-  ): Promise<WalletIntent> {
+  async captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent> {
     if (this.debug) {
       console.log("Capturing intent", intent);
     } else {
@@ -39,9 +37,5 @@ export class IntentManager implements IntentHandler {
 
   async retrieveIntentById(intentId: string) {
     return this.storage.findById(intentId);
-  }
-
-  async retrieveTransactionIntents() {
-    return this.storage.findByType(IntentType.Transaction);
   }
 }

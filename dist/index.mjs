@@ -524,9 +524,6 @@ var IntentManager = class {
   async retrieveIntentById(intentId) {
     return this.storage.findById(intentId);
   }
-  async retrieveTransactionIntents() {
-    return this.storage.findByType("transaction" /* Transaction */);
-  }
 };
 export {
   AssetType,

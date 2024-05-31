@@ -61,11 +61,11 @@ interface TradeBRC20Intent extends TransactionIntent {
     tickerAmount: number;
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | TradeBRC20Intent;
+type CapturableWalletIntent = Omit<WalletIntent, "timestamp"> | Omit<WalletIntent, "id" | "timestamp">;
 interface IntentHandler {
-    captureIntent(intent: WalletIntent): Promise<WalletIntent>;
+    captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-    retrieveTransactionIntents(): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
 }
@@ -200,12 +200,11 @@ declare class IntentManager implements IntentHandler {
     private storage;
     private debug;
     constructor(storage: StorageAdapter, debug?: boolean);
-    captureIntent(intent: Omit<WalletIntent, "id" | "timestamp">): Promise<WalletIntent>;
+    captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
-    retrieveTransactionIntents(): Promise<WalletIntent[]>;
 }
 
 declare class IntentSynchronizer {
@@ -216,4 +215,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 
-export { AssetType, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, type ParsedBRC20, PlasmoStorageAdapter, type RpcProvider, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type WalletIntent };
+export { AssetType, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableWalletIntent, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type OrdInscription, type OrdOutput, type ParsedBRC20, PlasmoStorageAdapter, type RpcProvider, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type WalletIntent };
