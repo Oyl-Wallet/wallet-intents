@@ -10,7 +10,9 @@ import {
 export class IntentManager implements IntentHandler {
   constructor(private storage: StorageAdapter) {}
 
-  async captureIntent(intent: CapturableIntent): Promise<CapturedIntent> {
+  async captureIntent(
+    intent: CapturableIntent<WalletIntent>
+  ): Promise<CapturedIntent> {
     const capturedIntent = await this.storage.save(intent);
 
     const update = async (

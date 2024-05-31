@@ -67,7 +67,7 @@ interface TradeBRC20Intent extends TransactionIntent {
     tickerAmount: number;
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | TradeBRC20Intent;
-type CapturableIntent = Omit<WalletIntent, "id" | "timestamp">;
+type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
 type UpdatableIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
 interface CapturedIntent {
     intent: WalletIntent;
@@ -78,7 +78,7 @@ type PartialExistingIntent = Partial<Omit<WalletIntent, "id" | "timestamp">> & {
     id: string;
 };
 interface IntentHandler {
-    captureIntent(intent: CapturableIntent): Promise<CapturedIntent>;
+    captureIntent(intent: CapturableIntent<WalletIntent>): Promise<CapturedIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
@@ -214,7 +214,7 @@ declare class SandshrewRpcProvider implements RpcProvider {
 declare class IntentManager implements IntentHandler {
     private storage;
     constructor(storage: StorageAdapter);
-    captureIntent(intent: CapturableIntent): Promise<CapturedIntent>;
+    captureIntent(intent: CapturableIntent<WalletIntent>): Promise<CapturedIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
