@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 declare enum IntentStatus {
     Pending = "pending",
     Completed = "completed",
@@ -83,6 +85,7 @@ interface IntentHandler {
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
+    onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 interface StorageAdapter {
     save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent>;
@@ -211,14 +214,16 @@ declare class SandshrewRpcProvider implements RpcProvider {
     getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
 }
 
-declare class IntentManager implements IntentHandler {
+declare class IntentManager extends EventEmitter implements IntentHandler {
     private storage;
     constructor(storage: StorageAdapter);
+    private notifyIntentCaptured;
     captureIntent(intent: CapturableIntent<WalletIntent>): Promise<CapturedIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentById(intentId: string): Promise<WalletIntent>;
+    onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 
 declare class IntentSynchronizer {

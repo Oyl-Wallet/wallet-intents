@@ -114,6 +114,7 @@ export interface IntentHandler {
   ): Promise<WalletIntent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
   retrieveIntentById(intentId: string): Promise<WalletIntent>;
+  onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 
 export interface IntentSynchronizer {

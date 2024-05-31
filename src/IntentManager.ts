@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import {
   CapturedIntent,
   IntentHandler,
@@ -7,18 +8,33 @@ import {
   WalletIntent,
 } from "./types";
 
-export class IntentManager implements IntentHandler {
-  constructor(private storage: StorageAdapter) {}
+export class IntentManager extends EventEmitter implements IntentHandler {
+  constructor(private storage: StorageAdapter) {
+    super();
+  }
+
+  private notifyIntentCaptured(intent: CapturableIntent<WalletIntent>) {
+    this.emit("intentCaptured", intent);
+  }
 
   async captureIntent(
     intent: CapturableIntent<WalletIntent>
   ): Promise<CapturedIntent> {
     const capturedIntent = await this.storage.save(intent);
 
+    this.notifyIntentCaptured(capturedIntent);
+
     const update = async (
       updates: Partial<WalletIntent>
     ): Promise<WalletIntent> => {
-      return this.storage.save({ ...capturedIntent, ...updates });
+      const updatedIntent = await this.storage.save({
+        ...capturedIntent,
+        ...updates,
+      });
+
+      this.notifyIntentCaptured(capturedIntent);
+
+      return updatedIntent;
     };
 
     return {
@@ -44,5 +60,9 @@ export class IntentManager implements IntentHandler {
 
   async retrieveIntentById(intentId: string) {
     return this.storage.findById(intentId);
+  }
+
+  onIntentCaptured(listener: (intent: WalletIntent) => void): void {
+    this.on("intentCaptured", listener);
   }
 }

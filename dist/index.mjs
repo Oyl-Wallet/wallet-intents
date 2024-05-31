@@ -506,14 +506,25 @@ var IntentSynchronizer = class {
 };
 
 // src/IntentManager.ts
-var IntentManager = class {
+import { EventEmitter } from "events";
+var IntentManager = class extends EventEmitter {
   constructor(storage) {
+    super();
     this.storage = storage;
+  }
+  notifyIntentCaptured(intent) {
+    this.emit("intentCaptured", intent);
   }
   async captureIntent(intent) {
     const capturedIntent = await this.storage.save(intent);
+    this.notifyIntentCaptured(capturedIntent);
     const update = async (updates) => {
-      return this.storage.save({ ...capturedIntent, ...updates });
+      const updatedIntent = await this.storage.save({
+        ...capturedIntent,
+        ...updates
+      });
+      this.notifyIntentCaptured(capturedIntent);
+      return updatedIntent;
     };
     return {
       intent: capturedIntent,
@@ -534,6 +545,9 @@ var IntentManager = class {
   }
   async retrieveIntentById(intentId) {
     return this.storage.findById(intentId);
+  }
+  onIntentCaptured(listener) {
+    this.on("intentCaptured", listener);
   }
 };
 export {
