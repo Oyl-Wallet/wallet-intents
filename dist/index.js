@@ -61,27 +61,28 @@ var import_uuid = require("uuid");
 var InMemoryStorageAdapter = class {
   intents = [];
   async save(intent) {
-    let savedIntent;
-    if (intent.id) {
-      this.intents = this.intents.map((existingIntent) => {
-        if (existingIntent.id === intent.id) {
-          savedIntent = structuredClone({
-            ...existingIntent,
-            ...intent
-          });
-          return savedIntent;
-        }
-        return existingIntent;
-      });
+    if ("id" in intent) {
+      const index = this.intents.findIndex((i) => i.id === intent.id);
+      if (index === -1) {
+        throw new Error(`Intent with ID ${intent.id} not found`);
+      }
+      const existingIntent = this.intents[index];
+      const updatedIntent = {
+        ...existingIntent,
+        ...intent,
+        timestamp: existingIntent.timestamp
+      };
+      this.intents[index] = updatedIntent;
+      return updatedIntent;
     } else {
-      savedIntent = structuredClone({
+      const newIntent = {
         ...intent,
         id: (0, import_uuid.v4)(),
         timestamp: Date.now()
-      });
-      this.intents.push(savedIntent);
+      };
+      this.intents.push(newIntent);
+      return newIntent;
     }
-    return savedIntent;
   }
   async findAll() {
     return this.intents.toSorted((a, b) => b.timestamp - a.timestamp);
@@ -130,7 +131,7 @@ var PlasmoStorageAdapter = class {
   async save(intent) {
     const intents = await this.findAll();
     let updatedIntent;
-    if (intent.id) {
+    if ("id" in intent) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
@@ -143,11 +144,11 @@ var PlasmoStorageAdapter = class {
       });
       await this.storage.set(this.key, newIntents);
     } else {
-      updatedIntent = structuredClone({
+      updatedIntent = {
         ...intent,
         id: (0, import_uuid2.v4)(),
         timestamp: Date.now()
-      });
+      };
       intents.push(updatedIntent);
       await this.storage.set(this.key, intents);
     }
@@ -531,16 +532,18 @@ var IntentSynchronizer = class {
 
 // src/IntentManager.ts
 var IntentManager = class {
-  constructor(storage, debug = false) {
+  constructor(storage) {
     this.storage = storage;
-    this.debug = debug;
   }
   async captureIntent(intent) {
-    if (this.debug) {
-      console.log("Capturing intent", intent);
-    } else {
-      return this.storage.save(intent);
-    }
+    const capturedIntent = await this.storage.save(intent);
+    const update = async (updates) => {
+      return this.storage.save({ ...capturedIntent, ...updates });
+    };
+    return {
+      intent: capturedIntent,
+      update
+    };
   }
   async retrieveAllIntents() {
     return this.storage.findAll();

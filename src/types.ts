@@ -78,12 +78,24 @@ export type WalletIntent =
   | CollectibleTransactionIntent
   | TradeBRC20Intent; // Add other intent types here
 
-export type CapturableWalletIntent =
-  | Omit<WalletIntent, "timestamp">
-  | Omit<WalletIntent, "id" | "timestamp">;
+export type CapturableIntent = Omit<WalletIntent, "id" | "timestamp">;
+
+export type UpdatableIntent = Partial<
+  Pick<WalletIntent, "transactionIds" | "status">
+>;
+
+export interface CapturedIntent {
+  intent: WalletIntent;
+  update: (intent: UpdatableIntent) => Promise<WalletIntent>;
+}
+
+export type NewIntent = Omit<WalletIntent, "id" | "timestamp">;
+export type PartialExistingIntent = Partial<
+  Omit<WalletIntent, "id" | "timestamp">
+> & { id: string };
 
 export interface IntentHandler {
-  captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent>;
+  captureIntent(intent: CapturableIntent): Promise<CapturedIntent>;
   retrieveAllIntents(): Promise<WalletIntent[]>;
   retrievePendingIntentsByAddresses(
     addresses: string[]
@@ -97,7 +109,7 @@ export interface IntentSynchronizer {
 }
 
 export interface StorageAdapter {
-  save(intent: WalletIntent): Promise<WalletIntent>;
+  save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent>;
   findAll(): Promise<WalletIntent[]>;
   findByType(type: IntentType): Promise<WalletIntent[]>;
   findByStatusAndAddresses(

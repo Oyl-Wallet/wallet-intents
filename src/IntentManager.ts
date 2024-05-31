@@ -1,23 +1,28 @@
 import {
-  CapturableWalletIntent,
+  CapturedIntent,
   IntentHandler,
   IntentStatus,
+  CapturableIntent,
   StorageAdapter,
   WalletIntent,
 } from "./types";
 
 export class IntentManager implements IntentHandler {
-  constructor(
-    private storage: StorageAdapter,
-    private debug: boolean = false
-  ) {}
+  constructor(private storage: StorageAdapter) {}
 
-  async captureIntent(intent: CapturableWalletIntent): Promise<WalletIntent> {
-    if (this.debug) {
-      console.log("Capturing intent", intent);
-    } else {
-      return this.storage.save(intent as WalletIntent);
-    }
+  async captureIntent(intent: CapturableIntent): Promise<CapturedIntent> {
+    const capturedIntent = await this.storage.save(intent);
+
+    const update = async (
+      updates: Partial<WalletIntent>
+    ): Promise<WalletIntent> => {
+      return this.storage.save({ ...capturedIntent, ...updates });
+    };
+
+    return {
+      intent: capturedIntent,
+      update,
+    };
   }
 
   async retrieveAllIntents() {

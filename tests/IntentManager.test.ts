@@ -51,16 +51,19 @@ test("Can udpate an intent by id", async () => {
   const intentManager = new IntentManager(new InMemoryStorageAdapter());
 
   const capturedIntent = await intentManager.captureIntent(nativeSegwitIntent);
-  expect(capturedIntent).toEqual(expect.objectContaining(nativeSegwitIntent));
+  expect(capturedIntent.intent).toEqual(
+    expect.objectContaining(nativeSegwitIntent)
+  );
 
-  const intentToUpdate = {
-    ...nativeSegwitIntent,
-    id: capturedIntent.id,
+  const updatedIntent = await capturedIntent.update({
     transactionIds: ["updated"],
-  };
-
-  const updatedIntent = await intentManager.captureIntent(intentToUpdate);
-  expect(updatedIntent).toEqual(expect.objectContaining(intentToUpdate));
+  });
+  expect(updatedIntent).toEqual(
+    expect.objectContaining({
+      ...capturedIntent.intent,
+      transactionIds: ["updated"],
+    })
+  );
 });
 
 test("Can retrieve all intents", async () => {
@@ -95,7 +98,9 @@ test("Can retrieve intent by id correctly", async () => {
   const intentManager = new IntentManager(new InMemoryStorageAdapter());
   const capturedIntent = await intentManager.captureIntent(nativeSegwitIntent);
 
-  const intent = await intentManager.retrieveIntentById(capturedIntent.id);
+  const intent = await intentManager.retrieveIntentById(
+    capturedIntent.intent.id
+  );
 
   expect(intent).toEqual(expect.objectContaining(nativeSegwitIntent));
 });

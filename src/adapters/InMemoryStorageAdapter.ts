@@ -1,6 +1,8 @@
 import {
   IntentStatus,
   IntentType,
+  NewIntent,
+  PartialExistingIntent,
   StorageAdapter,
   WalletIntent,
 } from "../types";
@@ -9,30 +11,29 @@ import { v4 as uuidv4 } from "uuid";
 export class InMemoryStorageAdapter implements StorageAdapter {
   private intents: WalletIntent[] = [];
 
-  async save(intent: WalletIntent): Promise<WalletIntent> {
-    let savedIntent: WalletIntent;
-
-    if (intent.id) {
-      this.intents = this.intents.map((existingIntent) => {
-        if (existingIntent.id === intent.id) {
-          savedIntent = structuredClone({
-            ...existingIntent,
-            ...intent,
-          });
-          return savedIntent;
-        }
-        return existingIntent;
-      });
+  async save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent> {
+    if ("id" in intent) {
+      const index = this.intents.findIndex((i) => i.id === intent.id);
+      if (index === -1) {
+        throw new Error(`Intent with ID ${intent.id} not found`);
+      }
+      const existingIntent = this.intents[index];
+      const updatedIntent = {
+        ...existingIntent,
+        ...intent,
+        timestamp: existingIntent.timestamp,
+      } as WalletIntent;
+      this.intents[index] = updatedIntent;
+      return updatedIntent;
     } else {
-      savedIntent = structuredClone({
+      const newIntent = {
         ...intent,
         id: uuidv4(),
         timestamp: Date.now(),
-      });
-      this.intents.push(savedIntent);
+      } as WalletIntent;
+      this.intents.push(newIntent);
+      return newIntent;
     }
-
-    return savedIntent;
   }
 
   async findAll(): Promise<WalletIntent[]> {

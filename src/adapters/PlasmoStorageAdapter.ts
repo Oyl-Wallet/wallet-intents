@@ -3,6 +3,8 @@ import {
   IntentStatus,
   IntentType,
   StorageAdapter,
+  NewIntent,
+  PartialExistingIntent,
 } from "../types";
 import { Storage } from "@plasmohq/storage";
 import { v4 as uuidv4 } from "uuid";
@@ -18,17 +20,17 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     });
   }
 
-  async save(intent: WalletIntent): Promise<WalletIntent> {
+  async save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent> {
     const intents = await this.findAll();
     let updatedIntent: WalletIntent;
 
-    if (intent.id) {
+    if ("id" in intent) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
             ...existingIntent,
             ...intent,
-          };
+          } as WalletIntent;
           return updatedIntent;
         }
         return existingIntent;
@@ -36,11 +38,11 @@ export class PlasmoStorageAdapter implements StorageAdapter {
 
       await this.storage.set(this.key, newIntents);
     } else {
-      updatedIntent = structuredClone({
+      updatedIntent = {
         ...intent,
         id: uuidv4(),
         timestamp: Date.now(),
-      });
+      } as WalletIntent;
 
       intents.push(updatedIntent);
       await this.storage.set(this.key, intents);
