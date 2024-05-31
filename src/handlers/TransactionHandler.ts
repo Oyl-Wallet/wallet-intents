@@ -34,11 +34,15 @@ export class TransactionHandler {
   }
 
   async handlePendingTransaction(intent: WalletIntent) {
-    const txs = await Promise.all(
+    const transactions = await Promise.all(
       intent.transactionIds.map((txId: string) => this.provider.getTxById(txId))
     );
 
-    if (txs.every((tx: EsploraTransaction) => tx.status.confirmed)) {
+    const isConfirmed =
+      transactions.length > 0 &&
+      transactions.every((tx: EsploraTransaction) => tx.status?.confirmed);
+
+    if (isConfirmed) {
       intent.status = IntentStatus.Completed;
       await this.manager.captureIntent(intent);
     }
@@ -148,7 +152,10 @@ export class TransactionHandler {
       )
     );
 
-    if (txOutputs.every((output) => output.indexed)) {
+    const isIndexed =
+      txOutputs.length > 0 && txOutputs.every((output) => output.indexed);
+
+    if (isIndexed) {
       return Promise.all(
         inscriptionIdsFromTxOutputs(txOutputs).map((id) =>
           this.provider.getInscriptionById(id)

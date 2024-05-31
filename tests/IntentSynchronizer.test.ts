@@ -44,7 +44,9 @@ test("Updates intent as completed for confirmed transactions", async () => {
     status: IntentStatus.Pending,
     transactionType: TransactionType.Send,
     assetType: AssetType.BTC,
-    transactionIds: [],
+    transactionIds: [
+      "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+    ],
     btcAmount: 100000,
   });
 
@@ -57,6 +59,44 @@ test("Updates intent as completed for confirmed transactions", async () => {
 
   const syncedIntents = await manager.retrieveAllIntents();
   expect(syncedIntents[0]).toHaveProperty("status", "completed");
+});
+
+test("Handles transactions without a status", async () => {
+  mockRpcResponse("esplora_tx", {
+    result: {},
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const synchronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await manager.captureIntent({
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: [
+      "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+    ],
+    btcAmount: 100000,
+  });
+
+  const pendingIntents = await manager.retrieveAllIntents();
+  expect(pendingIntents[0]).toHaveProperty("status", "pending");
+
+  await synchronizer.syncPendingIntents([
+    "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+  ]);
+
+  const syncedIntents = await manager.retrieveAllIntents();
+
+  expect(syncedIntents[0]).toHaveProperty("status", "pending");
 });
 
 test("Receive BTC confirmed", async () => {

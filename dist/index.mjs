@@ -343,10 +343,11 @@ var TransactionHandler = class {
     this.addresses = addresses;
   }
   async handlePendingTransaction(intent) {
-    const txs = await Promise.all(
+    const transactions = await Promise.all(
       intent.transactionIds.map((txId) => this.provider.getTxById(txId))
     );
-    if (txs.every((tx) => tx.status.confirmed)) {
+    const isConfirmed = transactions.length > 0 && transactions.every((tx) => tx.status?.confirmed);
+    if (isConfirmed) {
       intent.status = "completed" /* Completed */;
       await this.manager.captureIntent(intent);
     }
@@ -434,7 +435,8 @@ var TransactionHandler = class {
         (voutIndex) => this.provider.getTxOutput(tx.txid, voutIndex)
       )
     );
-    if (txOutputs.every((output) => output.indexed)) {
+    const isIndexed = txOutputs.length > 0 && txOutputs.every((output) => output.indexed);
+    if (isIndexed) {
       return Promise.all(
         inscriptionIdsFromTxOutputs(txOutputs).map(
           (id) => this.provider.getInscriptionById(id)
