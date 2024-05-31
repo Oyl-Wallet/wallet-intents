@@ -300,6 +300,8 @@ function getInscriptionsFromInput(input, parentTxId) {
   const parsedInscriptions = (0, import_micro_ordinals.parseWitness)(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
+  console.log("parsedInscriptions", parsedInscriptions);
+  console.log(parentTxId);
   for (let inscription of parsedInscriptions) {
     inscriptions.push({
       id: `${parentTxId}i0`,
