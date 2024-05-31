@@ -9,13 +9,18 @@ import {
 export class IntentManager implements IntentHandler {
   constructor(
     private storage: StorageAdapter,
-    private addresses: string[] = []
+    private addresses: string[] = [],
+    private debug: boolean = false
   ) {}
 
   async captureIntent(
     intent: Omit<WalletIntent, "id" | "timestamp">
   ): Promise<void> {
-    return this.storage.save(intent as WalletIntent);
+    if (this.debug) {
+      console.log("Capturing intent", intent);
+    } else {
+      return this.storage.save(intent as WalletIntent);
+    }
   }
 
   async retrieveAllIntents() {

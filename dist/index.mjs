@@ -473,12 +473,17 @@ var IntentSynchronizer = class {
 
 // src/IntentManager.ts
 var IntentManager = class {
-  constructor(storage, addresses = []) {
+  constructor(storage, addresses = [], debug = false) {
     this.storage = storage;
     this.addresses = addresses;
+    this.debug = debug;
   }
   async captureIntent(intent) {
-    return this.storage.save(intent);
+    if (this.debug) {
+      console.log("Capturing intent", intent);
+    } else {
+      return this.storage.save(intent);
+    }
   }
   async retrieveAllIntents() {
     return this.storage.findAll();
