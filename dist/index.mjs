@@ -287,13 +287,13 @@ function inscriptionIdsFromTxOutputs(txOutputs) {
   return inscriptionIds;
 }
 function getInscriptionsFromInput(input, parentTxId) {
+  console.log(input);
   if (input.witness.length < 3)
     return [];
   const inscriptions = [];
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
-  console.log(parsedInscriptions);
   if (!parsedInscriptions) {
     return inscriptions;
   }
