@@ -22,7 +22,7 @@ test("Decodes collectible inscription from input witness correctly", async () =>
   );
 });
 
-test.only("Decodes BRC-20 transfer inscription from input witness correctly", async () => {
+test("Decodes BRC-20 transfer inscription from input witness correctly", async () => {
   const inscriptions = getInscriptionsFromInput(
     {
       txid: "dbee942f3bfcc86996e26d60d14c96cde75c49ab410fc5429f298ec2af454aee",

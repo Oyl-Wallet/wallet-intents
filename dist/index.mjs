@@ -287,7 +287,6 @@ function inscriptionIdsFromTxOutputs(txOutputs) {
   return inscriptionIds;
 }
 function getInscriptionsFromInput(input, parentTxId) {
-  console.log(input);
   if (input.witness.length < 3)
     return [];
   const inscriptions = [];
@@ -369,9 +368,7 @@ var TransactionHandler = class {
   }
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
-    console.log("inscriptions", inscriptions);
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
-    console.log("categorizedAssets", categorizedAssets);
     const [asset] = categorizedAssets;
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
@@ -427,6 +424,9 @@ var TransactionHandler = class {
     if (inscriptions.length === 0) {
       inscriptions = this.getInputInscriptions(tx);
     }
+    if (inscriptions.length === 0) {
+      inscriptions = await this.getPrevInputsInscriptions(tx);
+    }
     return inscriptions;
   }
   async getTxOutputsInscriptions(tx) {
@@ -460,6 +460,17 @@ var TransactionHandler = class {
   }
   getInputInscriptions(tx) {
     return tx.vin.flatMap((input) => getInscriptionsFromInput(input, tx.txid));
+  }
+  async getPrevInputsInscriptions(tx) {
+    const prevTxs = await Promise.all(
+      tx.vin.map((input) => this.provider.getTxById(input.txid))
+    );
+    const prevInputsInscriptions = prevTxs.flatMap(
+      (prevTx) => prevTx.vin.flatMap(
+        (input) => getInscriptionsFromInput(input, prevTx.txid)
+      )
+    );
+    return prevInputsInscriptions;
   }
   categorizeInscriptions(inscriptions) {
     const assets = [];

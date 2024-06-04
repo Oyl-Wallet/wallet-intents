@@ -67,8 +67,6 @@ export function getInscriptionsFromInput(
   },
   parentTxId: string
 ) {
-  console.log(input);
-
   if (input.witness.length < 3) return [];
 
   const inscriptions: Inscription[] = [];

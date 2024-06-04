@@ -71,11 +71,7 @@ export class TransactionHandler {
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
 
-    console.log("inscriptions", inscriptions);
-
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
-
-    console.log("categorizedAssets", categorizedAssets);
 
     const [asset] = categorizedAssets;
 
@@ -139,6 +135,9 @@ export class TransactionHandler {
     if (inscriptions.length === 0) {
       inscriptions = this.getInputInscriptions(tx);
     }
+    if (inscriptions.length === 0) {
+      inscriptions = await this.getPrevInputsInscriptions(tx);
+    }
     return inscriptions;
   }
 
@@ -184,6 +183,20 @@ export class TransactionHandler {
 
   private getInputInscriptions(tx: EsploraTransaction): any[] {
     return tx.vin.flatMap((input) => getInscriptionsFromInput(input, tx.txid));
+  }
+
+  private async getPrevInputsInscriptions(
+    tx: EsploraTransaction
+  ): Promise<any[]> {
+    const prevTxs = await Promise.all(
+      tx.vin.map((input) => this.provider.getTxById(input.txid))
+    );
+    const prevInputsInscriptions = prevTxs.flatMap((prevTx) =>
+      prevTx.vin.flatMap((input) =>
+        getInscriptionsFromInput(input, prevTx.txid)
+      )
+    );
+    return prevInputsInscriptions;
   }
 
   private categorizeInscriptions(

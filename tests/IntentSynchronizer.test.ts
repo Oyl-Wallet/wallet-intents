@@ -346,7 +346,7 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
     "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
-  expect(intents[0]).toHaveProperty("ticker", "VMPX");
+  expect(intents[0]).toHaveProperty("ticker", "toyl");
   expect(intents[0]).toHaveProperty("tickerAmount", 1000);
   expect(intents[0]).toHaveProperty("operation", "transfer");
 });
@@ -526,7 +526,7 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty("tickerAmount", 1000);
-  expect(intents[0]).toHaveProperty("ticker", "VMPX");
+  expect(intents[0]).toHaveProperty("ticker", "toyl");
   expect(intents[0]).toHaveProperty("operation", "transfer");
 });
 
@@ -668,8 +668,101 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty("tickerAmount", null);
-  expect(intents[0]).toHaveProperty("ticker", "PUPS");
+  expect(intents[0]).toHaveProperty("ticker", "toyl");
   expect(intents[0]).toHaveProperty("operation", "deploy");
-  expect(intents[0]).toHaveProperty("max", 7770000);
-  expect(intents[0]).toHaveProperty("limit", 777);
+  expect(intents[0]).toHaveProperty("max", 21000000);
+  expect(intents[0]).toHaveProperty("limit", 1000);
+});
+
+test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
+  mockRpcResponse("esplora_address::txs", {
+    result: [
+      {
+        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+        vin: [
+          {
+            txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+            vout: 0,
+            prevout: {},
+            witness: [],
+          },
+        ],
+        vout: [
+          {
+            scriptpubkey_address:
+              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+            value: 546,
+          },
+        ],
+        status: {
+          confirmed: false,
+        },
+      },
+    ],
+  });
+  mockRpcResponse("ord_output", {
+    result: {
+      indexed: false,
+      inscriptions: [],
+      runes: [],
+    },
+  });
+  mockRpcResponse("esplora_tx", {
+    result: {
+      txid: "68bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4105",
+      vin: [
+        {
+          txid: "28bf2613e71cf8cc8652bba6f138d713cf44992eb067b8eb35b707e9a35c4101",
+          vout: 0,
+          prevout: {},
+          witness: WITNESS_SCRIPTS.BRC20_TRANSFER,
+        },
+      ],
+      vout: [
+        {
+          scriptpubkey_address:
+            "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          value: 546,
+        },
+      ],
+      status: {
+        confirmed: false,
+      },
+    },
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const syncronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await syncronizer.syncIntentsFromChain([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0].id).toBeTruthy();
+  expect(intents[0].timestamp).toBeTruthy();
+  expect(intents[0].address).toEqual(
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"
+  );
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "pending");
+  expect(intents[0]).toHaveProperty("assetType", "brc-20");
+  expect(intents[0]).toHaveProperty("transactionType", "receive");
+  expect(intents[0]).toHaveProperty("transactionIds", [
+    "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+  ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
+  expect(intents[0]).toHaveProperty("tickerAmount", 200);
+  expect(intents[0]).toHaveProperty("ticker", "betf");
+  expect(intents[0]).toHaveProperty("operation", "transfer");
+  expect(intents[0]).toHaveProperty("max", null);
+  expect(intents[0]).toHaveProperty("limit", null);
 });
