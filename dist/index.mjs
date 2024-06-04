@@ -508,14 +508,19 @@ var IntentSynchronizer = class {
 // src/IntentManager.ts
 import { EventEmitter } from "events";
 var IntentManager = class extends EventEmitter {
-  constructor(storage) {
+  constructor(storage, debug = false) {
     super();
     this.storage = storage;
+    this.debug = debug;
   }
   notifyIntentCaptured(intent) {
     this.emit("intentCaptured", intent);
   }
   async captureIntent(intent) {
+    if (this.debug) {
+      console.log("Capturing intent:", intent);
+      return;
+    }
     const capturedIntent = await this.storage.save(intent);
     this.notifyIntentCaptured(capturedIntent);
     const update = async (updates) => {

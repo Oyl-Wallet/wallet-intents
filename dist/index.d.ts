@@ -216,7 +216,8 @@ declare class SandshrewRpcProvider implements RpcProvider {
 
 declare class IntentManager extends EventEmitter implements IntentHandler {
     private storage;
-    constructor(storage: StorageAdapter);
+    private debug;
+    constructor(storage: StorageAdapter, debug?: boolean);
     private notifyIntentCaptured;
     captureIntent(intent: CapturableIntent<WalletIntent>): Promise<CapturedIntent>;
     retrieveAllIntents(): Promise<WalletIntent[]>;

@@ -9,7 +9,7 @@ import {
 } from "./types";
 
 export class IntentManager extends EventEmitter implements IntentHandler {
-  constructor(private storage: StorageAdapter) {
+  constructor(private storage: StorageAdapter, private debug = false) {
     super();
   }
 
@@ -20,6 +20,11 @@ export class IntentManager extends EventEmitter implements IntentHandler {
   async captureIntent(
     intent: CapturableIntent<WalletIntent>
   ): Promise<CapturedIntent> {
+    if (this.debug) {
+      console.log("Capturing intent:", intent);
+      return;
+    }
+
     const capturedIntent = await this.storage.save(intent);
 
     this.notifyIntentCaptured(capturedIntent);
