@@ -293,6 +293,7 @@ function getInscriptionsFromInput(input, parentTxId) {
   const parsedInscriptions = parseWitness(
     input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
   );
+  console.log(parsedInscriptions);
   if (!parsedInscriptions) {
     return inscriptions;
   }
