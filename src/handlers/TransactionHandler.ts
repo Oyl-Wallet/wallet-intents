@@ -71,7 +71,11 @@ export class TransactionHandler {
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
 
+    console.log("inscriptions", inscriptions);
+
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
+
+    console.log("categorizedAssets", categorizedAssets);
 
     const [asset] = categorizedAssets;
 

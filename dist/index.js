@@ -402,7 +402,9 @@ var TransactionHandler = class {
   }
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
+    console.log("inscriptions", inscriptions);
     const categorizedAssets = this.categorizeInscriptions(inscriptions);
+    console.log("categorizedAssets", categorizedAssets);
     const [asset] = categorizedAssets;
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
