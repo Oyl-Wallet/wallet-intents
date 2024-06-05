@@ -1,4 +1,4 @@
-import { getInscriptionsFromInput, getRunesFromOutputs } from "../src/helpers";
+import { getInscriptionsFromInput, getRuneFromOutputs } from "../src/helpers";
 import { WITNESS_SCRIPTS } from "./mocks/constants";
 
 test("Decodes collectible inscription from input witness correctly", async () => {
@@ -47,7 +47,7 @@ test("Decodes BRC-20 transfer inscription from input witness correctly", async (
 });
 
 test("Decodes RUNE etching from input witness correctly", async () => {
-  const runes = getRunesFromOutputs([
+  const rune = getRuneFromOutputs([
     {
       scriptpubkey:
         "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
@@ -68,11 +68,12 @@ test("Decodes RUNE etching from input witness correctly", async () => {
     },
   ]);
 
-  expect(runes[0].etching).toHaveProperty("premine", 10000n);
-  expect(runes[0].etching).toHaveProperty("divisibility", 0);
-  expect(runes[0].etching).toHaveProperty("runeName", "TOYLRUNESTONEB");
-  expect(runes[0].etching).toHaveProperty("symbol", "Ю");
-  expect(runes[0].etching).toHaveProperty("turbo", true);
-  expect(runes[0].etching).toHaveProperty("terms.amount", 1000n);
-  expect(runes[0].etching).toHaveProperty("terms.cap", 20990000n);
+  expect(rune).not.toBeNull();
+  expect(rune?.etching).toHaveProperty("premine", 10000n);
+  expect(rune?.etching).toHaveProperty("divisibility", 0);
+  expect(rune?.etching).toHaveProperty("runeName", "TOYLRUNESTONEB");
+  expect(rune?.etching).toHaveProperty("symbol", "Ю");
+  expect(rune?.etching).toHaveProperty("turbo", true);
+  expect(rune?.etching).toHaveProperty("terms.amount", 1000n);
+  expect(rune?.etching).toHaveProperty("terms.cap", 20990000n);
 });

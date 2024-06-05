@@ -1,4 +1,4 @@
-import { Cenotaph, RunestoneSpec } from "@magiceden-oss/runestone-lib";
+import { RuneEtchingSpec, RunestoneSpec } from "@magiceden-oss/runestone-lib";
 
 export enum IntentStatus {
   Pending = "pending",
@@ -37,6 +37,12 @@ export enum BRC20Operation {
   Transfer = "transfer",
 }
 
+export enum RuneOperation {
+  Etching = "etching",
+  Mint = "mint",
+  Transfer = "transfer",
+}
+
 export interface TransactionIntent extends BaseIntent {
   type: IntentType.Transaction;
   transactionType: TransactionType;
@@ -59,12 +65,21 @@ export interface BRC20TransactionIntent extends TransactionIntent {
   limit?: number;
 }
 
-export interface RuneTransactionIntent extends TransactionIntent {
+export interface RuneEtchingTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
-  runeId: string;
-  runeName: string;
-  runeAmount: number;
+  operation: RuneOperation.Etching;
+  etching: RuneEtchingSpec;
+  inscription?: CategorizedInscription;
 }
+
+export interface RuneMintTransactionIntent extends TransactionIntent {
+  assetType: AssetType.RUNE;
+  operation: RuneOperation.Mint;
+}
+
+export type RuneTransactionIntent =
+  | RuneEtchingTransactionIntent
+  | RuneMintTransactionIntent;
 
 export interface CollectibleTransactionIntent extends TransactionIntent {
   assetType: AssetType.COLLECTIBLE;
@@ -223,8 +238,9 @@ export interface Brc20Asset extends ParsedBRC20 {
   assetType: AssetType.BRC20;
 }
 
-export type RuneAsset = {
+export interface RuneAsset extends Rune {
   assetType: AssetType.RUNE;
-};
+  inscription?: Inscription | null;
+}
 
-export type CategorizedAsset = RuneAsset | Brc20Asset | CollectibleAsset;
+export type CategorizedInscription = Brc20Asset | CollectibleAsset;

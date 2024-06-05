@@ -7,7 +7,7 @@ import {
   isReceiveTx,
   txIntentExists,
   determineReceiverAmount,
-  getRunesFromOutputs,
+  getRuneFromOutputs,
 } from "../helpers";
 import {
   IntentStatus,
@@ -16,13 +16,15 @@ import {
   RpcProvider,
   WalletIntent,
   IntentType,
-  CategorizedAsset,
+  CategorizedInscription,
   AssetType,
   TransactionType,
   BRC20TransactionIntent,
   CollectibleTransactionIntent,
   BTCTransactionIntent,
   Rune,
+  RuneTransactionIntent,
+  RuneOperation,
 } from "../types";
 import { parseNumber } from "../utils";
 
@@ -72,13 +74,7 @@ export class TransactionHandler {
 
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
-    const runes = await this.getRunes(tx);
-    const categorizedAssets = this.categorizeAssets(inscriptions, runes);
-
-    console.log("inscriptions", inscriptions);
-    console.log("runes", runes);
-
-    const [asset] = categorizedAssets;
+    const [categorized] = this.categorizeInscriptions(inscriptions);
 
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed
@@ -86,7 +82,7 @@ export class TransactionHandler {
       : IntentStatus.Pending;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
 
-    switch (asset?.assetType) {
+    switch (categorized?.assetType) {
       case AssetType.BRC20:
         await this.manager.captureIntent({
           address,
@@ -96,27 +92,44 @@ export class TransactionHandler {
           assetType: AssetType.BRC20,
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
-          ticker: asset.tick,
-          tickerAmount: parseNumber(asset.amt),
-          operation: asset.op,
-          max: parseNumber(asset.max),
-          limit: parseNumber(asset.lim),
+          ticker: categorized.tick,
+          tickerAmount: parseNumber(categorized.amt),
+          operation: categorized.op,
+          max: parseNumber(categorized.max),
+          limit: parseNumber(categorized.lim),
         } as BRC20TransactionIntent);
         break;
 
       case AssetType.COLLECTIBLE:
-        await this.manager.captureIntent({
-          address,
-          status,
-          btcAmount,
-          type: IntentType.Transaction,
-          assetType: AssetType.COLLECTIBLE,
-          transactionType: TransactionType.Receive,
-          transactionIds: [tx.txid],
-          inscriptionId: asset.id,
-          contentType: asset.content_type,
-          content: asset.content,
-        } as CollectibleTransactionIntent);
+        const rune = await this.getRune(tx);
+
+        if (rune) {
+          await this.manager.captureIntent({
+            address,
+            status,
+            btcAmount,
+            type: IntentType.Transaction,
+            assetType: AssetType.RUNE,
+            transactionType: TransactionType.Receive,
+            transactionIds: [tx.txid],
+            operation: RuneOperation.Etching,
+            etching: rune.etching,
+            inscription: categorized || null,
+          } as RuneTransactionIntent);
+        } else {
+          await this.manager.captureIntent({
+            address,
+            status,
+            btcAmount,
+            type: IntentType.Transaction,
+            assetType: AssetType.COLLECTIBLE,
+            transactionType: TransactionType.Receive,
+            transactionIds: [tx.txid],
+            inscriptionId: categorized.id,
+            contentType: categorized.content_type,
+            content: categorized.content,
+          } as CollectibleTransactionIntent);
+        }
         break;
 
       default:
@@ -148,8 +161,8 @@ export class TransactionHandler {
     return inscriptions;
   }
 
-  private async getRunes(tx: EsploraTransaction) {
-    const runes = getRunesFromOutputs(tx.vout);
+  private async getRune(tx: EsploraTransaction) {
+    const runes = getRuneFromOutputs(tx.vout);
     return runes;
   }
 
@@ -211,28 +224,27 @@ export class TransactionHandler {
     return prevInputsInscriptions;
   }
 
-  private categorizeAssets(
-    inscriptions: Inscription[],
-    runes: Rune[]
-  ): CategorizedAsset[] {
-    const assets: CategorizedAsset[] = [];
+  private categorizeInscriptions(
+    inscriptions: Inscription[]
+  ): CategorizedInscription[] {
+    const categorized: CategorizedInscription[] = [];
 
     for (let inscription of inscriptions) {
       const brc20 = parseBrc20Inscription(inscription);
 
       if (brc20) {
-        assets.push({
+        categorized.push({
           ...brc20,
           assetType: AssetType.BRC20,
         });
       } else {
-        assets.push({
+        categorized.push({
           ...inscription,
           assetType: AssetType.COLLECTIBLE,
         });
       }
     }
 
-    return assets;
+    return categorized;
   }
 }

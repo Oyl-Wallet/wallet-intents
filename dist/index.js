@@ -27,6 +27,7 @@ __export(src_exports, {
   IntentSynchronizer: () => IntentSynchronizer,
   IntentType: () => IntentType,
   PlasmoStorageAdapter: () => PlasmoStorageAdapter,
+  RuneOperation: () => RuneOperation,
   SandshrewRpcProvider: () => SandshrewRpcProvider,
   TransactionType: () => TransactionType
 });
@@ -62,6 +63,12 @@ var BRC20Operation = /* @__PURE__ */ ((BRC20Operation2) => {
   BRC20Operation2["Transfer"] = "transfer";
   return BRC20Operation2;
 })(BRC20Operation || {});
+var RuneOperation = /* @__PURE__ */ ((RuneOperation2) => {
+  RuneOperation2["Etching"] = "etching";
+  RuneOperation2["Mint"] = "mint";
+  RuneOperation2["Transfer"] = "transfer";
+  return RuneOperation2;
+})(RuneOperation || {});
 
 // src/adapters/InMemoryStorageAdapter.ts
 var import_uuid = require("uuid");
@@ -340,18 +347,17 @@ function getInscriptionsFromInput(input, parentTxId) {
   }
   return inscriptions;
 }
-function getRunesFromOutputs(vout) {
+function getRuneFromOutputs(vout) {
   const asBtcoinCoreTxVout = vout.map((output) => ({
     scriptPubKey: {
       hex: output.scriptpubkey
     }
   }));
   const artifact = (0, import_runestone_lib.tryDecodeRunestone)({ vout: asBtcoinCoreTxVout });
-  const runes = [];
   if (artifact && (0, import_runestone_lib.isRunestone)(artifact)) {
-    runes.push(artifact);
+    return artifact;
   }
-  return runes;
+  return null;
 }
 function uint8ArrayToBase64(uint8Array) {
   let binaryString = "";
@@ -416,15 +422,11 @@ var TransactionHandler = class {
   }
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
-    const runes = await this.getRunes(tx);
-    const categorizedAssets = this.categorizeAssets(inscriptions, runes);
-    console.log("inscriptions", inscriptions);
-    console.log("runes", runes);
-    const [asset] = categorizedAssets;
+    const [categorized] = this.categorizeInscriptions(inscriptions);
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
-    switch (asset?.assetType) {
+    switch (categorized?.assetType) {
       case "brc-20" /* BRC20 */:
         await this.manager.captureIntent({
           address,
@@ -434,26 +436,42 @@ var TransactionHandler = class {
           assetType: "brc-20" /* BRC20 */,
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
-          ticker: asset.tick,
-          tickerAmount: parseNumber(asset.amt),
-          operation: asset.op,
-          max: parseNumber(asset.max),
-          limit: parseNumber(asset.lim)
+          ticker: categorized.tick,
+          tickerAmount: parseNumber(categorized.amt),
+          operation: categorized.op,
+          max: parseNumber(categorized.max),
+          limit: parseNumber(categorized.lim)
         });
         break;
       case "collectible" /* COLLECTIBLE */:
-        await this.manager.captureIntent({
-          address,
-          status,
-          btcAmount,
-          type: "transaction" /* Transaction */,
-          assetType: "collectible" /* COLLECTIBLE */,
-          transactionType: "receive" /* Receive */,
-          transactionIds: [tx.txid],
-          inscriptionId: asset.id,
-          contentType: asset.content_type,
-          content: asset.content
-        });
+        const rune = await this.getRune(tx);
+        if (rune) {
+          await this.manager.captureIntent({
+            address,
+            status,
+            btcAmount,
+            type: "transaction" /* Transaction */,
+            assetType: "rune" /* RUNE */,
+            transactionType: "receive" /* Receive */,
+            transactionIds: [tx.txid],
+            operation: "etching" /* Etching */,
+            etching: rune.etching,
+            inscription: categorized || null
+          });
+        } else {
+          await this.manager.captureIntent({
+            address,
+            status,
+            btcAmount,
+            type: "transaction" /* Transaction */,
+            assetType: "collectible" /* COLLECTIBLE */,
+            transactionType: "receive" /* Receive */,
+            transactionIds: [tx.txid],
+            inscriptionId: categorized.id,
+            contentType: categorized.content_type,
+            content: categorized.content
+          });
+        }
         break;
       default:
         await this.manager.captureIntent({
@@ -480,8 +498,8 @@ var TransactionHandler = class {
     }
     return inscriptions;
   }
-  async getRunes(tx) {
-    const runes = getRunesFromOutputs(tx.vout);
+  async getRune(tx) {
+    const runes = getRuneFromOutputs(tx.vout);
     return runes;
   }
   async getTxOutputsInscriptions(tx) {
@@ -527,23 +545,23 @@ var TransactionHandler = class {
     );
     return prevInputsInscriptions;
   }
-  categorizeAssets(inscriptions, runes) {
-    const assets = [];
+  categorizeInscriptions(inscriptions) {
+    const categorized = [];
     for (let inscription of inscriptions) {
       const brc20 = parseBrc20Inscription(inscription);
       if (brc20) {
-        assets.push({
+        categorized.push({
           ...brc20,
           assetType: "brc-20" /* BRC20 */
         });
       } else {
-        assets.push({
+        categorized.push({
           ...inscription,
           assetType: "collectible" /* COLLECTIBLE */
         });
       }
     }
-    return assets;
+    return categorized;
   }
 };
 
@@ -634,6 +652,7 @@ var IntentManager = class extends import_events.EventEmitter {
   IntentSynchronizer,
   IntentType,
   PlasmoStorageAdapter,
+  RuneOperation,
   SandshrewRpcProvider,
   TransactionType
 });

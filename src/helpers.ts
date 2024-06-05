@@ -98,7 +98,9 @@ export function getInscriptionsFromInput(
   return inscriptions;
 }
 
-export function getRunesFromOutputs(vout: EsploraTransaction["vout"]) {
+export function getRuneFromOutputs(
+  vout: EsploraTransaction["vout"]
+): Rune | null {
   const asBtcoinCoreTxVout = vout.map((output) => ({
     scriptPubKey: {
       hex: output.scriptpubkey,
@@ -107,13 +109,10 @@ export function getRunesFromOutputs(vout: EsploraTransaction["vout"]) {
 
   const artifact = tryDecodeRunestone({ vout: asBtcoinCoreTxVout });
 
-  const runes: Rune[] = [];
-
   if (artifact && isRunestone(artifact)) {
-    runes.push(artifact);
+    return artifact;
   }
-
-  return runes;
+  return null;
 }
 
 export function uint8ArrayToBase64(uint8Array: Uint8Array) {

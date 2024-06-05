@@ -1,4 +1,4 @@
-import { RunestoneSpec } from '@magiceden-oss/runestone-lib';
+import { RuneEtchingSpec, RunestoneSpec } from '@magiceden-oss/runestone-lib';
 import { EventEmitter } from 'events';
 
 declare enum IntentStatus {
@@ -32,6 +32,11 @@ declare enum BRC20Operation {
     Mint = "mint",
     Transfer = "transfer"
 }
+declare enum RuneOperation {
+    Etching = "etching",
+    Mint = "mint",
+    Transfer = "transfer"
+}
 interface TransactionIntent extends BaseIntent {
     type: IntentType.Transaction;
     transactionType: TransactionType;
@@ -51,12 +56,17 @@ interface BRC20TransactionIntent extends TransactionIntent {
     max?: number;
     limit?: number;
 }
-interface RuneTransactionIntent extends TransactionIntent {
+interface RuneEtchingTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
-    runeId: string;
-    runeName: string;
-    runeAmount: number;
+    operation: RuneOperation.Etching;
+    etching: RuneEtchingSpec;
+    inscription?: CategorizedInscription;
 }
+interface RuneMintTransactionIntent extends TransactionIntent {
+    assetType: AssetType.RUNE;
+    operation: RuneOperation.Mint;
+}
+type RuneTransactionIntent = RuneEtchingTransactionIntent | RuneMintTransactionIntent;
 interface CollectibleTransactionIntent extends TransactionIntent {
     assetType: AssetType.COLLECTIBLE;
     inscriptionId: string;
@@ -175,10 +185,11 @@ interface CollectibleAsset extends Inscription {
 interface Brc20Asset extends ParsedBRC20 {
     assetType: AssetType.BRC20;
 }
-type RuneAsset = {
+interface RuneAsset extends Rune {
     assetType: AssetType.RUNE;
-};
-type CategorizedAsset = RuneAsset | Brc20Asset | CollectibleAsset;
+    inscription?: Inscription | null;
+}
+type CategorizedInscription = Brc20Asset | CollectibleAsset;
 
 declare class InMemoryStorageAdapter implements StorageAdapter {
     private intents;
@@ -237,4 +248,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 
-export { AssetType, BRC20Operation, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedAsset, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };

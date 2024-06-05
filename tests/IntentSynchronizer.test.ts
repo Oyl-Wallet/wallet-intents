@@ -12,9 +12,10 @@ import {
 } from "../src/types";
 
 import {
-  IMAGE_BASE64,
+  IMAGE_PNG_BASE64,
   BRC20_TRANSFER_BASE64,
   WITNESS_SCRIPTS,
+  IMAGE_GIF_BASE64,
 } from "./mocks/constants";
 import { mockRpcResponse, setupMockServer } from "./mocks/utils";
 
@@ -246,7 +247,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
     },
   });
   mockRpcResponse("ord_content", {
-    result: IMAGE_BASE64,
+    result: IMAGE_PNG_BASE64,
   });
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
@@ -281,7 +282,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
     "inscriptionId",
     "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0"
   );
-  expect(intents[0]).toHaveProperty("content", IMAGE_BASE64);
+  expect(intents[0]).toHaveProperty("content", IMAGE_PNG_BASE64);
   expect(intents[0]).toHaveProperty("contentType", "image/png");
 });
 
@@ -412,7 +413,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
     },
   });
   mockRpcResponse("ord_content", {
-    result: IMAGE_BASE64,
+    result: IMAGE_PNG_BASE64,
   });
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
@@ -448,7 +449,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
     "inscriptionId",
     "bb9ca79081bc51d968ab1b41766ccf4a5e920161e42fa1cb8854c853a83cc0cei0"
   );
-  expect(intents[0]).toHaveProperty("content", IMAGE_BASE64);
+  expect(intents[0]).toHaveProperty("content", IMAGE_PNG_BASE64);
   expect(intents[0]).toHaveProperty("contentType", "image/png");
 });
 
@@ -785,4 +786,53 @@ test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
   expect(intents[0]).toHaveProperty("operation", "transfer");
   expect(intents[0]).toHaveProperty("max", null);
   expect(intents[0]).toHaveProperty("limit", null);
+});
+
+test("Uconfirmed TX with Rune etching in outputs", async () => {
+  mockRpcResponse(
+    "esplora_address::txs",
+    "esplora_address::txs_rune_etching.json"
+  );
+  mockRpcResponse("ord_output", "ord_output_not_indexed.json");
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const syncronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await syncronizer.syncIntentsFromChain([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0].id).toBeTruthy();
+  expect(intents[0].timestamp).toBeTruthy();
+  expect(intents[0].address).toEqual(
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"
+  );
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "pending");
+  expect(intents[0]).toHaveProperty("assetType", "rune");
+  expect(intents[0]).toHaveProperty("transactionType", "receive");
+  expect(intents[0]).toHaveProperty("transactionIds", [
+    "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
+  ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 1092);
+  expect(intents[0]).toHaveProperty("operation", "etching");
+  expect(intents[0]).toHaveProperty("etching.divisibility", 2);
+  expect(intents[0]).toHaveProperty("etching.runeName", "KRYDROID•RUNES");
+  expect(intents[0]).toHaveProperty("etching.symbol", "🤖");
+  expect(intents[0]).toHaveProperty("etching.terms.amount", 5000000n);
+  expect(intents[0]).toHaveProperty("etching.terms.cap", 420n);
+  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
+  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
+  expect(intents[0]).toHaveProperty("inscription.assetType", "collectible");
+  expect(intents[0]).toHaveProperty("inscription.content", IMAGE_GIF_BASE64);
+  expect(intents[0]).toHaveProperty("inscription.content_type", "image/gif");
 });
