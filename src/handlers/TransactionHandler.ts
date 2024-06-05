@@ -75,6 +75,7 @@ export class TransactionHandler {
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
+    const rune = await this.getRune(tx);
 
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed
@@ -100,9 +101,7 @@ export class TransactionHandler {
         } as BRC20TransactionIntent);
         break;
 
-      case AssetType.COLLECTIBLE:
-        const rune = await this.getRune(tx);
-
+      case AssetType.COLLECTIBLE || rune:
         if (rune) {
           await this.manager.captureIntent({
             address,
@@ -160,7 +159,6 @@ export class TransactionHandler {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
 
-    console.log(inscriptions);
     return inscriptions;
   }
 

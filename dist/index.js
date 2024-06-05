@@ -423,6 +423,7 @@ var TransactionHandler = class {
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
+    const rune = await this.getRune(tx);
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
@@ -443,8 +444,7 @@ var TransactionHandler = class {
           limit: parseNumber(categorized.lim)
         });
         break;
-      case "collectible" /* COLLECTIBLE */:
-        const rune = await this.getRune(tx);
+      case ("collectible" /* COLLECTIBLE */ || rune):
         if (rune) {
           await this.manager.captureIntent({
             address,
@@ -496,7 +496,6 @@ var TransactionHandler = class {
     if (inscriptions.length === 0) {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
-    console.log(inscriptions);
     return inscriptions;
   }
   async getRune(tx) {
