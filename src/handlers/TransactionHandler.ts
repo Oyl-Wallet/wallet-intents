@@ -76,8 +76,6 @@ export class TransactionHandler {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
 
-    console.log(categorized);
-
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed
       ? IntentStatus.Completed
@@ -104,8 +102,6 @@ export class TransactionHandler {
 
       case AssetType.COLLECTIBLE:
         const rune = await this.getRune(tx);
-
-        console.log(rune);
 
         if (rune) {
           await this.manager.captureIntent({
@@ -163,6 +159,8 @@ export class TransactionHandler {
     if (inscriptions.length === 0) {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
+
+    console.log(inscriptions);
     return inscriptions;
   }
 
