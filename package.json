@@ -32,6 +32,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@magiceden-oss/runestone-lib": "^1.0.2",
     "@plasmohq/storage": "^1.10.0",
     "micro-ordinals": "^0.1.0",
     "uuid": "^9.0.1"

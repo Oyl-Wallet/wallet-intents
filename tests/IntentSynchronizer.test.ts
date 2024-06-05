@@ -107,6 +107,8 @@ test("Receive BTC confirmed", async () => {
         vin: [],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
           },
@@ -156,6 +158,8 @@ test("Receive BTC unconfirmed", async () => {
         vin: [],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
           },
@@ -214,6 +218,8 @@ test("Confirmed TX with Collectible in Outputs", async () => {
         vin: [],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
           },
@@ -287,6 +293,8 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
         vin: [],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -366,6 +374,8 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
         ],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -457,6 +467,8 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
         ],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -545,6 +557,8 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
         ],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -619,6 +633,8 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
         ],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -689,6 +705,8 @@ test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
         ],
         vout: [
           {
+            scriptpubkey:
+              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
             scriptpubkey_address:
               "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
             value: 546,
@@ -720,6 +738,8 @@ test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
       ],
       vout: [
         {
+          scriptpubkey:
+            "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
           scriptpubkey_address:
             "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
           value: 546,

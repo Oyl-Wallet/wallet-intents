@@ -1,10 +1,18 @@
 import { parseWitness } from "micro-ordinals";
 import {
+  tryDecodeRunestone,
+  RunestoneSpec,
+  Cenotaph,
+  isRunestone,
+} from "@magiceden-oss/runestone-lib";
+
+import {
   ParsedBRC20,
   EsploraTransaction,
   Inscription,
   WalletIntent,
   OrdOutput,
+  Rune,
 } from "./types";
 
 export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
@@ -88,6 +96,24 @@ export function getInscriptionsFromInput(
   }
 
   return inscriptions;
+}
+
+export function getRunesFromOutputs(vout: EsploraTransaction["vout"]) {
+  const asBtcoinCoreTxVout = vout.map((output) => ({
+    scriptPubKey: {
+      hex: output.scriptpubkey,
+    },
+  }));
+
+  const artifact = tryDecodeRunestone({ vout: asBtcoinCoreTxVout });
+
+  const runes: Rune[] = [];
+
+  if (artifact && isRunestone(artifact)) {
+    runes.push(artifact);
+  }
+
+  return runes;
 }
 
 export function uint8ArrayToBase64(uint8Array: Uint8Array) {

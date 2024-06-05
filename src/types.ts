@@ -1,3 +1,5 @@
+import { Cenotaph, RunestoneSpec } from "@magiceden-oss/runestone-lib";
+
 export enum IntentStatus {
   Pending = "pending",
   Completed = "completed",
@@ -165,7 +167,7 @@ export interface EsploraTransaction {
     scriptpubkey: string;
     scriptpubkey_asm: string;
     scriptpubkey_type: string;
-    scriptpubkey_address: string;
+    scriptpubkey_address?: string;
     value: number;
   }[];
   size: number;
@@ -201,6 +203,8 @@ export type Inscription = {
   content_type: string;
   content: string;
 };
+
+export type Rune = RunestoneSpec;
 
 export interface ParsedBRC20 {
   p: string;

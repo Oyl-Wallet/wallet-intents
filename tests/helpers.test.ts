@@ -1,4 +1,4 @@
-import { getInscriptionsFromInput } from "../src/helpers";
+import { getInscriptionsFromInput, getRunesFromOutputs } from "../src/helpers";
 import { WITNESS_SCRIPTS } from "./mocks/constants";
 
 test("Decodes collectible inscription from input witness correctly", async () => {
@@ -44,4 +44,35 @@ test("Decodes BRC-20 transfer inscription from input witness correctly", async (
     "content",
     "eyJwIjoiYnJjLTIwIiwib3AiOiJ0cmFuc2ZlciIsInRpY2siOiJiZXRmIiwiYW10IjoiMjAwIn0="
   );
+});
+
+test("Decodes RUNE etching from input witness correctly", async () => {
+  const runes = getRunesFromOutputs([
+    {
+      scriptpubkey:
+        "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
+      scriptpubkey_asm:
+        "OP_PUSHNUM_1 OP_PUSHBYTES_32 7c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
+      scriptpubkey_type: "v1_p2tr",
+      scriptpubkey_address:
+        "bcrt1p0syk7kvy96uxuaev746l432lwpathz65c82rpxqwudy4j2r0pe7s9xh7v0",
+      value: 546,
+    },
+    {
+      scriptpubkey:
+        "6a5d1d020304b3f1b3949fae97e9c505010006904e05ae080ae80708b090810a",
+      scriptpubkey_asm:
+        "OP_RETURN OP_PUSHNUM_13 OP_PUSHBYTES_29 020304b3f1b3949fae97e9c505010006904e05ae080ae80708b090810a",
+      scriptpubkey_type: "op_return",
+      value: 0,
+    },
+  ]);
+
+  expect(runes[0].etching).toHaveProperty("premine", 10000n);
+  expect(runes[0].etching).toHaveProperty("divisibility", 0);
+  expect(runes[0].etching).toHaveProperty("runeName", "TOYLRUNESTONEB");
+  expect(runes[0].etching).toHaveProperty("symbol", "Ю");
+  expect(runes[0].etching).toHaveProperty("turbo", true);
+  expect(runes[0].etching).toHaveProperty("terms.amount", 1000n);
+  expect(runes[0].etching).toHaveProperty("terms.cap", 20990000n);
 });

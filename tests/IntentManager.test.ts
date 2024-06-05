@@ -75,6 +75,7 @@ test("Can retrieve all intents", async () => {
   const intents = await intentManager.retrieveAllIntents();
 
   expect(intents).toHaveLength(3);
+
   expect(intents[0]).toEqual(expect.objectContaining(nativeSegwitIntent));
   expect(intents[1]).toEqual(expect.objectContaining(taprootIntent));
   expect(intents[2]).toEqual(expect.objectContaining(nestedSegwitIntent));

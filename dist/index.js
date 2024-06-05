@@ -285,6 +285,7 @@ var SandshrewRpcProvider = class {
 
 // src/helpers.ts
 var import_micro_ordinals = require("micro-ordinals");
+var import_runestone_lib = require("@magiceden-oss/runestone-lib");
 function isReceiveTx(tx, addresses) {
   const addressInOutput = tx.vout.find(
     (output) => addresses.includes(output.scriptpubkey_address)
@@ -338,6 +339,19 @@ function getInscriptionsFromInput(input, parentTxId) {
     });
   }
   return inscriptions;
+}
+function getRunesFromOutputs(vout) {
+  const asBtcoinCoreTxVout = vout.map((output) => ({
+    scriptPubKey: {
+      hex: output.scriptpubkey
+    }
+  }));
+  const artifact = (0, import_runestone_lib.tryDecodeRunestone)({ vout: asBtcoinCoreTxVout });
+  const runes = [];
+  if (artifact && (0, import_runestone_lib.isRunestone)(artifact)) {
+    runes.push(artifact);
+  }
+  return runes;
 }
 function uint8ArrayToBase64(uint8Array) {
   let binaryString = "";
@@ -402,7 +416,10 @@ var TransactionHandler = class {
   }
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
-    const categorizedAssets = this.categorizeInscriptions(inscriptions);
+    const runes = await this.getRunes(tx);
+    const categorizedAssets = this.categorizeAssets(inscriptions, runes);
+    console.log("inscriptions", inscriptions);
+    console.log("runes", runes);
     const [asset] = categorizedAssets;
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
@@ -463,6 +480,10 @@ var TransactionHandler = class {
     }
     return inscriptions;
   }
+  async getRunes(tx) {
+    const runes = getRunesFromOutputs(tx.vout);
+    return runes;
+  }
   async getTxOutputsInscriptions(tx) {
     const voutIndexes = tx.vout.map(
       (output, index) => this.addresses.includes(output.scriptpubkey_address) ? index : null
@@ -506,7 +527,7 @@ var TransactionHandler = class {
     );
     return prevInputsInscriptions;
   }
-  categorizeInscriptions(inscriptions) {
+  categorizeAssets(inscriptions, runes) {
     const assets = [];
     for (let inscription of inscriptions) {
       const brc20 = parseBrc20Inscription(inscription);

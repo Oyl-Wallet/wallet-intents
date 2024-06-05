@@ -7,6 +7,7 @@ import {
   isReceiveTx,
   txIntentExists,
   determineReceiverAmount,
+  getRunesFromOutputs,
 } from "../helpers";
 import {
   IntentStatus,
@@ -21,6 +22,7 @@ import {
   BRC20TransactionIntent,
   CollectibleTransactionIntent,
   BTCTransactionIntent,
+  Rune,
 } from "../types";
 import { parseNumber } from "../utils";
 
@@ -70,8 +72,11 @@ export class TransactionHandler {
 
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
+    const runes = await this.getRunes(tx);
+    const categorizedAssets = this.categorizeAssets(inscriptions, runes);
 
-    const categorizedAssets = this.categorizeInscriptions(inscriptions);
+    console.log("inscriptions", inscriptions);
+    console.log("runes", runes);
 
     const [asset] = categorizedAssets;
 
@@ -127,7 +132,9 @@ export class TransactionHandler {
     }
   }
 
-  private async getInscriptions(tx: EsploraTransaction): Promise<any[]> {
+  private async getInscriptions(
+    tx: EsploraTransaction
+  ): Promise<Inscription[]> {
     let inscriptions = await this.getTxOutputsInscriptions(tx);
     if (inscriptions.length === 0) {
       inscriptions = await this.getPrevOutputsInscriptions(tx);
@@ -139,6 +146,11 @@ export class TransactionHandler {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
     return inscriptions;
+  }
+
+  private async getRunes(tx: EsploraTransaction) {
+    const runes = getRunesFromOutputs(tx.vout);
+    return runes;
   }
 
   private async getTxOutputsInscriptions(
@@ -199,8 +211,9 @@ export class TransactionHandler {
     return prevInputsInscriptions;
   }
 
-  private categorizeInscriptions(
-    inscriptions: Inscription[]
+  private categorizeAssets(
+    inscriptions: Inscription[],
+    runes: Rune[]
   ): CategorizedAsset[] {
     const assets: CategorizedAsset[] = [];
 
@@ -219,6 +232,7 @@ export class TransactionHandler {
         });
       }
     }
+
     return assets;
   }
 }
