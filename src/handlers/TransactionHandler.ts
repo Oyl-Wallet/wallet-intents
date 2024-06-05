@@ -76,6 +76,8 @@ export class TransactionHandler {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
 
+    console.log(categorized);
+
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed
       ? IntentStatus.Completed
@@ -103,6 +105,8 @@ export class TransactionHandler {
       case AssetType.COLLECTIBLE:
         const rune = await this.getRune(tx);
 
+        console.log(rune);
+
         if (rune) {
           await this.manager.captureIntent({
             address,
@@ -116,20 +120,21 @@ export class TransactionHandler {
             etching: rune.etching,
             inscription: categorized || null,
           } as RuneTransactionIntent);
-        } else {
-          await this.manager.captureIntent({
-            address,
-            status,
-            btcAmount,
-            type: IntentType.Transaction,
-            assetType: AssetType.COLLECTIBLE,
-            transactionType: TransactionType.Receive,
-            transactionIds: [tx.txid],
-            inscriptionId: categorized.id,
-            contentType: categorized.content_type,
-            content: categorized.content,
-          } as CollectibleTransactionIntent);
+          break;
         }
+
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: IntentType.Transaction,
+          assetType: AssetType.COLLECTIBLE,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          inscriptionId: categorized.id,
+          contentType: categorized.content_type,
+          content: categorized.content,
+        } as CollectibleTransactionIntent);
         break;
 
       default:
