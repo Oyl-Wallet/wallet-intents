@@ -137,7 +137,6 @@ var PlasmoStorageAdapter = class {
     return updatedIntent;
   }
   async findAll() {
-    console.log(await this.storage.get(this.key));
     return this.storage.get(this.key).then(
       (intents) => (intents || []).sort((a, b) => b.timestamp - a.timestamp)
     );
