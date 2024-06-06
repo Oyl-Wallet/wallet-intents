@@ -133,6 +133,9 @@ var InMemoryStorageAdapter = class {
 // src/adapters/PlasmoStorageAdapter.ts
 var import_storage = require("@plasmohq/storage");
 var import_uuid2 = require("uuid");
+BigInt.prototype.toJSON = function() {
+  return this.toString();
+};
 var PlasmoStorageAdapter = class {
   storage;
   key;
@@ -169,6 +172,7 @@ var PlasmoStorageAdapter = class {
     return updatedIntent;
   }
   async findAll() {
+    console.log(await this.storage.get(this.key));
     return this.storage.get(this.key).then(
       (intents) => (intents || []).sort((a, b) => b.timestamp - a.timestamp)
     );

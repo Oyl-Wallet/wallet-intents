@@ -837,7 +837,7 @@ test("Uconfirmed TX with Rune etching with inscription", async () => {
   expect(intents[0]).toHaveProperty("inscription.content_type", "image/gif");
 });
 
-test.only("Uconfirmed TX with Rune etching without inscription", async () => {
+test("Uconfirmed TX with Rune etching without inscription", async () => {
   mockRpcResponse(
     "esplora_address::txs",
     "esplora_address::txs_rune_etching_no_inscription.json"

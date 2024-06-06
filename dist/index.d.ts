@@ -202,6 +202,11 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     findById(intentId: string): Promise<WalletIntent>;
 }
 
+declare global {
+    interface BigInt {
+        toJSON(): string;
+    }
+}
 declare class PlasmoStorageAdapter implements StorageAdapter {
     private storage;
     private key;

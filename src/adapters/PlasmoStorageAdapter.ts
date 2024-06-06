@@ -9,6 +9,17 @@ import {
 import { Storage } from "@plasmohq/storage";
 import { v4 as uuidv4 } from "uuid";
 
+declare global {
+  interface BigInt {
+    toJSON(): string;
+  }
+}
+
+// Mokey patch for BigInt serialization in Plasmo Storage
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 export class PlasmoStorageAdapter implements StorageAdapter {
   private storage: Storage;
   private key: string;
@@ -52,6 +63,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
   }
 
   async findAll(): Promise<WalletIntent[]> {
+    console.log(await this.storage.get<WalletIntent[]>(this.key));
     return this.storage
       .get<WalletIntent[]>(this.key)
       .then((intents) =>
