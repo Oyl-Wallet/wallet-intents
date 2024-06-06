@@ -19,6 +19,7 @@ export const mockRpcResponse = (method: string, fixture: string | object) => {
             resolve(__dirname, "..", "fixtures", fixture),
             "utf8"
           );
+
           return HttpResponse.json(JSON.parse(file));
         }
         return HttpResponse.json(fixture);

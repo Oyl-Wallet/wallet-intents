@@ -83,6 +83,22 @@ export class TransactionHandler {
       : IntentStatus.Pending;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
 
+    if (rune && categorized?.assetType !== AssetType.BRC20) {
+      await this.manager.captureIntent({
+        address,
+        status,
+        btcAmount,
+        type: IntentType.Transaction,
+        assetType: AssetType.RUNE,
+        transactionType: TransactionType.Receive,
+        transactionIds: [tx.txid],
+        operation: RuneOperation.Etching,
+        etching: rune.etching,
+        inscription: categorized || null,
+      } as RuneTransactionIntent);
+      return;
+    }
+
     switch (categorized?.assetType) {
       case AssetType.BRC20:
         await this.manager.captureIntent({
@@ -101,23 +117,7 @@ export class TransactionHandler {
         } as BRC20TransactionIntent);
         break;
 
-      case AssetType.COLLECTIBLE || rune:
-        if (rune) {
-          await this.manager.captureIntent({
-            address,
-            status,
-            btcAmount,
-            type: IntentType.Transaction,
-            assetType: AssetType.RUNE,
-            transactionType: TransactionType.Receive,
-            transactionIds: [tx.txid],
-            operation: RuneOperation.Etching,
-            etching: rune.etching,
-            inscription: categorized || null,
-          } as RuneTransactionIntent);
-          break;
-        }
-
+      case AssetType.COLLECTIBLE:
         await this.manager.captureIntent({
           address,
           status,
@@ -217,6 +217,7 @@ export class TransactionHandler {
     const prevTxs = await Promise.all(
       tx.vin.map((input) => this.provider.getTxById(input.txid))
     );
+
     const prevInputsInscriptions = prevTxs.flatMap((prevTx) =>
       prevTx.vin.flatMap((input) =>
         getInscriptionsFromInput(input, prevTx.txid)

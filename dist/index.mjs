@@ -395,6 +395,21 @@ var TransactionHandler = class {
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
+    if (rune && categorized?.assetType !== "brc-20" /* BRC20 */) {
+      await this.manager.captureIntent({
+        address,
+        status,
+        btcAmount,
+        type: "transaction" /* Transaction */,
+        assetType: "rune" /* RUNE */,
+        transactionType: "receive" /* Receive */,
+        transactionIds: [tx.txid],
+        operation: "etching" /* Etching */,
+        etching: rune.etching,
+        inscription: categorized || null
+      });
+      return;
+    }
     switch (categorized?.assetType) {
       case "brc-20" /* BRC20 */:
         await this.manager.captureIntent({
@@ -412,22 +427,7 @@ var TransactionHandler = class {
           limit: parseNumber(categorized.lim)
         });
         break;
-      case ("collectible" /* COLLECTIBLE */ || rune):
-        if (rune) {
-          await this.manager.captureIntent({
-            address,
-            status,
-            btcAmount,
-            type: "transaction" /* Transaction */,
-            assetType: "rune" /* RUNE */,
-            transactionType: "receive" /* Receive */,
-            transactionIds: [tx.txid],
-            operation: "etching" /* Etching */,
-            etching: rune.etching,
-            inscription: categorized || null
-          });
-          break;
-        }
+      case "collectible" /* COLLECTIBLE */:
         await this.manager.captureIntent({
           address,
           status,
