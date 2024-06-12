@@ -3,6 +3,7 @@ import {
   EsploraTransaction,
   OrdInscription,
   OrdOutput,
+  OrdRune,
 } from "../types";
 
 export class SandshrewRpcProvider implements RpcProvider {
@@ -99,5 +100,21 @@ export class SandshrewRpcProvider implements RpcProvider {
       ...inscriptionData.result,
       content: contentData.result,
     };
+  }
+
+  async getRuneById(runeId: string): Promise<OrdRune> {
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ord_rune",
+        params: [runeId],
+      }),
+    });
+
+    const data = await response.json();
+    return data.result;
   }
 }

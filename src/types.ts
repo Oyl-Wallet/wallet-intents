@@ -75,6 +75,9 @@ export interface RuneEtchingTransactionIntent extends TransactionIntent {
 export interface RuneMintTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
   operation: RuneOperation.Mint;
+  runeId: string;
+  runeName: string;
+  runeAmount: number;
 }
 
 export interface RuneTransferTransactionIntent extends TransactionIntent {
@@ -162,6 +165,7 @@ export interface RpcProvider {
   getAddressTxs(address: string): Promise<EsploraTransaction[]>;
   getTxOutput(txId: string, index: number): Promise<OrdOutput>;
   getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
+  getRuneById(runeId: string): Promise<OrdRune>;
 }
 
 export interface EsploraTransaction {
@@ -212,6 +216,31 @@ export interface OrdOutput {
   spent: boolean;
   transaction: string;
   value: number;
+}
+
+export interface OrdRune {
+  entry: {
+    block: number;
+    burned: number;
+    divisibility: number;
+    etching: string;
+    mints: number;
+    number: number;
+    premine: number;
+    spaced_rune: string;
+    symbol: string;
+    terms: {
+      amount: number;
+      cap: number;
+      height: any[];
+      offset: any[];
+    };
+    timestamp: number;
+    turbo: boolean;
+  };
+  id: string;
+  mintable: boolean;
+  parent: string;
 }
 
 export type OrdInscription = {

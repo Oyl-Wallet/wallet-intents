@@ -25,6 +25,8 @@ import {
   Rune,
   RuneTransactionIntent,
   RuneOperation,
+  RuneMintTransactionIntent,
+  RuneEtchingTransactionIntent,
 } from "../types";
 import { parseNumber } from "../utils";
 
@@ -95,6 +97,25 @@ export class TransactionHandler {
     }
 
     if (rune && categorized?.assetType !== AssetType.BRC20) {
+      if (rune.mint) {
+        const runeId = `${rune.mint.block}:${rune.mint.tx}`;
+        const runeDetails = await this.provider.getRuneById(runeId);
+
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: IntentType.Transaction,
+          assetType: AssetType.RUNE,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          operation: RuneOperation.Mint,
+          runeId: `${rune.mint.block}:${rune.mint.tx}`,
+          runeName: runeDetails.entry.spaced_rune,
+        } as RuneMintTransactionIntent);
+        return;
+      }
+
       await this.manager.captureIntent({
         address,
         status,
@@ -106,7 +127,7 @@ export class TransactionHandler {
         operation: RuneOperation.Etching,
         etching: rune.etching,
         inscription: categorized || null,
-      } as RuneTransactionIntent);
+      } as RuneEtchingTransactionIntent);
       return;
     }
 

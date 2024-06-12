@@ -291,6 +291,20 @@ var SandshrewRpcProvider = class {
       content: contentData.result
     };
   }
+  async getRuneById(runeId) {
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ord_rune",
+        params: [runeId]
+      })
+    });
+    const data = await response.json();
+    return data.result;
+  }
 };
 
 // src/helpers.ts
@@ -432,6 +446,23 @@ var TransactionHandler = class {
       });
     }
     if (rune && categorized?.assetType !== "brc-20" /* BRC20 */) {
+      if (rune.mint) {
+        const runeId = `${rune.mint.block}:${rune.mint.tx}`;
+        const runeDetails = await this.provider.getRuneById(runeId);
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: "transaction" /* Transaction */,
+          assetType: "rune" /* RUNE */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid],
+          operation: "mint" /* Mint */,
+          runeId: `${rune.mint.block}:${rune.mint.tx}`,
+          runeName: runeDetails.entry.spaced_rune
+        });
+        return;
+      }
       await this.manager.captureIntent({
         address,
         status,

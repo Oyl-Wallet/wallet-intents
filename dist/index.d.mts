@@ -65,6 +65,9 @@ interface RuneEtchingTransactionIntent extends TransactionIntent {
 interface RuneMintTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
     operation: RuneOperation.Mint;
+    runeId: string;
+    runeName: string;
+    runeAmount: number;
 }
 interface RuneTransferTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
@@ -116,6 +119,7 @@ interface RpcProvider {
     getAddressTxs(address: string): Promise<EsploraTransaction[]>;
     getTxOutput(txId: string, index: number): Promise<OrdOutput>;
     getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
+    getRuneById(runeId: string): Promise<OrdRune>;
 }
 interface EsploraTransaction {
     txid: string;
@@ -164,6 +168,30 @@ interface OrdOutput {
     spent: boolean;
     transaction: string;
     value: number;
+}
+interface OrdRune {
+    entry: {
+        block: number;
+        burned: number;
+        divisibility: number;
+        etching: string;
+        mints: number;
+        number: number;
+        premine: number;
+        spaced_rune: string;
+        symbol: string;
+        terms: {
+            amount: number;
+            cap: number;
+            height: any[];
+            offset: any[];
+        };
+        timestamp: number;
+        turbo: boolean;
+    };
+    id: string;
+    mintable: boolean;
+    parent: string;
 }
 type OrdInscription = {
     content_type: string;
@@ -234,6 +262,7 @@ declare class SandshrewRpcProvider implements RpcProvider {
     getTxById(txId: string): Promise<EsploraTransaction>;
     getTxOutput(txId: string, voutIndex: number): Promise<OrdOutput>;
     getInscriptionById(inscriptionId: string): Promise<OrdInscription>;
+    getRuneById(runeId: string): Promise<OrdRune>;
 }
 
 declare class IntentManager extends EventEmitter implements IntentHandler {
@@ -257,4 +286,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[]): Promise<void>;
 }
 
-export { AssetType, BRC20Operation, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TradeBRC20Intent, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
