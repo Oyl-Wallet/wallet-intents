@@ -101,6 +101,8 @@ export class TransactionHandler {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
+        console.log("runeDetails", runeDetails);
+
         await this.manager.captureIntent({
           address,
           status,
