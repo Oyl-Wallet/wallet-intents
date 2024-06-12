@@ -385,10 +385,11 @@ var TransactionHandler = class {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    if (this.manager.debug) {
-      console.log("txs", txs);
-    }
     for (let tx of txs) {
+      if (this.manager.debug) {
+        console.log("TX Exists", txIntentExists(tx, intents));
+        console.log("Is Receive TX", isReceiveTx(tx, this.addresses));
+      }
       if (!txIntentExists(tx, intents) && isReceiveTx(tx, this.addresses)) {
         await this.processTransaction(tx);
       }
