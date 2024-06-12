@@ -260,18 +260,15 @@ var SandshrewRpcProvider = class {
 
 // src/helpers.ts
 import { parseWitness } from "micro-ordinals";
-import {
-  tryDecodeRunestone,
-  isRunestone
-} from "@magiceden-oss/runestone-lib";
+import { tryDecodeRunestone, isRunestone } from "@magiceden-oss/runestone-lib";
 function isReceiveTx(tx, addresses) {
-  const addressInOutput = tx.vout.find(
+  const voutWithAddress = tx.vout.find(
     (output) => addresses.includes(output.scriptpubkey_address)
   );
-  const addressInInput = tx.vin.find(
-    (input) => addresses.includes(input.prevout.scriptpubkey_address)
+  const vinWithAddress = tx.vin.find(
+    (input) => input.prevout.scriptpubkey_address === voutWithAddress.scriptpubkey_address
   );
-  return !!addressInOutput && !addressInInput;
+  return !vinWithAddress;
 }
 function txIntentExists(tx, intents) {
   return intents.find((intent) => intent.transactionIds.includes(tx.txid));
