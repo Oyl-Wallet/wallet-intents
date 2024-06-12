@@ -77,9 +77,15 @@ export interface RuneMintTransactionIntent extends TransactionIntent {
   operation: RuneOperation.Mint;
 }
 
+export interface RuneTransferTransactionIntent extends TransactionIntent {
+  assetType: AssetType.RUNE;
+  operation: RuneOperation.Transfer;
+}
+
 export type RuneTransactionIntent =
   | RuneEtchingTransactionIntent
-  | RuneMintTransactionIntent;
+  | RuneMintTransactionIntent
+  | RuneTransferTransactionIntent;
 
 export interface CollectibleTransactionIntent extends TransactionIntent {
   assetType: AssetType.COLLECTIBLE;

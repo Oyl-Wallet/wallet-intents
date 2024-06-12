@@ -9,7 +9,7 @@ import {
 } from "./types";
 
 export class IntentManager extends EventEmitter implements IntentHandler {
-  constructor(private storage: StorageAdapter, private debug = false) {
+  constructor(private storage: StorageAdapter, public debug = false) {
     super();
   }
 

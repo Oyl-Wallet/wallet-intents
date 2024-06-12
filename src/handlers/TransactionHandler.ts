@@ -83,6 +83,17 @@ export class TransactionHandler {
       : IntentStatus.Pending;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
 
+    if (this.manager.debug) {
+      console.log("Processing transaction", {
+        address,
+        status,
+        btcAmount,
+        inscriptions,
+        categorized,
+        rune,
+      });
+    }
+
     if (rune && categorized?.assetType !== AssetType.BRC20) {
       await this.manager.captureIntent({
         address,

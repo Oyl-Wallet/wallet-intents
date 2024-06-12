@@ -430,6 +430,16 @@ var TransactionHandler = class {
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
+    if (this.manager.debug) {
+      console.log("Processing transaction", {
+        address,
+        status,
+        btcAmount,
+        inscriptions,
+        categorized,
+        rune
+      });
+    }
     if (rune && categorized?.assetType !== "brc-20" /* BRC20 */) {
       await this.manager.captureIntent({
         address,
