@@ -64,7 +64,8 @@ export class TransactionHandler {
     ).flat();
 
     for (let tx of txs) {
-      if (!this.txExists(tx)) {
+      let txExists = await this.txExists(tx);
+      if (!txExists) {
         await this.processTransaction(tx);
       }
     }
@@ -178,7 +179,7 @@ export class TransactionHandler {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    return intents.find((intent) => intent.transactionIds.includes(tx.txid));
+    return !!intents.find((intent) => intent.transactionIds.includes(tx.txid));
   }
 
   private async getInscriptions(

@@ -417,7 +417,8 @@ var TransactionHandler = class {
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     )).flat();
     for (let tx of txs) {
-      if (!this.txExists(tx)) {
+      let txExists = await this.txExists(tx);
+      if (!txExists) {
         await this.processTransaction(tx);
       }
     }
@@ -519,7 +520,7 @@ var TransactionHandler = class {
     const intents = await this.manager.retrieveIntentsByAddresses(
       this.addresses
     );
-    return intents.find((intent) => intent.transactionIds.includes(tx.txid));
+    return !!intents.find((intent) => intent.transactionIds.includes(tx.txid));
   }
   async getInscriptions(tx) {
     let inscriptions = await this.getTxOutputsInscriptions(tx);
