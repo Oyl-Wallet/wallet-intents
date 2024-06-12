@@ -83,6 +83,9 @@ export interface RuneMintTransactionIntent extends TransactionIntent {
 export interface RuneTransferTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
   operation: RuneOperation.Transfer;
+  runeId: string;
+  runeName: string;
+  runeAmount: bigint;
 }
 
 export type RuneTransactionIntent =

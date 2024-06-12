@@ -72,6 +72,9 @@ interface RuneMintTransactionIntent extends TransactionIntent {
 interface RuneTransferTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
     operation: RuneOperation.Transfer;
+    runeId: string;
+    runeName: string;
+    runeAmount: bigint;
 }
 type RuneTransactionIntent = RuneEtchingTransactionIntent | RuneMintTransactionIntent | RuneTransferTransactionIntent;
 interface CollectibleTransactionIntent extends TransactionIntent {
