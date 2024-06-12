@@ -516,9 +516,13 @@ var TransactionHandler = class {
     }
   }
   async txExists(tx) {
-    return this.manager.retrieveIntentsByAddresses(this.addresses).then(
-      (intents) => !!intents.find((intent) => intent.transactionIds.includes(tx.txid))
+    const intents = await this.manager.retrieveIntentsByAddresses(
+      this.addresses
     );
+    const intentFound = intents.find(
+      (intent) => intent.transactionIds.includes(tx.txid)
+    );
+    return !!intentFound;
   }
   async getInscriptions(tx) {
     let inscriptions = await this.getTxOutputsInscriptions(tx);

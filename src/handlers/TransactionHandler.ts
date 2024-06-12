@@ -175,12 +175,13 @@ export class TransactionHandler {
   }
 
   private async txExists(tx: EsploraTransaction) {
-    return this.manager
-      .retrieveIntentsByAddresses(this.addresses)
-      .then(
-        (intents) =>
-          !!intents.find((intent) => intent.transactionIds.includes(tx.txid))
-      );
+    const intents = await this.manager.retrieveIntentsByAddresses(
+      this.addresses
+    );
+    const intentFound = intents.find((intent) =>
+      intent.transactionIds.includes(tx.txid)
+    );
+    return !!intentFound;
   }
 
   private async getInscriptions(
