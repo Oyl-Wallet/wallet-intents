@@ -27,13 +27,6 @@ export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
   return !!addressInOutput && !addressInInput;
 }
 
-export function txIntentExists(
-  tx: EsploraTransaction,
-  intents: WalletIntent[]
-) {
-  return intents.find((intent) => intent.transactionIds.includes(tx.txid));
-}
-
 export function determineReceiverAddress(
   tx: EsploraTransaction,
   addresses: string[]

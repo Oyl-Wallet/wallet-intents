@@ -63,12 +63,8 @@ export class TransactionHandler {
       )
     ).flat();
 
-    const intents = await this.manager.retrieveIntentsByAddresses(
-      this.addresses
-    );
-
     for (let tx of txs) {
-      if (!txIntentExists(tx, intents)) {
+      if (!this.txExists(tx)) {
         await this.processTransaction(tx);
       }
     }
@@ -176,6 +172,15 @@ export class TransactionHandler {
           transactionIds: [tx.txid],
         } as BTCTransactionIntent);
     }
+  }
+
+  private async txExists(tx: EsploraTransaction) {
+    return this.manager
+      .retrieveIntentsByAddresses(this.addresses)
+      .then(
+        (intents) =>
+          !!intents.find((intent) => intent.transactionIds.includes(tx.txid))
+      );
   }
 
   private async getInscriptions(

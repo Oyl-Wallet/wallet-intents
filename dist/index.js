@@ -310,9 +310,6 @@ var SandshrewRpcProvider = class {
 // src/helpers.ts
 var import_micro_ordinals = require("micro-ordinals");
 var import_runestone_lib = require("@magiceden-oss/runestone-lib");
-function txIntentExists(tx, intents) {
-  return intents.find((intent) => intent.transactionIds.includes(tx.txid));
-}
 function determineReceiverAddress(tx, addresses) {
   for (const output of tx.vout) {
     if (addresses.includes(output.scriptpubkey_address)) {
@@ -419,11 +416,8 @@ var TransactionHandler = class {
     const txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     )).flat();
-    const intents = await this.manager.retrieveIntentsByAddresses(
-      this.addresses
-    );
     for (let tx of txs) {
-      if (!txIntentExists(tx, intents)) {
+      if (!this.txExists(tx)) {
         await this.processTransaction(tx);
       }
     }
@@ -520,6 +514,11 @@ var TransactionHandler = class {
           transactionIds: [tx.txid]
         });
     }
+  }
+  async txExists(tx) {
+    return this.manager.retrieveIntentsByAddresses(this.addresses).then(
+      (intents) => !!intents.find((intent) => intent.transactionIds.includes(tx.txid))
+    );
   }
   async getInscriptions(tx) {
     let inscriptions = await this.getTxOutputsInscriptions(tx);
