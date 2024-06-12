@@ -1,5 +1,10 @@
 import { parseWitness } from "micro-ordinals";
-import { tryDecodeRunestone, isRunestone } from "@magiceden-oss/runestone-lib";
+import {
+  tryDecodeRunestone,
+  RunestoneSpec,
+  Cenotaph,
+  isRunestone,
+} from "@magiceden-oss/runestone-lib";
 
 import {
   ParsedBRC20,
@@ -11,17 +16,15 @@ import {
 } from "./types";
 
 export function isReceiveTx(tx: EsploraTransaction, addresses: string[]) {
-  const voutWithAddress = tx.vout.find((output) =>
+  const addressInOutput = tx.vout.find((output) =>
     addresses.includes(output.scriptpubkey_address)
   );
 
-  const vinWithAddress = tx.vin.find(
-    (input) =>
-      input.prevout.scriptpubkey_address ===
-      voutWithAddress.scriptpubkey_address
+  const addressInInput = tx.vin.find((input) =>
+    addresses.includes(input.prevout.scriptpubkey_address)
   );
 
-  return !vinWithAddress;
+  return !!addressInOutput && !addressInInput;
 }
 
 export function txIntentExists(

@@ -66,12 +66,7 @@ export class TransactionHandler {
     );
 
     for (let tx of txs) {
-      if (this.manager.debug) {
-        console.log("TX Exists", txIntentExists(tx, intents), tx.txid);
-        console.log("Is Receive TX", isReceiveTx(tx, this.addresses), tx.txid);
-      }
-
-      if (!txIntentExists(tx, intents) && isReceiveTx(tx, this.addresses)) {
+      if (!txIntentExists(tx, intents)) {
         await this.processTransaction(tx);
       }
     }

@@ -296,15 +296,6 @@ var SandshrewRpcProvider = class {
 // src/helpers.ts
 var import_micro_ordinals = require("micro-ordinals");
 var import_runestone_lib = require("@magiceden-oss/runestone-lib");
-function isReceiveTx(tx, addresses) {
-  const voutWithAddress = tx.vout.find(
-    (output) => addresses.includes(output.scriptpubkey_address)
-  );
-  const vinWithAddress = tx.vin.find(
-    (input) => input.prevout.scriptpubkey_address === voutWithAddress.scriptpubkey_address
-  );
-  return !vinWithAddress;
-}
 function txIntentExists(tx, intents) {
   return intents.find((intent) => intent.transactionIds.includes(tx.txid));
 }
@@ -418,11 +409,7 @@ var TransactionHandler = class {
       this.addresses
     );
     for (let tx of txs) {
-      if (this.manager.debug) {
-        console.log("TX Exists", txIntentExists(tx, intents), tx.txid);
-        console.log("Is Receive TX", isReceiveTx(tx, this.addresses), tx.txid);
-      }
-      if (!txIntentExists(tx, intents) && isReceiveTx(tx, this.addresses)) {
+      if (!txIntentExists(tx, intents)) {
         await this.processTransaction(tx);
       }
     }
