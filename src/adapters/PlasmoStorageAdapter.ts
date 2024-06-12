@@ -29,6 +29,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     this.storage = new Storage({
       area: "local",
     });
+    this.storage.remove(this.key);
   }
 
   async save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent> {
