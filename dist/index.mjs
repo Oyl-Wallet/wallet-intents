@@ -409,7 +409,20 @@ var TransactionHandler = class {
       });
     }
     if (rune && categorized?.assetType !== "brc-20" /* BRC20 */) {
-      if (rune.mint) {
+      if (rune.etching) {
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: "transaction" /* Transaction */,
+          assetType: "rune" /* RUNE */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid],
+          operation: "etching" /* Etching */,
+          etching: rune.etching,
+          inscription: categorized || null
+        });
+      } else if (rune.mint) {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
         await this.manager.captureIntent({
@@ -425,20 +438,24 @@ var TransactionHandler = class {
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: rune.edicts[0].amount
         });
-        return;
+      } else {
+        const { amount, id } = rune.edicts[0];
+        const runeId = `${id.block}:${id.tx}`;
+        const runeDetails = await this.provider.getRuneById(runeId);
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: "transaction" /* Transaction */,
+          assetType: "rune" /* RUNE */,
+          transactionType: "receive" /* Receive */,
+          transactionIds: [tx.txid],
+          operation: "transfer" /* Transfer */,
+          runeId,
+          runeName: runeDetails.entry.spaced_rune,
+          runeAmount: amount
+        });
       }
-      await this.manager.captureIntent({
-        address,
-        status,
-        btcAmount,
-        type: "transaction" /* Transaction */,
-        assetType: "rune" /* RUNE */,
-        transactionType: "receive" /* Receive */,
-        transactionIds: [tx.txid],
-        operation: "etching" /* Etching */,
-        etching: rune.etching,
-        inscription: categorized || null
-      });
       return;
     }
     switch (categorized?.assetType) {

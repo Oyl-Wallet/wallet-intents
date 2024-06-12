@@ -4,8 +4,6 @@ import {
   determineReceiverAddress,
   getInscriptionsFromInput,
   inscriptionIdsFromTxOutputs,
-  isReceiveTx,
-  txIntentExists,
   determineReceiverAmount,
   getRuneFromOutputs,
 } from "../helpers";
@@ -22,11 +20,10 @@ import {
   BRC20TransactionIntent,
   CollectibleTransactionIntent,
   BTCTransactionIntent,
-  Rune,
-  RuneTransactionIntent,
   RuneOperation,
   RuneMintTransactionIntent,
   RuneEtchingTransactionIntent,
+  RuneTransferTransactionIntent,
 } from "../types";
 import { parseNumber } from "../utils";
 
@@ -94,7 +91,20 @@ export class TransactionHandler {
     }
 
     if (rune && categorized?.assetType !== AssetType.BRC20) {
-      if (rune.mint) {
+      if (rune.etching) {
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: IntentType.Transaction,
+          assetType: AssetType.RUNE,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          operation: RuneOperation.Etching,
+          etching: rune.etching,
+          inscription: categorized || null,
+        } as RuneEtchingTransactionIntent);
+      } else if (rune.mint) {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
@@ -111,21 +121,26 @@ export class TransactionHandler {
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: rune.edicts[0].amount,
         } as RuneMintTransactionIntent);
-        return;
+      } else {
+        const { amount, id } = rune.edicts[0];
+        const runeId = `${id.block}:${id.tx}`;
+        const runeDetails = await this.provider.getRuneById(runeId);
+
+        await this.manager.captureIntent({
+          address,
+          status,
+          btcAmount,
+          type: IntentType.Transaction,
+          assetType: AssetType.RUNE,
+          transactionType: TransactionType.Receive,
+          transactionIds: [tx.txid],
+          operation: RuneOperation.Transfer,
+          runeId,
+          runeName: runeDetails.entry.spaced_rune,
+          runeAmount: amount,
+        } as RuneTransferTransactionIntent);
       }
 
-      await this.manager.captureIntent({
-        address,
-        status,
-        btcAmount,
-        type: IntentType.Transaction,
-        assetType: AssetType.RUNE,
-        transactionType: TransactionType.Receive,
-        transactionIds: [tx.txid],
-        operation: RuneOperation.Etching,
-        etching: rune.etching,
-        inscription: categorized || null,
-      } as RuneEtchingTransactionIntent);
       return;
     }
 
