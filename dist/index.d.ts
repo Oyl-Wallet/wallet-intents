@@ -67,7 +67,7 @@ interface RuneMintTransactionIntent extends TransactionIntent {
     operation: RuneOperation.Mint;
     runeId: string;
     runeName: string;
-    runeAmount: number;
+    runeAmount: bigint;
 }
 interface RuneTransferTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;

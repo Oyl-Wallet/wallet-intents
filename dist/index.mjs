@@ -109,6 +109,7 @@ var PlasmoStorageAdapter = class {
     this.storage = new Storage({
       area: "local"
     });
+    this.storage.remove(this.key);
   }
   async save(intent) {
     const intents = await this.findAll();
@@ -417,7 +418,6 @@ var TransactionHandler = class {
       if (rune.mint) {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
-        console.log("runeDetails", runeDetails);
         await this.manager.captureIntent({
           address,
           status,
@@ -428,7 +428,8 @@ var TransactionHandler = class {
           transactionIds: [tx.txid],
           operation: "mint" /* Mint */,
           runeId: `${rune.mint.block}:${rune.mint.tx}`,
-          runeName: runeDetails.entry.spaced_rune
+          runeName: runeDetails.entry.spaced_rune,
+          runeAmount: rune.edicts[0].amount
         });
         return;
       }
