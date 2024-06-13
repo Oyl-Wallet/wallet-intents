@@ -816,7 +816,7 @@ test("Uconfirmed TX with Rune mint", async () => {
 });
 
 test("Uconfirmed TX with Rune transfer", async () => {
-  mockRpcResponse("esplora_address::txs", "rune_mint.json");
+  mockRpcResponse("esplora_address::txs", "rune_transfer.json");
   mockRpcResponse("ord_output", "not_indexed.json");
   mockRpcResponse("esplora_tx", "confirmed_tx.json");
 
@@ -849,8 +849,8 @@ test("Uconfirmed TX with Rune transfer", async () => {
     "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
-  expect(intents[0]).toHaveProperty("operation", "mint");
+  expect(intents[0]).toHaveProperty("operation", "transfer");
   expect(intents[0]).toHaveProperty("runeName", "ETCHNXCEHINAW");
-  expect(intents[0]).toHaveProperty("runeAmount", 1000n);
+  expect(intents[0]).toHaveProperty("runeAmount", 500n);
   expect(intents[0]).toHaveProperty("runeDivisibility", 2);
 });
