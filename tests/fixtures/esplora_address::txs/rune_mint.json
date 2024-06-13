@@ -1,0 +1,60 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    {
+      "txid": "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
+      "version": 2,
+      "locktime": 0,
+      "vin": [
+        {
+          "txid": "970e05997a6a53b60d5e9f3a889b3986a01ffcb422e701ea5a1bc3366770f83a",
+          "vout": 0,
+          "prevout": {
+            "scriptpubkey": "00146dbe6e29956ce4a566711c8b39074845f335b912",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 6dbe6e29956ce4a566711c8b39074845f335b912",
+            "scriptpubkey_type": "v0_p2wpkh",
+            "scriptpubkey_address": "bcrt1qdklxu2v4dnj22en3rj9njp6gghentwgj52ewky",
+            "value": 120000
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "30440220793793627b0880fa895b618fa40e7c8cb578ed2bee69baccef45bc594164fdac02200db8e5015621c5310a55f640894bc26bd6c67ca3e9e28b2419de4ff7a62de84501",
+            "02e85bb839f43b830cdfccc5df928764c588f6817ab692e58849e23362b0e574e5"
+          ],
+          "is_coinbase": false,
+          "sequence": 4294967295
+        }
+      ],
+      "vout": [
+        {
+          "scriptpubkey": "00146dbe6e29956ce4a566711c8b39074845f335b912",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 6dbe6e29956ce4a566711c8b39074845f335b912",
+          "scriptpubkey_type": "v0_p2wpkh",
+          "scriptpubkey_address": "bcrt1qdklxu2v4dnj22en3rj9njp6gghentwgj52ewky",
+          "value": 117664
+        },
+        {
+          "scriptpubkey": "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
+          "scriptpubkey_asm": "OP_PUSHNUM_1 OP_PUSHBYTES_32 7c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
+          "scriptpubkey_type": "v1_p2tr",
+          "scriptpubkey_address": "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          "value": 546
+        },
+        {
+          "scriptpubkey": "6a5d0e160114b002140100b00201e80701",
+          "scriptpubkey_asm": "OP_RETURN OP_PUSHNUM_13 OP_PUSHBYTES_14 160114b002140100b00201e80701",
+          "scriptpubkey_type": "op_return",
+          "value": 0
+        }
+      ],
+      "size": 260,
+      "weight": 713,
+      "fee": 1790,
+      "status": {
+        "confirmed": false
+      }
+    }
+  ]
+}

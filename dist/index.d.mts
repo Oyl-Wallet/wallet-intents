@@ -1,4 +1,4 @@
-import { RuneEtchingSpec, RunestoneSpec } from '@magiceden-oss/runestone-lib';
+import { RunestoneSpec } from '@magiceden-oss/runestone-lib';
 import { EventEmitter } from 'events';
 
 declare enum IntentStatus {
@@ -59,7 +59,7 @@ interface BRC20TransactionIntent extends TransactionIntent {
 interface RuneEtchingTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
     operation: RuneOperation.Etching;
-    etching: RuneEtchingSpec;
+    runeName: string;
     inscription?: CategorizedInscription;
 }
 interface RuneMintTransactionIntent extends TransactionIntent {
@@ -68,6 +68,7 @@ interface RuneMintTransactionIntent extends TransactionIntent {
     runeId: string;
     runeName: string;
     runeAmount: bigint;
+    runeDivisibility: number;
 }
 interface RuneTransferTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
@@ -75,6 +76,7 @@ interface RuneTransferTransactionIntent extends TransactionIntent {
     runeId: string;
     runeName: string;
     runeAmount: bigint;
+    runeDivisibility: number;
 }
 type RuneTransactionIntent = RuneEtchingTransactionIntent | RuneMintTransactionIntent | RuneTransferTransactionIntent;
 interface CollectibleTransactionIntent extends TransactionIntent {

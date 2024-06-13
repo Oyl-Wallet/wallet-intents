@@ -68,7 +68,7 @@ export interface BRC20TransactionIntent extends TransactionIntent {
 export interface RuneEtchingTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
   operation: RuneOperation.Etching;
-  etching: RuneEtchingSpec;
+  runeName: string;
   inscription?: CategorizedInscription;
 }
 
@@ -78,6 +78,7 @@ export interface RuneMintTransactionIntent extends TransactionIntent {
   runeId: string;
   runeName: string;
   runeAmount: bigint;
+  runeDivisibility: number;
 }
 
 export interface RuneTransferTransactionIntent extends TransactionIntent {
@@ -86,6 +87,7 @@ export interface RuneTransferTransactionIntent extends TransactionIntent {
   runeId: string;
   runeName: string;
   runeAmount: bigint;
+  runeDivisibility: number;
 }
 
 export type RuneTransactionIntent =

@@ -1,0 +1,20 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+    {
+      "txid": "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
+      "vin": [],
+      "vout": [
+        {
+          "scriptpubkey": "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
+          "scriptpubkey_address": "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+          "value": 546
+        }
+      ],
+      "status": {
+        "confirmed": true
+      }
+    }
+  ]
+}

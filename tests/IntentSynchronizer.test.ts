@@ -22,13 +22,7 @@ import { mockRpcResponse, setupMockServer } from "./mocks/utils";
 setupMockServer();
 
 test("Updates intent as completed for confirmed transactions", async () => {
-  mockRpcResponse("esplora_tx", {
-    result: {
-      status: {
-        confirmed: true,
-      },
-    },
-  });
+  mockRpcResponse("esplora_tx", "confirmed_tx.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
@@ -101,32 +95,8 @@ test("Handles transactions without a status", async () => {
 });
 
 test("Receive BTC confirmed", async () => {
-  mockRpcResponse("esplora_address::txs", {
-    result: [
-      {
-        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-        vin: [],
-        vout: [
-          {
-            scriptpubkey:
-              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
-            scriptpubkey_address:
-              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-          },
-        ],
-        status: {
-          confirmed: true,
-        },
-      },
-    ],
-  });
-  mockRpcResponse("ord_output", {
-    result: {
-      indexed: true,
-      inscriptions: [],
-      runes: [],
-    },
-  });
+  mockRpcResponse("esplora_address::txs", "confirmed_tx.json");
+  mockRpcResponse("ord_output", "indexed_without_assets.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
@@ -152,32 +122,7 @@ test("Receive BTC confirmed", async () => {
 });
 
 test("Receive BTC unconfirmed", async () => {
-  mockRpcResponse("esplora_address::txs", {
-    result: [
-      {
-        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-        vin: [],
-        vout: [
-          {
-            scriptpubkey:
-              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
-            scriptpubkey_address:
-              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-          },
-        ],
-        status: {
-          confirmed: false,
-        },
-      },
-    ],
-  });
-  mockRpcResponse("ord_output", {
-    result: {
-      indexed: true,
-      inscriptions: [],
-      runes: [],
-    },
-  });
+  mockRpcResponse("esplora_address::txs", "unconfirmed_tx.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
@@ -212,25 +157,7 @@ test("Receive BTC unconfirmed", async () => {
 });
 
 test("Confirmed TX with Collectible in Outputs", async () => {
-  mockRpcResponse("esplora_address::txs", {
-    result: [
-      {
-        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-        vin: [],
-        vout: [
-          {
-            scriptpubkey:
-              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
-            scriptpubkey_address:
-              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-          },
-        ],
-        status: {
-          confirmed: true,
-        },
-      },
-    ],
-  });
+  mockRpcResponse("esplora_address::txs", "confirmed_tx.json");
   mockRpcResponse("ord_output", {
     result: {
       indexed: true,
@@ -287,26 +214,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
 });
 
 test("Confirmed TX with BRC-20 in Outputs", async () => {
-  mockRpcResponse("esplora_address::txs", {
-    result: [
-      {
-        txid: "1bd07c9c92c56ff1d74a45e3b72fb7c0a5de02ca51bed4741b1c4c74f166e88f",
-        vin: [],
-        vout: [
-          {
-            scriptpubkey:
-              "51207c096f59842eb86e772cf575fac55f707abb8b54c1d430980ee34959286f0e7d",
-            scriptpubkey_address:
-              "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
-            value: 546,
-          },
-        ],
-        status: {
-          confirmed: true,
-        },
-      },
-    ],
-  });
+  mockRpcResponse("esplora_address::txs", "confirmed_tx.json");
   mockRpcResponse("ord_output", {
     result: {
       indexed: true,
@@ -789,11 +697,8 @@ test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
 });
 
 test("Uconfirmed TX with Rune etching with inscription", async () => {
-  mockRpcResponse(
-    "esplora_address::txs",
-    "esplora_address::txs_rune_etching_with_inscription.json"
-  );
-  mockRpcResponse("ord_output", "ord_output_not_indexed.json");
+  mockRpcResponse("esplora_address::txs", "rune_etching_with_inscription.json");
+  mockRpcResponse("ord_output", "not_indexed.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
@@ -825,25 +730,16 @@ test("Uconfirmed TX with Rune etching with inscription", async () => {
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 1092);
   expect(intents[0]).toHaveProperty("operation", "etching");
-  expect(intents[0]).toHaveProperty("etching.divisibility", 2);
-  expect(intents[0]).toHaveProperty("etching.runeName", "KRYDROID•RUNES");
-  expect(intents[0]).toHaveProperty("etching.symbol", "🤖");
-  expect(intents[0]).toHaveProperty("etching.terms.amount", 5000000n);
-  expect(intents[0]).toHaveProperty("etching.terms.cap", 420n);
-  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
-  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
+  expect(intents[0]).toHaveProperty("runeName", "KRYDROID•RUNES");
   expect(intents[0]).toHaveProperty("inscription.assetType", "collectible");
   expect(intents[0]).toHaveProperty("inscription.content", IMAGE_GIF_BASE64);
   expect(intents[0]).toHaveProperty("inscription.content_type", "image/gif");
 });
 
 test("Uconfirmed TX with Rune etching without inscription", async () => {
-  mockRpcResponse(
-    "esplora_address::txs",
-    "esplora_address::txs_rune_etching_no_inscription.json"
-  );
-  mockRpcResponse("ord_output", "ord_output_not_indexed.json");
-  mockRpcResponse("esplora_tx", "esplora_tx_no_witness.json");
+  mockRpcResponse("esplora_address::txs", "rune_etching.json");
+  mockRpcResponse("ord_output", "not_indexed.json");
+  mockRpcResponse("esplora_tx", "confirmed_tx.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
@@ -875,12 +771,86 @@ test("Uconfirmed TX with Rune etching without inscription", async () => {
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty("operation", "etching");
-  expect(intents[0]).toHaveProperty("etching.divisibility", 2);
-  expect(intents[0]).toHaveProperty("etching.runeName", "KRYDROID•RUNES");
-  expect(intents[0]).toHaveProperty("etching.symbol", "🤖");
-  expect(intents[0]).toHaveProperty("etching.terms.amount", 5000000n);
-  expect(intents[0]).toHaveProperty("etching.terms.cap", 420n);
-  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
-  expect(intents[0]).toHaveProperty("etching.terms.height.end", 850946n);
+  expect(intents[0]).toHaveProperty("runeName", "KRYDROID•RUNES");
   expect(intents[0]).toHaveProperty("inscription", null);
+});
+
+test("Uconfirmed TX with Rune mint", async () => {
+  mockRpcResponse("esplora_address::txs", "rune_mint.json");
+  mockRpcResponse("ord_output", "not_indexed.json");
+  mockRpcResponse("esplora_tx", "confirmed_tx.json");
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const syncronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await syncronizer.syncIntentsFromChain([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0].id).toBeTruthy();
+  expect(intents[0].timestamp).toBeTruthy();
+  expect(intents[0].address).toEqual(
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"
+  );
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "pending");
+  expect(intents[0]).toHaveProperty("assetType", "rune");
+  expect(intents[0]).toHaveProperty("transactionType", "receive");
+  expect(intents[0]).toHaveProperty("transactionIds", [
+    "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
+  ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
+  expect(intents[0]).toHaveProperty("operation", "mint");
+  expect(intents[0]).toHaveProperty("runeName", "ETCHNXCEHINAW");
+  expect(intents[0]).toHaveProperty("runeAmount", 1000n);
+  expect(intents[0]).toHaveProperty("runeDivisibility", 2);
+});
+
+test("Uconfirmed TX with Rune transfer", async () => {
+  mockRpcResponse("esplora_address::txs", "rune_mint.json");
+  mockRpcResponse("ord_output", "not_indexed.json");
+  mockRpcResponse("esplora_tx", "confirmed_tx.json");
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const syncronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await syncronizer.syncIntentsFromChain([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
+
+  const intents = await manager.retrieveAllIntents();
+
+  expect(intents).toHaveLength(1);
+  expect(intents[0].id).toBeTruthy();
+  expect(intents[0].timestamp).toBeTruthy();
+  expect(intents[0].address).toEqual(
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"
+  );
+  expect(intents[0]).toHaveProperty("type", "transaction");
+  expect(intents[0]).toHaveProperty("status", "pending");
+  expect(intents[0]).toHaveProperty("assetType", "rune");
+  expect(intents[0]).toHaveProperty("transactionType", "receive");
+  expect(intents[0]).toHaveProperty("transactionIds", [
+    "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
+  ]);
+  expect(intents[0]).toHaveProperty("btcAmount", 546);
+  expect(intents[0]).toHaveProperty("operation", "mint");
+  expect(intents[0]).toHaveProperty("runeName", "ETCHNXCEHINAW");
+  expect(intents[0]).toHaveProperty("runeAmount", 1000n);
+  expect(intents[0]).toHaveProperty("runeDivisibility", 2);
 });

@@ -1,16 +1,10 @@
 import { parseWitness } from "micro-ordinals";
-import {
-  tryDecodeRunestone,
-  RunestoneSpec,
-  Cenotaph,
-  isRunestone,
-} from "@magiceden-oss/runestone-lib";
+import { tryDecodeRunestone, isRunestone } from "@magiceden-oss/runestone-lib";
 
 import {
   ParsedBRC20,
   EsploraTransaction,
   Inscription,
-  WalletIntent,
   OrdOutput,
   Rune,
 } from "./types";

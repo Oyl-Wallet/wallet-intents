@@ -426,7 +426,7 @@ var TransactionHandler = class {
   async processTransaction(tx) {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
-    const rune = await this.getRune(tx);
+    const rune = getRuneFromOutputs(tx.vout);
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed ? "completed" /* Completed */ : "pending" /* Pending */;
     const btcAmount = determineReceiverAmount(tx, this.addresses);
@@ -451,7 +451,7 @@ var TransactionHandler = class {
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           operation: "etching" /* Etching */,
-          etching: rune.etching,
+          runeName: rune.etching.runeName,
           inscription: categorized || null
         });
       } else if (rune.mint) {
@@ -468,7 +468,8 @@ var TransactionHandler = class {
           operation: "mint" /* Mint */,
           runeId: `${rune.mint.block}:${rune.mint.tx}`,
           runeName: runeDetails.entry.spaced_rune,
-          runeAmount: rune.edicts[0].amount
+          runeAmount: rune.edicts[0].amount,
+          runeDivisibility: runeDetails.entry.divisibility
         });
       } else {
         const { amount, id } = rune.edicts[0];
@@ -485,7 +486,8 @@ var TransactionHandler = class {
           operation: "transfer" /* Transfer */,
           runeId,
           runeName: runeDetails.entry.spaced_rune,
-          runeAmount: amount
+          runeAmount: amount,
+          runeDivisibility: runeDetails.entry.divisibility
         });
       }
       return;
@@ -552,11 +554,10 @@ var TransactionHandler = class {
     }
     return inscriptions;
   }
-  async getRune(tx) {
-    const runes = getRuneFromOutputs(tx.vout);
-    return runes;
-  }
   async getTxOutputsInscriptions(tx) {
+    if (!tx.status.confirmed) {
+      return [];
+    }
     const voutIndexes = tx.vout.map(
       (output, index) => this.addresses.includes(output.scriptpubkey_address) ? index : null
     ).filter((index) => index !== null);

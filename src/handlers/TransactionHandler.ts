@@ -71,7 +71,7 @@ export class TransactionHandler {
   private async processTransaction(tx: EsploraTransaction) {
     const inscriptions = await this.getInscriptions(tx);
     const [categorized] = this.categorizeInscriptions(inscriptions);
-    const rune = await this.getRune(tx);
+    const rune = getRuneFromOutputs(tx.vout);
 
     const address = determineReceiverAddress(tx, this.addresses);
     const status = tx.status.confirmed
@@ -101,7 +101,7 @@ export class TransactionHandler {
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           operation: RuneOperation.Etching,
-          etching: rune.etching,
+          runeName: rune.etching.runeName,
           inscription: categorized || null,
         } as RuneEtchingTransactionIntent);
       } else if (rune.mint) {
@@ -120,6 +120,7 @@ export class TransactionHandler {
           runeId: `${rune.mint.block}:${rune.mint.tx}`,
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: rune.edicts[0].amount,
+          runeDivisibility: runeDetails.entry.divisibility,
         } as RuneMintTransactionIntent);
       } else {
         const { amount, id } = rune.edicts[0];
@@ -138,6 +139,7 @@ export class TransactionHandler {
           runeId,
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: amount,
+          runeDivisibility: runeDetails.entry.divisibility,
         } as RuneTransferTransactionIntent);
       }
 
@@ -214,14 +216,13 @@ export class TransactionHandler {
     return inscriptions;
   }
 
-  private async getRune(tx: EsploraTransaction) {
-    const runes = getRuneFromOutputs(tx.vout);
-    return runes;
-  }
-
   private async getTxOutputsInscriptions(
     tx: EsploraTransaction
   ): Promise<any[]> {
+    if (!tx.status.confirmed) {
+      return [];
+    }
+
     const voutIndexes = tx.vout
       .map((output, index) =>
         this.addresses.includes(output.scriptpubkey_address) ? index : null

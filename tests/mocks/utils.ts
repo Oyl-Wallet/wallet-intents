@@ -13,10 +13,11 @@ export const mockRpcResponse = (method: string, fixture: string | object) => {
   server.use(
     http.post("http://localhost:3000/v1/regtest", async ({ request }) => {
       const { method: reqMethod } = await request.clone().json();
+
       if (reqMethod === method) {
-        if (typeof fixture === "string" && fixture.endsWith(".json")) {
+        if (typeof fixture === "string") {
           const file = await readFile(
-            resolve(__dirname, "..", "fixtures", fixture),
+            resolve(__dirname, "..", "fixtures", method, fixture),
             "utf8"
           );
 
