@@ -67,20 +67,26 @@ export function getInscriptionsFromInput(
 
   const inscriptions: Inscription[] = [];
 
-  const parsedInscriptions = parseWitness(
-    input.witness.map((witness) => Uint8Array.from(Buffer.from(witness, "hex")))
-  );
+  try {
+    const parsedInscriptions = parseWitness(
+      input.witness.map((witness) =>
+        Uint8Array.from(Buffer.from(witness, "hex"))
+      )
+    );
 
-  if (!parsedInscriptions) {
-    return inscriptions;
-  }
+    if (!parsedInscriptions) {
+      return inscriptions;
+    }
 
-  for (let inscription of parsedInscriptions) {
-    inscriptions.push({
-      id: `${parentTxId}i0`,
-      content_type: inscription.tags.contentType!!,
-      content: uint8ArrayToBase64(inscription.body),
-    });
+    for (let inscription of parsedInscriptions) {
+      inscriptions.push({
+        id: `${parentTxId}i0`,
+        content_type: inscription.tags.contentType!!,
+        content: uint8ArrayToBase64(inscription.body),
+      });
+    }
+  } catch (error) {
+    console.error("Error parsing inscriptions from input", error);
   }
 
   return inscriptions;
