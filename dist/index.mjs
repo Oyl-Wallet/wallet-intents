@@ -109,6 +109,7 @@ var PlasmoStorageAdapter = class {
     this.storage = new Storage({
       area: "local"
     });
+    this.storage.remove(key);
   }
   async save(intent) {
     const intents = await this.findAll();

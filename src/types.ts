@@ -98,8 +98,8 @@ export type RuneTransactionIntent =
 export interface CollectibleTransactionIntent extends TransactionIntent {
   assetType: AssetType.COLLECTIBLE;
   inscriptionId: string;
-  contentType?: string;
-  content?: string;
+  contentType: string;
+  content: string;
 }
 
 export interface BRC20TradeTransactionIntent extends TransactionIntent {

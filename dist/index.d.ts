@@ -82,8 +82,8 @@ type RuneTransactionIntent = RuneEtchingTransactionIntent | RuneMintTransactionI
 interface CollectibleTransactionIntent extends TransactionIntent {
     assetType: AssetType.COLLECTIBLE;
     inscriptionId: string;
-    contentType?: string;
-    content?: string;
+    contentType: string;
+    content: string;
 }
 interface BRC20TradeTransactionIntent extends TransactionIntent {
     assetType: AssetType.BRC20;
