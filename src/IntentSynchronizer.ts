@@ -24,6 +24,9 @@ export class IntentSynchronizer {
 
   async syncIntentsFromChain(addresses: string[]) {
     const intents = await this.manager.retrieveIntentsByAddresses(addresses);
+    console.log("addresses", addresses);
+    console.log("intents", intents);
+
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);
     }

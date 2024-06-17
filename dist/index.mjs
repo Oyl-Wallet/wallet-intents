@@ -612,6 +612,8 @@ var IntentSynchronizer = class {
   }
   async syncIntentsFromChain(addresses) {
     const intents = await this.manager.retrieveIntentsByAddresses(addresses);
+    console.log("addresses", addresses);
+    console.log("intents", intents);
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);
     }
