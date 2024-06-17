@@ -1,0 +1,28 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "entry": {
+      "block": 848381,
+      "burned": 0,
+      "divisibility": 2,
+      "etching": "73e10697fce6dcf285f29865a1ce5183d04cb1b4fc391b15b78b2380328ae2e1",
+      "mints": 0,
+      "number": 74371,
+      "premine": 90000000,
+      "spaced_rune": "ETCHNXCEHINAW",
+      "symbol": "🥊",
+      "terms": {
+        "amount": 50000,
+        "cap": 18200,
+        "height": [null, null],
+        "offset": [null, null]
+      },
+      "timestamp": 1718655380,
+      "turbo": true
+    },
+    "id": "848381:3861",
+    "mintable": true,
+    "parent": "73e10697fce6dcf285f29865a1ce5183d04cb1b4fc391b15b78b2380328ae2e1i0"
+  }
+}

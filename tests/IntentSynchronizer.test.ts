@@ -779,6 +779,7 @@ test("Uconfirmed TX with Rune mint", async () => {
   mockRpcResponse("esplora_address::txs", "rune_mint.json");
   mockRpcResponse("ord_output", "not_indexed.json");
   mockRpcResponse("esplora_tx", "confirmed_tx.json");
+  mockRpcResponse("ord_rune", "rune_details.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
@@ -819,6 +820,7 @@ test("Uconfirmed TX with Rune transfer", async () => {
   mockRpcResponse("esplora_address::txs", "rune_transfer.json");
   mockRpcResponse("ord_output", "not_indexed.json");
   mockRpcResponse("esplora_tx", "confirmed_tx.json");
+  mockRpcResponse("ord_rune", "rune_details.json");
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(

@@ -102,11 +102,12 @@ export interface CollectibleTransactionIntent extends TransactionIntent {
   content: string;
 }
 
-export interface TradeBRC20Intent extends TransactionIntent {
+export interface BRC20TradeTransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   transactionType: TransactionType.Trade;
   ticker: string;
   tickerAmount: number;
+  totalPrice: number;
 }
 
 export type WalletIntent =
@@ -114,7 +115,7 @@ export type WalletIntent =
   | BRC20TransactionIntent
   | RuneTransactionIntent
   | CollectibleTransactionIntent
-  | TradeBRC20Intent; // Add other intent types here
+  | BRC20TradeTransactionIntent;
 
 export type CapturableIntent<T extends WalletIntent> = Omit<
   T,
