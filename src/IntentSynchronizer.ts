@@ -1,6 +1,6 @@
 import { IntentManager } from "./IntentManager";
 import { TransactionHandler } from "./handlers";
-import { IntentType, RpcProvider } from "./types";
+import { IntentStatus, IntentType, RpcProvider } from "./types";
 
 export class IntentSynchronizer {
   private transactionHandler: TransactionHandler;
@@ -23,9 +23,11 @@ export class IntentSynchronizer {
   }
 
   async syncIntentsFromChain(addresses: string[]) {
-    const intents = await this.manager.retrieveIntentsByAddresses(addresses);
-    console.log("addresses", addresses);
-    console.log("intents", intents);
+    const intents = await this.manager
+      .retrieveIntentsByAddresses(addresses)
+      .then((intents) =>
+        intents.filter(({ status }) => status === IntentStatus.Pending)
+      );
 
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);

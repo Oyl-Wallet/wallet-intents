@@ -646,9 +646,9 @@ var IntentSynchronizer = class {
     );
   }
   async syncIntentsFromChain(addresses) {
-    const intents = await this.manager.retrieveIntentsByAddresses(addresses);
-    console.log("addresses", addresses);
-    console.log("intents", intents);
+    const intents = await this.manager.retrieveIntentsByAddresses(addresses).then(
+      (intents2) => intents2.filter(({ status }) => status === "pending" /* Pending */)
+    );
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(addresses);
     }
