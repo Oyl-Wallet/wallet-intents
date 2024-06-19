@@ -51,14 +51,20 @@ export class TransactionHandler {
     }
   }
 
-  async handleTransactions(addresses: string[]) {
+  async handleTransactions(addresses: string[], syncFromTimestamp?: number) {
     this.setAddresses(addresses);
 
-    const txs = (
+    let txs = (
       await Promise.all(
         this.addresses.map((addr) => this.provider.getAddressTxs(addr))
       )
     ).flat();
+
+    if (syncFromTimestamp) {
+      txs = txs.filter(
+        (tx) => tx.status.block_time * 1000 >= syncFromTimestamp
+      );
+    }
 
     for (let tx of txs) {
       let txExists = await this.txExists(tx);

@@ -392,11 +392,16 @@ var TransactionHandler = class {
       await this.manager.captureIntent(intent);
     }
   }
-  async handleTransactions(addresses) {
+  async handleTransactions(addresses, syncFromTimestamp) {
     this.setAddresses(addresses);
-    const txs = (await Promise.all(
+    let txs = (await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     )).flat();
+    if (syncFromTimestamp) {
+      txs = txs.filter(
+        (tx) => tx.status.block_time * 1e3 >= syncFromTimestamp
+      );
+    }
     for (let tx of txs) {
       let txExists = await this.txExists(tx);
       if (!txExists) {
@@ -620,12 +625,15 @@ var IntentSynchronizer = class {
       })
     );
   }
-  async syncIntentsFromChain(addresses) {
+  async syncIntentsFromChain(addresses, syncFromTimestamp) {
     const intents = await this.manager.retrieveIntentsByAddresses(addresses).then(
       (intents2) => intents2.filter(({ status }) => status === "pending" /* Pending */)
     );
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
-      await this.transactionHandler.handleTransactions(addresses);
+      await this.transactionHandler.handleTransactions(
+        addresses,
+        syncFromTimestamp
+      );
     }
   }
 };

@@ -22,7 +22,7 @@ export class IntentSynchronizer {
     );
   }
 
-  async syncIntentsFromChain(addresses: string[]) {
+  async syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number) {
     const intents = await this.manager
       .retrieveIntentsByAddresses(addresses)
       .then((intents) =>
@@ -30,7 +30,10 @@ export class IntentSynchronizer {
       );
 
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
-      await this.transactionHandler.handleTransactions(addresses);
+      await this.transactionHandler.handleTransactions(
+        addresses,
+        syncFromTimestamp
+      );
     }
   }
 }
