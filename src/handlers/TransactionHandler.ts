@@ -53,21 +53,33 @@ export class TransactionHandler {
 
   async handleTransactions(addresses: string[], syncFromTimestamp?: number) {
     this.setAddresses(addresses);
-
-    let txs = (
-      await Promise.all(
-        this.addresses.map((addr) => this.provider.getAddressTxs(addr))
-      )
-    ).flat();
-
-    if (syncFromTimestamp) {
-      txs = txs.filter(
-        (tx) => tx.status.block_time * 1000 >= syncFromTimestamp
-      );
-    }
-
-    for (let tx of txs) {
-      let txExists = await this.txExists(tx);
+  
+    const txs = await this.fetchAllTransactions();
+  
+    const filteredTxs = this.filterTransactionsByTimestamp(txs, syncFromTimestamp);
+  
+    await this.processNewTransactions(filteredTxs);
+  }
+  
+  private async fetchAllTransactions() {
+    const txs = await Promise.all(
+      this.addresses.map((addr) => this.provider.getAddressTxs(addr))
+    );
+    return txs.flat();
+  }
+  
+  private filterTransactionsByTimestamp(txs: EsploraTransaction[], syncFromTimestamp?: number) {
+    if (!syncFromTimestamp) return txs;
+  
+    return txs.filter((tx) => tx.status.confirmed 
+      ? tx.status.block_time * 1000 >= syncFromTimestamp 
+      : true
+    );
+  }
+  
+  private async processNewTransactions(txs: EsploraTransaction[]): Promise<void> {
+    for (const tx of txs) {
+      const txExists = await this.txExists(tx);
       if (!txExists) {
         await this.processTransaction(tx);
       }

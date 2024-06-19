@@ -429,16 +429,26 @@ var TransactionHandler = class {
   }
   async handleTransactions(addresses, syncFromTimestamp) {
     this.setAddresses(addresses);
-    let txs = (await Promise.all(
+    const txs = await this.fetchAllTransactions();
+    const filteredTxs = this.filterTransactionsByTimestamp(txs, syncFromTimestamp);
+    await this.processNewTransactions(filteredTxs);
+  }
+  async fetchAllTransactions() {
+    const txs = await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
-    )).flat();
-    if (syncFromTimestamp) {
-      txs = txs.filter(
-        (tx) => tx.status.block_time * 1e3 >= syncFromTimestamp
-      );
-    }
-    for (let tx of txs) {
-      let txExists = await this.txExists(tx);
+    );
+    return txs.flat();
+  }
+  filterTransactionsByTimestamp(txs, syncFromTimestamp) {
+    if (!syncFromTimestamp)
+      return txs;
+    return txs.filter(
+      (tx) => tx.status.confirmed ? tx.status.block_time * 1e3 >= syncFromTimestamp : true
+    );
+  }
+  async processNewTransactions(txs) {
+    for (const tx of txs) {
+      const txExists = await this.txExists(tx);
       if (!txExists) {
         await this.processTransaction(tx);
       }

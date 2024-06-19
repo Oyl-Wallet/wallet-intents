@@ -94,7 +94,7 @@ test("Handles transactions without a status", async () => {
   expect(syncedIntents[0]).toHaveProperty("status", "pending");
 });
 
-test.only("Does not sync intents from chain for transactions that were confirmed before the syncFromTimestamp", async () => {
+test("Does not sync intents from chain for transactions that were confirmed before the syncFromTimestamp", async () => {
   mockRpcResponse("esplora_address::txs", "confirmed_old_tx.json");
   mockRpcResponse("ord_output", "not_indexed.json");
 
