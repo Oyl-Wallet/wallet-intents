@@ -68,7 +68,6 @@ export class PlasmoStorageAdapter implements StorageAdapter {
       const sortedIntents = (intents || []).sort(
         (a, b) => b.timestamp - a.timestamp
       );
-      console.log("Sorted intents:", sortedIntents);
       return sortedIntents;
     });
   }
@@ -107,5 +106,9 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     return this.findAll().then((intents) =>
       intents.find((intent) => intent.id === intentId)
     );
+  }
+
+  async deleteAll(): Promise<void> {
+    await this.storage.remove(this.key);
   }
 }

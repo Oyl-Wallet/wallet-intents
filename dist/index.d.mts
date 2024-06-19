@@ -118,6 +118,7 @@ interface StorageAdapter {
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
+    deleteAll(): Promise<void>;
 }
 interface RpcProvider {
     baseUrl: string;
@@ -238,6 +239,7 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
+    deleteAll(): Promise<void>;
 }
 
 declare global {
@@ -256,6 +258,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findById(intentId: string): Promise<WalletIntent>;
+    deleteAll(): Promise<void>;
 }
 
 declare class SandshrewRpcProvider implements RpcProvider {

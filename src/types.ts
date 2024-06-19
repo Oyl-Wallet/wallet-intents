@@ -163,6 +163,7 @@ export interface StorageAdapter {
   ): Promise<WalletIntent[]>;
   findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
   findById(intentId: string): Promise<WalletIntent>;
+  deleteAll(): Promise<void>;
 }
 
 export interface RpcProvider {

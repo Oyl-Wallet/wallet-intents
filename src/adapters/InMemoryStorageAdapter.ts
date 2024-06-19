@@ -75,4 +75,8 @@ export class InMemoryStorageAdapter implements StorageAdapter {
       intents.find(({ id }) => id === intentId)
     );
   }
+
+  async deleteAll(): Promise<void> {
+    this.intents = [];
+  }
 }

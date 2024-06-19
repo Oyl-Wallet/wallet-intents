@@ -128,6 +128,9 @@ var InMemoryStorageAdapter = class {
       (intents) => intents.find(({ id }) => id === intentId)
     );
   }
+  async deleteAll() {
+    this.intents = [];
+  }
 };
 
 // src/adapters/PlasmoStorageAdapter.ts
@@ -177,7 +180,6 @@ var PlasmoStorageAdapter = class {
       const sortedIntents = (intents || []).sort(
         (a, b) => b.timestamp - a.timestamp
       );
-      console.log("Sorted intents:", sortedIntents);
       return sortedIntents;
     });
   }
@@ -207,6 +209,9 @@ var PlasmoStorageAdapter = class {
     return this.findAll().then(
       (intents) => intents.find((intent) => intent.id === intentId)
     );
+  }
+  async deleteAll() {
+    await this.storage.remove(this.key);
   }
 };
 
