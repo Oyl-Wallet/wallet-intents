@@ -153,7 +153,8 @@ var PlasmoStorageAdapter = class {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
             ...existingIntent,
-            ...intent
+            ...intent,
+            timestamp: existingIntent.timestamp
           };
           return updatedIntent;
         }
@@ -172,9 +173,13 @@ var PlasmoStorageAdapter = class {
     return updatedIntent;
   }
   async findAll() {
-    return this.storage.get(this.key).then(
-      (intents) => (intents || []).sort((a, b) => b.timestamp - a.timestamp)
-    );
+    return this.storage.get(this.key).then((intents) => {
+      const sortedIntents = (intents || []).sort(
+        (a, b) => b.timestamp - a.timestamp
+      );
+      console.log("Sorted intents:", sortedIntents);
+      return sortedIntents;
+    });
   }
   async findByType(type) {
     return this.findAll().then(

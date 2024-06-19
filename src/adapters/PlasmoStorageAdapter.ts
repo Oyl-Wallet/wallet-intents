@@ -41,6 +41,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
           updatedIntent = {
             ...existingIntent,
             ...intent,
+            timestamp: existingIntent.timestamp,
           } as WalletIntent;
           return updatedIntent;
         }
@@ -63,11 +64,13 @@ export class PlasmoStorageAdapter implements StorageAdapter {
   }
 
   async findAll(): Promise<WalletIntent[]> {
-    return this.storage
-      .get<WalletIntent[]>(this.key)
-      .then((intents) =>
-        (intents || []).sort((a, b) => b.timestamp - a.timestamp)
+    return this.storage.get<WalletIntent[]>(this.key).then((intents) => {
+      const sortedIntents = (intents || []).sort(
+        (a, b) => b.timestamp - a.timestamp
       );
+      console.log("Sorted intents:", sortedIntents);
+      return sortedIntents;
+    });
   }
 
   async findByType(type: IntentType): Promise<WalletIntent[]> {
