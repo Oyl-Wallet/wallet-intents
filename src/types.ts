@@ -113,7 +113,7 @@ export interface BRC20TradeTransactionIntent extends TransactionIntent {
 export interface RuneTradeTransactionIntent extends TransactionIntent {
   assetType: AssetType.RUNE;
   transactionType: TransactionType.Trade;
-  runeId: string;
+  operation: RuneOperation.Transfer;
   runeName: string;
   runeAmount: bigint;
   totalPrice: number;
