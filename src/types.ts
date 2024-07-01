@@ -110,6 +110,24 @@ export interface BRC20TradeTransactionIntent extends TransactionIntent {
   totalPrice: number;
 }
 
+export interface RuneTradeTransactionIntent extends TransactionIntent {
+  assetType: AssetType.RUNE;
+  transactionType: TransactionType.Trade;
+  runeId: string;
+  runeName: string;
+  runeAmount: bigint;
+  totalPrice: number;
+}
+
+export interface CollectibleTradeTransactionIntent extends TransactionIntent {
+  assetType: AssetType.COLLECTIBLE;
+  transactionType: TransactionType.Trade;
+  inscriptionId: string;
+  contentType: string;
+  content: string;
+  totalPrice: number;
+}
+
 export type WalletIntent =
   | BTCTransactionIntent
   | BRC20TransactionIntent

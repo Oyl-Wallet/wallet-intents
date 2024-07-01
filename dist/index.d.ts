@@ -92,6 +92,22 @@ interface BRC20TradeTransactionIntent extends TransactionIntent {
     tickerAmount: number;
     totalPrice: number;
 }
+interface RuneTradeTransactionIntent extends TransactionIntent {
+    assetType: AssetType.RUNE;
+    transactionType: TransactionType.Trade;
+    runeId: string;
+    runeName: string;
+    runeAmount: bigint;
+    totalPrice: number;
+}
+interface CollectibleTradeTransactionIntent extends TransactionIntent {
+    assetType: AssetType.COLLECTIBLE;
+    transactionType: TransactionType.Trade;
+    inscriptionId: string;
+    contentType: string;
+    content: string;
+    totalPrice: number;
+}
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent;
 type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
 type UpdatableIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
@@ -295,4 +311,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number): Promise<void>;
 }
 
-export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTradeTransactionIntent, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTradeTransactionIntent, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
