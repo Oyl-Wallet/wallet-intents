@@ -344,6 +344,8 @@ function inscriptionIdsFromTxOutputs(txOutputs) {
   return inscriptionIds;
 }
 function getInscriptionsFromInput(input, parentTxId) {
+  if (!input.witness)
+    return [];
   if (input.witness.length < 3)
     return [];
   const inscriptions = [];

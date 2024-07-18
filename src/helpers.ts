@@ -59,10 +59,11 @@ export function inscriptionIdsFromTxOutputs(txOutputs: OrdOutput[]) {
 export function getInscriptionsFromInput(
   input: {
     txid: string;
-    witness: string[];
+    witness?: string[];
   },
   parentTxId: string
 ) {
+  if (!input.witness) return [];
   if (input.witness.length < 3) return [];
 
   const inscriptions: Inscription[] = [];
