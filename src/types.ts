@@ -48,18 +48,18 @@ export interface TransactionIntent extends BaseIntent {
   transactionType: TransactionType;
   assetType: AssetType;
   transactionIds: string[];
-  btcAmount: number;
+  btcAmount: bigint;
 }
 
 export interface BTCTransactionIntent extends TransactionIntent {
   assetType: AssetType.BTC;
-  amount: number;
+  amount: bigint;
 }
 
 export interface BRC20TransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   ticker: string;
-  tickerAmount?: number;
+  tickerAmount?: bigint;
   operation: BRC20Operation;
   max?: number;
   limit?: number;
@@ -106,7 +106,7 @@ export interface BRC20TradeTransactionIntent extends TransactionIntent {
   assetType: AssetType.BRC20;
   transactionType: TransactionType.Trade;
   ticker: string;
-  tickerAmount: number;
+  tickerAmount: bigint;
   totalPrice: number;
 }
 

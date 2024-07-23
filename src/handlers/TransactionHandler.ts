@@ -53,31 +53,40 @@ export class TransactionHandler {
 
   async handleTransactions(addresses: string[], syncFromTimestamp?: number) {
     this.setAddresses(addresses);
-  
+
     const txs = await this.fetchAllTransactions();
-  
-    const filteredTxs = this.filterTransactionsByTimestamp(txs, syncFromTimestamp);
-  
+
+    const filteredTxs = this.filterTransactionsByTimestamp(
+      txs,
+      syncFromTimestamp
+    );
+
     await this.processNewTransactions(filteredTxs);
   }
-  
+
   private async fetchAllTransactions() {
     const txs = await Promise.all(
       this.addresses.map((addr) => this.provider.getAddressTxs(addr))
     );
     return txs.flat();
   }
-  
-  private filterTransactionsByTimestamp(txs: EsploraTransaction[], syncFromTimestamp?: number) {
+
+  private filterTransactionsByTimestamp(
+    txs: EsploraTransaction[],
+    syncFromTimestamp?: number
+  ) {
     if (!syncFromTimestamp) return txs;
-  
-    return txs.filter((tx) => tx.status.confirmed 
-      ? tx.status.block_time * 1000 >= syncFromTimestamp 
-      : true
+
+    return txs.filter((tx) =>
+      tx.status.confirmed
+        ? tx.status.block_time * 1000 >= syncFromTimestamp
+        : true
     );
   }
-  
-  private async processNewTransactions(txs: EsploraTransaction[]): Promise<void> {
+
+  private async processNewTransactions(
+    txs: EsploraTransaction[]
+  ): Promise<void> {
     for (const tx of txs) {
       const txExists = await this.txExists(tx);
       if (!txExists) {
@@ -175,7 +184,7 @@ export class TransactionHandler {
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: parseNumber(categorized.amt),
+          tickerAmount: BigInt(categorized.amt),
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim),

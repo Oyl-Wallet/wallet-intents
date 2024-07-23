@@ -299,7 +299,7 @@ function determineReceiverAmount(tx, addresses) {
       amount += output.value;
     }
   }
-  return amount;
+  return BigInt(amount);
 }
 function inscriptionIdsFromTxOutputs(txOutputs) {
   let inscriptionIds = [];
@@ -397,7 +397,10 @@ var TransactionHandler = class {
   async handleTransactions(addresses, syncFromTimestamp) {
     this.setAddresses(addresses);
     const txs = await this.fetchAllTransactions();
-    const filteredTxs = this.filterTransactionsByTimestamp(txs, syncFromTimestamp);
+    const filteredTxs = this.filterTransactionsByTimestamp(
+      txs,
+      syncFromTimestamp
+    );
     await this.processNewTransactions(filteredTxs);
   }
   async fetchAllTransactions() {
@@ -501,7 +504,7 @@ var TransactionHandler = class {
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: parseNumber(categorized.amt),
+          tickerAmount: BigInt(categorized.amt),
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim)
