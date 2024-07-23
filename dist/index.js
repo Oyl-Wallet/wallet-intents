@@ -334,7 +334,7 @@ function determineReceiverAmount(tx, addresses) {
       amount += output.value;
     }
   }
-  return BigInt(amount);
+  return amount;
 }
 function inscriptionIdsFromTxOutputs(txOutputs) {
   let inscriptionIds = [];
@@ -539,7 +539,7 @@ var TransactionHandler = class {
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: BigInt(categorized.amt),
+          tickerAmount: Number(categorized.amt),
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim)

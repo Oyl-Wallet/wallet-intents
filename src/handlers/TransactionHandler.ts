@@ -184,7 +184,7 @@ export class TransactionHandler {
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: BigInt(categorized.amt),
+          tickerAmount: Number(categorized.amt),
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim),

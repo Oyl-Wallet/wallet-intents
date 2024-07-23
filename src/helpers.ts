@@ -44,7 +44,7 @@ export function determineReceiverAmount(
     }
   }
 
-  return BigInt(amount);
+  return amount;
 }
 
 export function inscriptionIdsFromTxOutputs(txOutputs: OrdOutput[]) {
