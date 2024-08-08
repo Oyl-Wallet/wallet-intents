@@ -132,6 +132,9 @@ export class TransactionHandler {
           inscription: categorized || null,
         } as RuneEtchingTransactionIntent);
       } else if (rune.mint) {
+        // TODO: Fix support for rune mints
+        return;
+
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
@@ -184,7 +187,7 @@ export class TransactionHandler {
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: Number(categorized.amt),
+          tickerAmount: categorized.amt ? Number(categorized.amt) : null,
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim),

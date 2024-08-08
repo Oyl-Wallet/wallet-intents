@@ -1,0 +1,28 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "entry": {
+      "block": 855838,
+      "burned": 0,
+      "divisibility": 0,
+      "etching": "c5bc1fb07bd0405ca9cf0537fd8f93ec78e71e78add0277b4546989b6b656180",
+      "mints": 0,
+      "number": 92432,
+      "premine": 0,
+      "spaced_rune": "I•KNOW•YOU•WANT•IT",
+      "symbol": "😏",
+      "terms": {
+        "amount": 1000000,
+        "cap": 1000000,
+        "height": [null, null],
+        "offset": [null, null]
+      },
+      "timestamp": 1723076578,
+      "turbo": false
+    },
+    "id": "855838:565",
+    "mintable": true,
+    "parent": "c5bc1fb07bd0405ca9cf0537fd8f93ec78e71e78add0277b4546989b6b656180i0"
+  }
+}

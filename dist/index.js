@@ -491,6 +491,7 @@ var TransactionHandler = class {
           inscription: categorized || null
         });
       } else if (rune.mint) {
+        return;
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
         await this.manager.captureIntent({
@@ -539,7 +540,7 @@ var TransactionHandler = class {
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           ticker: categorized.tick,
-          tickerAmount: Number(categorized.amt),
+          tickerAmount: categorized.amt ? Number(categorized.amt) : null,
           operation: categorized.op,
           max: parseNumber(categorized.max),
           limit: parseNumber(categorized.lim)
