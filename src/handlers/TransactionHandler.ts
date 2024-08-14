@@ -135,6 +135,23 @@ export class TransactionHandler {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
+        if (this.manager.debug) {
+          console.log("Capturing transaction", {
+            address,
+            status,
+            btcAmount,
+            runeId,
+            type: IntentType.Transaction,
+            assetType: AssetType.RUNE,
+            transactionType: TransactionType.Receive,
+            transactionIds: [tx.txid],
+            operation: RuneOperation.Mint,
+            runeName: runeDetails.entry.spaced_rune,
+            runeAmount: BigInt(runeDetails.entry.terms.amount),
+            runeDivisibility: runeDetails.entry.divisibility,
+          });
+        }
+
         await this.manager.captureIntent({
           address,
           status,

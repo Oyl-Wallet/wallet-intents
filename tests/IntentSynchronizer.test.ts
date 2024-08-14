@@ -797,7 +797,7 @@ test("Uconfirmed TX with Rune etching without inscription", async () => {
   expect(intents[0]).toHaveProperty("inscription", null);
 });
 
-test.only("Uconfirmed TX with Rune mint", async () => {
+test("Uconfirmed TX with Rune mint", async () => {
   mockRpcResponse("esplora_address::txs", "rune_mint.json");
   mockRpcResponse("ord_output", "not_indexed.json");
   mockRpcResponse("esplora_tx", "confirmed_tx.json");
