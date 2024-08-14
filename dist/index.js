@@ -493,20 +493,19 @@ var TransactionHandler = class {
       } else if (rune.mint) {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
+        const inscriptionId = `${runeDetails.entry.etching}i0`;
+        const inscription = await this.provider.getInscriptionById(
+          inscriptionId
+        );
         if (this.manager.debug) {
-          console.log("Capturing transaction", {
+          console.log("Processing transaction", {
             address,
             status,
             btcAmount,
-            runeId,
-            type: "transaction" /* Transaction */,
-            assetType: "rune" /* RUNE */,
-            transactionType: "receive" /* Receive */,
-            transactionIds: [tx.txid],
-            operation: "mint" /* Mint */,
-            runeName: runeDetails.entry.spaced_rune,
-            runeAmount: BigInt(runeDetails.entry.terms.amount),
-            runeDivisibility: runeDetails.entry.divisibility
+            inscriptions,
+            categorized,
+            rune,
+            inscription
           });
         }
         await this.manager.captureIntent({
@@ -514,6 +513,7 @@ var TransactionHandler = class {
           status,
           btcAmount,
           runeId,
+          inscriptionId,
           type: "transaction" /* Transaction */,
           assetType: "rune" /* RUNE */,
           transactionType: "receive" /* Receive */,

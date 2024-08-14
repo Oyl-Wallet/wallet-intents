@@ -1,3 +1,4 @@
+import { InscriptionId } from "micro-ordinals";
 import { IntentManager } from "../IntentManager";
 import {
   parseBrc20Inscription,
@@ -135,20 +136,21 @@ export class TransactionHandler {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
+        const inscriptionId = `${runeDetails.entry.etching}i0`;
+
+        const inscription = await this.provider.getInscriptionById(
+          inscriptionId
+        );
+
         if (this.manager.debug) {
-          console.log("Capturing transaction", {
+          console.log("Processing transaction", {
             address,
             status,
             btcAmount,
-            runeId,
-            type: IntentType.Transaction,
-            assetType: AssetType.RUNE,
-            transactionType: TransactionType.Receive,
-            transactionIds: [tx.txid],
-            operation: RuneOperation.Mint,
-            runeName: runeDetails.entry.spaced_rune,
-            runeAmount: BigInt(runeDetails.entry.terms.amount),
-            runeDivisibility: runeDetails.entry.divisibility,
+            inscriptions,
+            categorized,
+            rune,
+            inscription,
           });
         }
 
@@ -157,6 +159,7 @@ export class TransactionHandler {
           status,
           btcAmount,
           runeId,
+          inscriptionId,
           type: IntentType.Transaction,
           assetType: AssetType.RUNE,
           transactionType: TransactionType.Receive,

@@ -79,6 +79,7 @@ export interface RuneMintTransactionIntent extends TransactionIntent {
   runeName: string;
   runeAmount: bigint;
   runeDivisibility: number;
+  inscriptionId?: string;
 }
 
 export interface RuneTransferTransactionIntent extends TransactionIntent {
