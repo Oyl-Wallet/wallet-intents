@@ -94,6 +94,27 @@ test("Handles transactions without a status", async () => {
   expect(syncedIntents[0]).toHaveProperty("status", "pending");
 });
 
+test("Handles transactions with errors", async () => {
+  mockRpcResponse("esplora_address::txs", {
+    result: undefined,
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const provider = new SandshrewRpcProvider({
+    network: "regtest",
+    projectId: "123",
+  });
+  const syncronizer = new IntentSynchronizer(manager, provider);
+
+  await syncronizer.syncIntentsFromChain(
+    ["tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"],
+    Date.now()
+  );
+
+  const intents = await manager.retrieveAllIntents();
+  expect(intents).toHaveLength(0);
+});
+
 test("Does not sync intents from chain for transactions that were confirmed before the syncFromTimestamp", async () => {
   mockRpcResponse("esplora_address::txs", "confirmed_old_tx.json");
   mockRpcResponse("ord_output", "not_indexed.json");

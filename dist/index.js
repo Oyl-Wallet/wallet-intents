@@ -440,7 +440,10 @@ var TransactionHandler = class {
   }
   async fetchAllTransactions() {
     const txs = await Promise.all(
-      this.addresses.map((addr) => this.provider.getAddressTxs(addr))
+      this.addresses.map(async (addr) => {
+        const result = await this.provider.getAddressTxs(addr);
+        return !result || typeof result === "string" ? [] : result;
+      })
     );
     return txs.flat();
   }
