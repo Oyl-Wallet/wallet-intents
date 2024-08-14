@@ -643,6 +643,9 @@ var TransactionHandler = class {
   }
   async getRuneTxInscriptions(tx) {
     const rune = getRuneFromOutputs(tx.vout);
+    if (!rune) {
+      return [];
+    }
     let runeId;
     if (rune.edicts?.length > 0) {
       const { id } = rune.edicts[0];

@@ -316,6 +316,11 @@ export class TransactionHandler {
     tx: EsploraTransaction
   ): Promise<Inscription[]> {
     const rune = getRuneFromOutputs(tx.vout);
+
+    if (!rune) {
+      return [];
+    }
+
     let runeId: string;
 
     if (rune.edicts?.length > 0) {
