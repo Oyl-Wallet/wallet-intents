@@ -797,7 +797,7 @@ test("Uconfirmed TX with Rune etching without inscription", async () => {
   expect(intents[0]).toHaveProperty("inscription", null);
 });
 
-test.skip("Uconfirmed TX with Rune mint", async () => {
+test.only("Uconfirmed TX with Rune mint", async () => {
   mockRpcResponse("esplora_address::txs", "rune_mint.json");
   mockRpcResponse("ord_output", "not_indexed.json");
   mockRpcResponse("esplora_tx", "confirmed_tx.json");
@@ -829,13 +829,13 @@ test.skip("Uconfirmed TX with Rune mint", async () => {
   expect(intents[0]).toHaveProperty("assetType", "rune");
   expect(intents[0]).toHaveProperty("transactionType", "receive");
   expect(intents[0]).toHaveProperty("transactionIds", [
-    "58de9fbe38d2a0732480cc01376a530c2a51763e44ce41d38ed4e1d13e0ba877",
+    "96b035c6f9505871b50a4f32a6bab22d1d9f09c6af997abe13ad5981df9a4b0b",
   ]);
   expect(intents[0]).toHaveProperty("btcAmount", 546);
   expect(intents[0]).toHaveProperty("operation", "mint");
-  expect(intents[0]).toHaveProperty("runeName", "ETCHNXCEHINAW");
-  expect(intents[0]).toHaveProperty("runeAmount", 1000n);
-  expect(intents[0]).toHaveProperty("runeDivisibility", 2);
+  expect(intents[0]).toHaveProperty("runeName", "I•KNOW•YOU•WANT•IT");
+  expect(intents[0]).toHaveProperty("runeAmount", 1000000n);
+  expect(intents[0]).toHaveProperty("runeDivisibility", 0);
 });
 
 test("Uconfirmed TX with Rune transfer", async () => {

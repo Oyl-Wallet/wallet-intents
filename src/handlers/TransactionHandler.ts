@@ -132,9 +132,6 @@ export class TransactionHandler {
           inscription: categorized || null,
         } as RuneEtchingTransactionIntent);
       } else if (rune.mint) {
-        // TODO: Fix support for rune mints
-        return;
-
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
@@ -142,14 +139,14 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
+          runeId,
           type: IntentType.Transaction,
           assetType: AssetType.RUNE,
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           operation: RuneOperation.Mint,
-          runeId: `${rune.mint.block}:${rune.mint.tx}`,
           runeName: runeDetails.entry.spaced_rune,
-          runeAmount: rune.edicts[0].amount,
+          runeAmount: BigInt(runeDetails.entry.terms.amount),
           runeDivisibility: runeDetails.entry.divisibility,
         } as RuneMintTransactionIntent);
       } else {
@@ -161,12 +158,12 @@ export class TransactionHandler {
           address,
           status,
           btcAmount,
+          runeId,
           type: IntentType.Transaction,
           assetType: AssetType.RUNE,
           transactionType: TransactionType.Receive,
           transactionIds: [tx.txid],
           operation: RuneOperation.Transfer,
-          runeId,
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: amount,
           runeDivisibility: runeDetails.entry.divisibility,

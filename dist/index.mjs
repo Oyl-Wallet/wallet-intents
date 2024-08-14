@@ -456,21 +456,20 @@ var TransactionHandler = class {
           inscription: categorized || null
         });
       } else if (rune.mint) {
-        return;
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
+          runeId,
           type: "transaction" /* Transaction */,
           assetType: "rune" /* RUNE */,
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           operation: "mint" /* Mint */,
-          runeId: `${rune.mint.block}:${rune.mint.tx}`,
           runeName: runeDetails.entry.spaced_rune,
-          runeAmount: rune.edicts[0].amount,
+          runeAmount: BigInt(runeDetails.entry.terms.amount),
           runeDivisibility: runeDetails.entry.divisibility
         });
       } else {
@@ -481,12 +480,12 @@ var TransactionHandler = class {
           address,
           status,
           btcAmount,
+          runeId,
           type: "transaction" /* Transaction */,
           assetType: "rune" /* RUNE */,
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           operation: "transfer" /* Transfer */,
-          runeId,
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: amount,
           runeDivisibility: runeDetails.entry.divisibility
