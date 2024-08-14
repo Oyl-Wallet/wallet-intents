@@ -456,22 +456,22 @@ var TransactionHandler = class {
           inscription: categorized || null
         });
       } else if (rune.mint) {
-        return;
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
+          runeId,
           type: "transaction" /* Transaction */,
           assetType: "rune" /* RUNE */,
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           operation: "mint" /* Mint */,
-          runeId: `${rune.mint.block}:${rune.mint.tx}`,
           runeName: runeDetails.entry.spaced_rune,
-          runeAmount: rune.edicts[0].amount,
-          runeDivisibility: runeDetails.entry.divisibility
+          runeAmount: BigInt(runeDetails.entry.terms.amount),
+          runeDivisibility: runeDetails.entry.divisibility,
+          inscription: categorized || null
         });
       } else {
         const { amount, id } = rune.edicts[0];
@@ -481,15 +481,16 @@ var TransactionHandler = class {
           address,
           status,
           btcAmount,
+          runeId,
           type: "transaction" /* Transaction */,
           assetType: "rune" /* RUNE */,
           transactionType: "receive" /* Receive */,
           transactionIds: [tx.txid],
           operation: "transfer" /* Transfer */,
-          runeId,
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: amount,
-          runeDivisibility: runeDetails.entry.divisibility
+          runeDivisibility: runeDetails.entry.divisibility,
+          inscription: categorized || null
         });
       }
       return;
@@ -554,6 +555,9 @@ var TransactionHandler = class {
     if (inscriptions.length === 0) {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
+    if (inscriptions.length === 0) {
+      inscriptions = await this.getRuneTxInscriptions(tx);
+    }
     return inscriptions;
   }
   async getTxOutputsInscriptions(tx) {
@@ -601,6 +605,29 @@ var TransactionHandler = class {
       )
     );
     return prevInputsInscriptions;
+  }
+  async getRuneTxInscriptions(tx) {
+    const rune = getRuneFromOutputs(tx.vout);
+    if (!rune) {
+      return [];
+    }
+    let runeId;
+    if (rune.edicts?.length > 0) {
+      const { id } = rune.edicts[0];
+      runeId = `${id.block}:${id.tx}`;
+    } else if (rune.mint) {
+      runeId = `${rune.mint.block}:${rune.mint.tx}`;
+    }
+    if (runeId) {
+      const runeDetails = await this.provider.getRuneById(runeId);
+      const inscription = await this.provider.getInscriptionById(
+        `${runeDetails.entry.etching}i0`
+      );
+      if (typeof inscription !== "string") {
+        return [inscription];
+      }
+    }
+    return [];
   }
   categorizeInscriptions(inscriptions) {
     const categorized = [];

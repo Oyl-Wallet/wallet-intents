@@ -79,6 +79,7 @@ export interface RuneMintTransactionIntent extends TransactionIntent {
   runeName: string;
   runeAmount: bigint;
   runeDivisibility: number;
+  inscription?: CategorizedInscription;
 }
 
 export interface RuneTransferTransactionIntent extends TransactionIntent {
@@ -88,6 +89,7 @@ export interface RuneTransferTransactionIntent extends TransactionIntent {
   runeName: string;
   runeAmount: bigint;
   runeDivisibility: number;
+  inscription?: CategorizedInscription;
 }
 
 export type RuneTransactionIntent =
@@ -271,6 +273,7 @@ export interface OrdRune {
 }
 
 export type OrdInscription = {
+  id: string;
   content_type: string;
   content: string;
 };

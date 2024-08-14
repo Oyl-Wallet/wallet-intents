@@ -38,7 +38,7 @@
           "scriptpubkey": "00146dbe6e29956ce4a566711c8b39074845f335b912",
           "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 6dbe6e29956ce4a566711c8b39074845f335b912",
           "scriptpubkey_type": "v0_p2wpkh",
-          "scriptpubkey_address": "bc1qdklxu2v4dnj22en3rj9njp6gghentwgju9ms67",
+          "scriptpubkey_address": "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
           "value": 546
         },
         {

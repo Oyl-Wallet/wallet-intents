@@ -69,6 +69,7 @@ interface RuneMintTransactionIntent extends TransactionIntent {
     runeName: string;
     runeAmount: bigint;
     runeDivisibility: number;
+    inscription?: CategorizedInscription;
 }
 interface RuneTransferTransactionIntent extends TransactionIntent {
     assetType: AssetType.RUNE;
@@ -77,6 +78,7 @@ interface RuneTransferTransactionIntent extends TransactionIntent {
     runeName: string;
     runeAmount: bigint;
     runeDivisibility: number;
+    inscription?: CategorizedInscription;
 }
 type RuneTransactionIntent = RuneEtchingTransactionIntent | RuneMintTransactionIntent | RuneTransferTransactionIntent;
 interface CollectibleTransactionIntent extends TransactionIntent {
@@ -217,6 +219,7 @@ interface OrdRune {
     parent: string;
 }
 type OrdInscription = {
+    id: string;
     content_type: string;
     content: string;
 };
