@@ -136,30 +136,11 @@ export class TransactionHandler {
         const runeId = `${rune.mint.block}:${rune.mint.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
 
-        const inscriptionId = `${runeDetails.entry.etching}i0`;
-
-        const inscription = await this.provider.getInscriptionById(
-          inscriptionId
-        );
-
-        if (this.manager.debug) {
-          console.log("Processing transaction", {
-            address,
-            status,
-            btcAmount,
-            inscriptions,
-            categorized,
-            rune,
-            inscription,
-          });
-        }
-
         await this.manager.captureIntent({
           address,
           status,
           btcAmount,
           runeId,
-          inscriptionId,
           type: IntentType.Transaction,
           assetType: AssetType.RUNE,
           transactionType: TransactionType.Receive,
@@ -168,6 +149,7 @@ export class TransactionHandler {
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: BigInt(runeDetails.entry.terms.amount),
           runeDivisibility: runeDetails.entry.divisibility,
+          inscription: categorized || null,
         } as RuneMintTransactionIntent);
       } else {
         const { amount, id } = rune.edicts[0];
@@ -187,6 +169,7 @@ export class TransactionHandler {
           runeName: runeDetails.entry.spaced_rune,
           runeAmount: amount,
           runeDivisibility: runeDetails.entry.divisibility,
+          inscription: categorized || null,
         } as RuneTransferTransactionIntent);
       }
 
@@ -259,6 +242,9 @@ export class TransactionHandler {
     if (inscriptions.length === 0) {
       inscriptions = await this.getPrevInputsInscriptions(tx);
     }
+    if (inscriptions.length === 0) {
+      inscriptions = await this.getRuneTxInscriptions(tx);
+    }
 
     return inscriptions;
   }
@@ -307,13 +293,13 @@ export class TransactionHandler {
     );
   }
 
-  private getInputInscriptions(tx: EsploraTransaction): any[] {
+  private getInputInscriptions(tx: EsploraTransaction): Inscription[] {
     return tx.vin.flatMap((input) => getInscriptionsFromInput(input, tx.txid));
   }
 
   private async getPrevInputsInscriptions(
     tx: EsploraTransaction
-  ): Promise<any[]> {
+  ): Promise<Inscription[]> {
     const prevTxs = await Promise.all(
       tx.vin.map((input) => this.provider.getTxById(input.txid))
     );
@@ -324,6 +310,33 @@ export class TransactionHandler {
       )
     );
     return prevInputsInscriptions;
+  }
+
+  private async getRuneTxInscriptions(
+    tx: EsploraTransaction
+  ): Promise<Inscription[]> {
+    const rune = getRuneFromOutputs(tx.vout);
+    let runeId: string;
+
+    if (rune.edicts?.length > 0) {
+      const { id } = rune.edicts[0];
+      runeId = `${id.block}:${id.tx}`;
+    } else if (rune.mint) {
+      runeId = `${rune.mint.block}:${rune.mint.tx}`;
+    }
+
+    if (runeId) {
+      const runeDetails = await this.provider.getRuneById(runeId);
+      const inscription = await this.provider.getInscriptionById(
+        `${runeDetails.entry.etching}i0`
+      );
+
+      if (typeof inscription !== "string") {
+        return [inscription];
+      }
+    }
+
+    return [];
   }
 
   private categorizeInscriptions(
