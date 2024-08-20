@@ -86,6 +86,7 @@ interface CollectibleTransactionIntent extends TransactionIntent {
     inscriptionId: string;
     contentType: string;
     content: string;
+    receiverAddress?: string;
 }
 interface BRC20TradeTransactionIntent extends TransactionIntent {
     assetType: AssetType.BRC20;

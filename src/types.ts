@@ -102,6 +102,7 @@ export interface CollectibleTransactionIntent extends TransactionIntent {
   inscriptionId: string;
   contentType: string;
   content: string;
+  receiverAddress?: string;
 }
 
 export interface BRC20TradeTransactionIntent extends TransactionIntent {
