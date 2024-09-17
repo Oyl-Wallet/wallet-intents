@@ -1,6 +1,6 @@
 import { IntentManager } from "./IntentManager";
 import { TransactionHandler } from "./handlers";
-import { IntentStatus, IntentType, RpcProvider } from "./types";
+import { IntentType, RpcProvider } from "./types";
 
 export class IntentSynchronizer {
   private transactionHandler: TransactionHandler;
@@ -13,6 +13,7 @@ export class IntentSynchronizer {
     const intents = await this.manager.retrievePendingIntentsByAddresses(
       addresses
     );
+
     await Promise.all(
       intents.map(async (intent) => {
         if (intent.type === IntentType.Transaction) {
@@ -22,12 +23,35 @@ export class IntentSynchronizer {
     );
   }
 
+  async syncStaleIntents(
+    addresses: string[],
+    expirationTimeMs = 3600000 /* 1 hour in ms */
+  ) {
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
+    );
+
+    const now = Date.now();
+
+    await Promise.all(
+      intents.map(async (intent) => {
+        const isStale = now - intent.timestamp > expirationTimeMs;
+
+        if (
+          intent.type === IntentType.Transaction &&
+          intent.transactionIds.length === 0 &&
+          isStale
+        ) {
+          await this.transactionHandler.handleStaleTransaction(intent);
+        }
+      })
+    );
+  }
+
   async syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number) {
-    const intents = await this.manager
-      .retrieveIntentsByAddresses(addresses)
-      .then((intents) =>
-        intents.filter(({ status }) => status === IntentStatus.Pending)
-      );
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
+    );
 
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(

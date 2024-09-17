@@ -52,6 +52,11 @@ export class TransactionHandler {
     }
   }
 
+  async handleStaleTransaction(intent: WalletIntent) {
+    intent.status = IntentStatus.Completed;
+    await this.manager.captureIntent(intent);
+  }
+
   async handleTransactions(addresses: string[], syncFromTimestamp?: number) {
     this.setAddresses(addresses);
 

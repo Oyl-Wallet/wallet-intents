@@ -429,6 +429,10 @@ var TransactionHandler = class {
       await this.manager.captureIntent(intent);
     }
   }
+  async handleStaleTransaction(intent) {
+    intent.status = "completed" /* Completed */;
+    await this.manager.captureIntent(intent);
+  }
   async handleTransactions(addresses, syncFromTimestamp) {
     this.setAddresses(addresses);
     const txs = await this.fetchAllTransactions();
@@ -706,9 +710,23 @@ var IntentSynchronizer = class {
       })
     );
   }
+  async syncStaleIntents(addresses, expirationTimeMs = 36e5) {
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
+    );
+    const now = Date.now();
+    await Promise.all(
+      intents.map(async (intent) => {
+        const isStale = now - intent.timestamp > expirationTimeMs;
+        if (intent.type === "transaction" /* Transaction */ && intent.transactionIds.length === 0 && isStale) {
+          await this.transactionHandler.handleStaleTransaction(intent);
+        }
+      })
+    );
+  }
   async syncIntentsFromChain(addresses, syncFromTimestamp) {
-    const intents = await this.manager.retrieveIntentsByAddresses(addresses).then(
-      (intents2) => intents2.filter(({ status }) => status === "pending" /* Pending */)
+    const intents = await this.manager.retrievePendingIntentsByAddresses(
+      addresses
     );
     if (intents.every(({ transactionIds }) => transactionIds.length > 0)) {
       await this.transactionHandler.handleTransactions(

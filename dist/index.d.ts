@@ -312,6 +312,7 @@ declare class IntentSynchronizer {
     private transactionHandler;
     constructor(manager: IntentManager, provider: RpcProvider);
     syncPendingIntents(addresses: string[]): Promise<void>;
+    syncStaleIntents(addresses: string[], expirationTimeMs?: number): Promise<void>;
     syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number): Promise<void>;
 }
 

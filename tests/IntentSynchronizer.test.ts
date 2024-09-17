@@ -94,6 +94,43 @@ test("Handles transactions without a status", async () => {
   expect(syncedIntents[0]).toHaveProperty("status", "pending");
 });
 
+test("Handles transactions that have become stale (no tx ids)", async () => {
+  mockRpcResponse("esplora_tx", {
+    result: {},
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const synchronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider({
+      network: "regtest",
+      projectId: "123",
+    })
+  );
+
+  await manager.captureIntent({
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: [],
+    btcAmount: 100000,
+  });
+
+  const pendingIntents = await manager.retrieveAllIntents();
+  expect(pendingIntents[0]).toHaveProperty("status", "pending");
+
+  await synchronizer.syncStaleIntents(
+    ["tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln"],
+    -1000
+  );
+
+  const syncedIntents = await manager.retrieveAllIntents();
+
+  expect(syncedIntents[0]).toHaveProperty("status", "completed");
+});
+
 test("Handles transactions with errors", async () => {
   mockRpcResponse("esplora_address::txs", {
     result: undefined,
@@ -106,10 +143,9 @@ test("Handles transactions with errors", async () => {
   });
   const syncronizer = new IntentSynchronizer(manager, provider);
 
-  await syncronizer.syncIntentsFromChain(
-    ["tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7"],
-    Date.now()
-  );
+  await syncronizer.syncIntentsFromChain([
+    "tb1pdykkv4ldhmw2n9mpehffjk7dszltheqkhjtg3hj7p97u33jja8cq4fuph7",
+  ]);
 
   const intents = await manager.retrieveAllIntents();
   expect(intents).toHaveLength(0);
