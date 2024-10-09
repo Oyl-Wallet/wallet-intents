@@ -183,12 +183,8 @@ var PlasmoStorageAdapter = class {
 // src/providers/SandshrewRpcProvider.ts
 var SandshrewRpcProvider = class {
   baseUrl;
-  constructor({ network, projectId }) {
-    if (network === "regtest") {
-      this.baseUrl = "http://localhost:3000/v1/regtest";
-    } else {
-      this.baseUrl = `https://${network}.sandshrew.io/v1/${projectId}`;
-    }
+  constructor(url) {
+    this.baseUrl = url;
   }
   async getAddressTxs(address) {
     try {

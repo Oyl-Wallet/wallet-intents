@@ -9,12 +9,8 @@ import {
 export class SandshrewRpcProvider implements RpcProvider {
   baseUrl: string;
 
-  constructor({ network, projectId }: { network: string; projectId: string }) {
-    if (network === "regtest") {
-      this.baseUrl = "http://localhost:3000/v1/regtest";
-    } else {
-      this.baseUrl = `https://${network}.sandshrew.io/v1/${projectId}`;
-    }
+  constructor(url: string) {
+    this.baseUrl = url;
   }
 
   async getAddressTxs(address: string): Promise<EsploraTransaction[]> {
