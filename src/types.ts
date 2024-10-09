@@ -236,11 +236,16 @@ export interface EsploraTransaction {
   };
 }
 
+export type OrdOutputRune = {
+  amount: number;
+  divisibility: number;
+};
+
 export interface OrdOutput {
   address: string;
   indexed: boolean;
   inscriptions: string[];
-  runes: any[];
+  runes: Record<string, OrdOutputRune>;
   sat_ranges: number[][];
   script_pubkey: string;
   spent: boolean;
