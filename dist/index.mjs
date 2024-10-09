@@ -183,7 +183,7 @@ var PlasmoStorageAdapter = class {
 // src/providers/SandshrewRpcProvider.ts
 var SandshrewRpcProvider = class {
   baseUrl;
-  constructor({ url }) {
+  constructor(url) {
     this.baseUrl = url;
   }
   async getAddressTxs(address) {

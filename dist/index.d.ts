@@ -283,9 +283,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
 
 declare class SandshrewRpcProvider implements RpcProvider {
     baseUrl: string;
-    constructor({ url }: {
-        url: string;
-    });
+    constructor(url: string);
     getAddressTxs(address: string): Promise<EsploraTransaction[]>;
     getTxById(txId: string): Promise<EsploraTransaction>;
     getTxOutput(txId: string, voutIndex: number): Promise<OrdOutput>;

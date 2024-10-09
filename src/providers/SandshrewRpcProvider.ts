@@ -9,7 +9,7 @@ import {
 export class SandshrewRpcProvider implements RpcProvider {
   baseUrl: string;
 
-  constructor({ url }: { url: string }) {
+  constructor(url: string) {
     this.baseUrl = url;
   }
 

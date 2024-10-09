@@ -27,10 +27,7 @@ test("Updates intent as completed for confirmed transactions", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await manager.captureIntent({
@@ -64,10 +61,7 @@ test("Handles transactions without a status", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await manager.captureIntent({
@@ -102,10 +96,7 @@ test("Handles transactions that have become stale (no tx ids)", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await manager.captureIntent({
@@ -137,10 +128,8 @@ test("Handles transactions with errors", async () => {
   });
 
   const manager = new IntentManager(new InMemoryStorageAdapter());
-  const provider = new SandshrewRpcProvider({
-    network: "regtest",
-    projectId: "123",
-  });
+  const provider = new SandshrewRpcProvider("http://localhost:3000/v1/regtest");
+
   const syncronizer = new IntentSynchronizer(manager, provider);
 
   await syncronizer.syncIntentsFromChain([
@@ -158,10 +147,7 @@ test("Does not sync intents from chain for transactions that were confirmed befo
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain(
@@ -180,10 +166,7 @@ test("Receive BTC confirmed", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -206,10 +189,7 @@ test("Receive BTC unconfirmed", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -259,10 +239,7 @@ test("Confirmed TX with Collectible in Outputs", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -316,10 +293,7 @@ test("Confirmed TX with BRC-20 in Outputs", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -406,10 +380,7 @@ test("Unconfirmed TX with Collectible in Prevout", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await synchronizer.syncIntentsFromChain([
@@ -499,10 +470,7 @@ test("Unconfirmed TX with BRC-20 in Prevout", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const synchronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await synchronizer.syncIntentsFromChain([
@@ -569,10 +537,7 @@ test("Uconfirmed TX with Collectible in Input Witness", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -645,10 +610,7 @@ test("Uconfirmed TX with BRC-20 in Input Witness", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -742,10 +704,7 @@ test("Uconfirmed TX with BRC-20 in Prev Inputs Witness", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -782,10 +741,7 @@ test("Uconfirmed TX with Rune etching with inscription", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -823,10 +779,7 @@ test("Uconfirmed TX with Rune etching without inscription", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -872,10 +825,7 @@ test("Uconfirmed TX with Rune mint", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
@@ -929,10 +879,7 @@ test("Uconfirmed TX with Rune transfer", async () => {
   const manager = new IntentManager(new InMemoryStorageAdapter());
   const syncronizer = new IntentSynchronizer(
     manager,
-    new SandshrewRpcProvider({
-      network: "regtest",
-      projectId: "123",
-    })
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
   );
 
   await syncronizer.syncIntentsFromChain([
