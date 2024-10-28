@@ -122,7 +122,7 @@ test("Handles transactions that have become stale (no tx ids)", async () => {
   expect(syncedIntents[0]).toHaveProperty("status", "completed");
 });
 
-test("Handles transactions that have become stale (invalid tx ids)", async () => {
+test("Handles transactions that have become stale (with invalid tx ids)", async () => {
   mockRpcResponse("esplora_tx", {
     result: {},
   });
@@ -139,12 +139,38 @@ test("Handles transactions that have become stale (invalid tx ids)", async () =>
     status: IntentStatus.Pending,
     transactionType: TransactionType.Send,
     assetType: AssetType.BTC,
+    transactionIds: [],
+    btcAmount: 100000,
+  });
+
+  await manager.captureIntent({
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
     transactionIds: ["Error: could not procees transaction"],
     btcAmount: 100000,
   });
 
+  await manager.captureIntent({
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: [
+      "Error: could not procees transaction",
+      "f7c5803c94d4372ca85d03bb94c833dc39eca447abdbf8f1a0e9e57927ad8784",
+    ],
+    btcAmount: 100000,
+  });
+
   const pendingIntents = await manager.retrieveAllIntents();
-  expect(pendingIntents[0]).toHaveProperty("status", "pending");
+
+  pendingIntents.forEach((intent) => {
+    expect(intent.status).toBe("pending");
+  });
 
   await synchronizer.syncStaleIntents(
     ["tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln"],
@@ -154,6 +180,8 @@ test("Handles transactions that have become stale (invalid tx ids)", async () =>
   const syncedIntents = await manager.retrieveAllIntents();
 
   expect(syncedIntents[0]).toHaveProperty("status", "completed");
+  expect(syncedIntents[1]).toHaveProperty("status", "completed");
+  expect(syncedIntents[2]).toHaveProperty("status", "pending");
 });
 
 test("Handles transactions with errors", async () => {
