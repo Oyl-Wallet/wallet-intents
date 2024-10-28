@@ -369,6 +369,31 @@ function parseNumber(value) {
   const parsed = parseFloat(value);
   return isNaN(parsed) ? null : parsed;
 }
+function isValidBitcoinTxHex(txHex) {
+  if (!txHex || typeof txHex !== "string") {
+    return false;
+  }
+  const hexRegex = /^[0-9a-fA-F]*$/;
+  if (!hexRegex.test(txHex)) {
+    return false;
+  }
+  if (txHex.length % 2 !== 0) {
+    return false;
+  }
+  if (txHex.length < 20) {
+    return false;
+  }
+  try {
+    const version = txHex.slice(0, 8);
+    const versionNum = parseInt(version, 16);
+    if (versionNum < 1 || versionNum > 2) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 
 // src/handlers/TransactionHandler.ts
 var TransactionHandler = class {
@@ -679,7 +704,10 @@ var IntentSynchronizer = class {
     await Promise.all(
       intents.map(async (intent) => {
         const isStale = now - intent.timestamp > expirationTimeMs;
-        if (intent.type === "transaction" /* Transaction */ && intent.transactionIds.length === 0 && isStale) {
+        const hasInvalidTxIds = intent.transactionIds.some(
+          (txId) => !isValidBitcoinTxHex(txId)
+        );
+        if (intent.type === "transaction" /* Transaction */ && (intent.transactionIds.length === 0 || hasInvalidTxIds) && isStale) {
           await this.transactionHandler.handleStaleTransaction(intent);
         }
       })

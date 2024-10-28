@@ -122,6 +122,40 @@ test("Handles transactions that have become stale (no tx ids)", async () => {
   expect(syncedIntents[0]).toHaveProperty("status", "completed");
 });
 
+test("Handles transactions that have become stale (invalid tx ids)", async () => {
+  mockRpcResponse("esplora_tx", {
+    result: {},
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const synchronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
+  );
+
+  await manager.captureIntent({
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: ["Error: could not procees transaction"],
+    btcAmount: 100000,
+  });
+
+  const pendingIntents = await manager.retrieveAllIntents();
+  expect(pendingIntents[0]).toHaveProperty("status", "pending");
+
+  await synchronizer.syncStaleIntents(
+    ["tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln"],
+    -1000
+  );
+
+  const syncedIntents = await manager.retrieveAllIntents();
+
+  expect(syncedIntents[0]).toHaveProperty("status", "completed");
+});
+
 test("Handles transactions with errors", async () => {
   mockRpcResponse("esplora_address::txs", {
     result: undefined,

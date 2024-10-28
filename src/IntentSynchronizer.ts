@@ -1,6 +1,7 @@
 import { IntentManager } from "./IntentManager";
 import { TransactionHandler } from "./handlers";
 import { IntentType, RpcProvider } from "./types";
+import { isValidBitcoinTxHex } from "./utils";
 
 export class IntentSynchronizer {
   private transactionHandler: TransactionHandler;
@@ -36,10 +37,13 @@ export class IntentSynchronizer {
     await Promise.all(
       intents.map(async (intent) => {
         const isStale = now - intent.timestamp > expirationTimeMs;
+        const hasInvalidTxIds = intent.transactionIds.some(
+          (txId) => !isValidBitcoinTxHex(txId)
+        );
 
         if (
           intent.type === IntentType.Transaction &&
-          intent.transactionIds.length === 0 &&
+          (intent.transactionIds.length === 0 || hasInvalidTxIds) &&
           isStale
         ) {
           await this.transactionHandler.handleStaleTransaction(intent);
