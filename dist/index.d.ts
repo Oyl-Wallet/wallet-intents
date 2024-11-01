@@ -19,7 +19,8 @@ interface BaseIntent {
 declare enum TransactionType {
     Send = "send",
     Receive = "receive",
-    Trade = "trade"
+    Trade = "trade",
+    Claim = "claim"
 }
 declare enum AssetType {
     BTC = "btc",
@@ -110,6 +111,13 @@ interface CollectibleTradeTransactionIntent extends TransactionIntent {
     contentType: string;
     content: string;
     totalPrice: number;
+}
+interface CollectibleClaimTransactionIntent extends TransactionIntent {
+    assetType: AssetType.COLLECTIBLE;
+    transactionType: TransactionType.Claim;
+    inscriptionId?: string;
+    imageUrl: string;
+    collectionName: string;
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent | RuneTradeTransactionIntent | CollectibleTradeTransactionIntent;
 type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
@@ -317,4 +325,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number): Promise<void>;
 }
 
-export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleTradeTransactionIntent, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdOutputRune, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTradeTransactionIntent, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleClaimTransactionIntent, type CollectibleTradeTransactionIntent, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdOutputRune, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTradeTransactionIntent, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };

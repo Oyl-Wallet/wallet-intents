@@ -1,4 +1,4 @@
-import { RuneEtchingSpec, RunestoneSpec } from "@magiceden-oss/runestone-lib";
+import { RunestoneSpec } from "@magiceden-oss/runestone-lib";
 
 export enum IntentStatus {
   Pending = "pending",
@@ -22,6 +22,7 @@ export enum TransactionType {
   Send = "send",
   Receive = "receive",
   Trade = "trade",
+  Claim = "claim",
 }
 
 export enum AssetType {
@@ -129,6 +130,14 @@ export interface CollectibleTradeTransactionIntent extends TransactionIntent {
   contentType: string;
   content: string;
   totalPrice: number;
+}
+
+export interface CollectibleClaimTransactionIntent extends TransactionIntent {
+  assetType: AssetType.COLLECTIBLE;
+  transactionType: TransactionType.Claim;
+  inscriptionId?: string;
+  imageUrl: string;
+  collectionName: string;
 }
 
 export type WalletIntent =
