@@ -147,7 +147,8 @@ export type WalletIntent =
   | CollectibleTransactionIntent
   | BRC20TradeTransactionIntent
   | RuneTradeTransactionIntent
-  | CollectibleTradeTransactionIntent;
+  | CollectibleTradeTransactionIntent
+  | CollectibleClaimTransactionIntent;
 
 export type CapturableIntent<T extends WalletIntent> = Omit<
   T,
