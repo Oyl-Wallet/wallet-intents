@@ -13,6 +13,7 @@ var TransactionType = /* @__PURE__ */ ((TransactionType2) => {
   TransactionType2["Send"] = "send";
   TransactionType2["Receive"] = "receive";
   TransactionType2["Trade"] = "trade";
+  TransactionType2["List"] = "list";
   TransactionType2["Claim"] = "claim";
   return TransactionType2;
 })(TransactionType || {});

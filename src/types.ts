@@ -22,6 +22,7 @@ export enum TransactionType {
   Send = "send",
   Receive = "receive",
   Trade = "trade",
+  List = "list",
   Claim = "claim",
 }
 
@@ -132,6 +133,16 @@ export interface CollectibleTradeTransactionIntent extends TransactionIntent {
   totalPrice: number;
 }
 
+export interface CollectibleListTransactionIntent extends TransactionIntent {
+  assetType: AssetType.COLLECTIBLE;
+  transactionType: TransactionType.List;
+  marketplace: string;
+  inscriptionId: string;
+  collectionName: string;
+  inscriptionName: string;
+  listingId: string;
+}
+
 export interface CollectibleClaimTransactionIntent extends TransactionIntent {
   assetType: AssetType.COLLECTIBLE;
   transactionType: TransactionType.Claim;
@@ -148,6 +159,7 @@ export type WalletIntent =
   | BRC20TradeTransactionIntent
   | RuneTradeTransactionIntent
   | CollectibleTradeTransactionIntent
+  | CollectibleListTransactionIntent
   | CollectibleClaimTransactionIntent;
 
 export type CapturableIntent<T extends WalletIntent> = Omit<

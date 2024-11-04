@@ -20,6 +20,7 @@ declare enum TransactionType {
     Send = "send",
     Receive = "receive",
     Trade = "trade",
+    List = "list",
     Claim = "claim"
 }
 declare enum AssetType {
@@ -112,6 +113,15 @@ interface CollectibleTradeTransactionIntent extends TransactionIntent {
     content: string;
     totalPrice: number;
 }
+interface CollectibleListTransactionIntent extends TransactionIntent {
+    assetType: AssetType.COLLECTIBLE;
+    transactionType: TransactionType.List;
+    marketplace: string;
+    inscriptionId: string;
+    collectionName: string;
+    inscriptionName: string;
+    listingId: string;
+}
 interface CollectibleClaimTransactionIntent extends TransactionIntent {
     assetType: AssetType.COLLECTIBLE;
     transactionType: TransactionType.Claim;
@@ -119,7 +129,7 @@ interface CollectibleClaimTransactionIntent extends TransactionIntent {
     imageUrl: string;
     collectionName: string;
 }
-type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent | RuneTradeTransactionIntent | CollectibleTradeTransactionIntent | CollectibleClaimTransactionIntent;
+type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent | RuneTradeTransactionIntent | CollectibleTradeTransactionIntent | CollectibleListTransactionIntent | CollectibleClaimTransactionIntent;
 type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
 type UpdatableIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
 interface CapturedIntent {
@@ -325,4 +335,4 @@ declare class IntentSynchronizer {
     syncIntentsFromChain(addresses: string[], syncFromTimestamp?: number): Promise<void>;
 }
 
-export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleClaimTransactionIntent, type CollectibleTradeTransactionIntent, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdOutputRune, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTradeTransactionIntent, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
+export { AssetType, BRC20Operation, type BRC20TradeTransactionIntent, type BRC20TransactionIntent, type BTCTransactionIntent, type BaseIntent, type Brc20Asset, type CapturableIntent, type CapturedIntent, type CategorizedInscription, type CollectibleAsset, type CollectibleClaimTransactionIntent, type CollectibleListTransactionIntent, type CollectibleTradeTransactionIntent, type CollectibleTransactionIntent, type EsploraTransaction, InMemoryStorageAdapter, type Inscription, type IntentHandler, IntentManager, IntentStatus, IntentSynchronizer, IntentType, type NewIntent, type OrdInscription, type OrdOutput, type OrdOutputRune, type OrdRune, type ParsedBRC20, type PartialExistingIntent, PlasmoStorageAdapter, type RpcProvider, type Rune, type RuneAsset, type RuneEtchingTransactionIntent, type RuneMintTransactionIntent, RuneOperation, type RuneTradeTransactionIntent, type RuneTransactionIntent, type RuneTransferTransactionIntent, SandshrewRpcProvider, type StorageAdapter, type TransactionIntent, TransactionType, type UpdatableIntent, type WalletIntent };
