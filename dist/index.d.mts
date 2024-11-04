@@ -116,11 +116,11 @@ interface CollectibleTradeTransactionIntent extends TransactionIntent {
 interface CollectibleListTransactionIntent extends TransactionIntent {
     assetType: AssetType.COLLECTIBLE;
     transactionType: TransactionType.List;
-    marketplace: string;
+    marketplaces: string[];
     inscriptionId: string;
     collectionName: string;
     inscriptionName: string;
-    listingId?: string;
+    listingIds: string[];
 }
 interface CollectibleClaimTransactionIntent extends TransactionIntent {
     assetType: AssetType.COLLECTIBLE;
@@ -132,7 +132,7 @@ interface CollectibleClaimTransactionIntent extends TransactionIntent {
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent | RuneTradeTransactionIntent | CollectibleTradeTransactionIntent | CollectibleListTransactionIntent | CollectibleClaimTransactionIntent;
 type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
 type UpdatableBaseIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
-type UpdatableListIntent = Partial<Pick<CollectibleListTransactionIntent, "listingId" | "status" | "reason">>;
+type UpdatableListIntent = Partial<Pick<CollectibleListTransactionIntent, "listingIds" | "status" | "reason">>;
 type UpdatableIntent = UpdatableBaseIntent | UpdatableListIntent;
 interface CapturedIntent {
     intent: WalletIntent;

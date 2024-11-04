@@ -136,11 +136,11 @@ export interface CollectibleTradeTransactionIntent extends TransactionIntent {
 export interface CollectibleListTransactionIntent extends TransactionIntent {
   assetType: AssetType.COLLECTIBLE;
   transactionType: TransactionType.List;
-  marketplace: string;
+  marketplaces: string[];
   inscriptionId: string;
   collectionName: string;
   inscriptionName: string;
-  listingId?: string;
+  listingIds: string[];
 }
 
 export interface CollectibleClaimTransactionIntent extends TransactionIntent {
@@ -172,7 +172,7 @@ export type UpdatableBaseIntent = Partial<
 >;
 
 export type UpdatableListIntent = Partial<
-  Pick<CollectibleListTransactionIntent, "listingId" | "status" | "reason">
+  Pick<CollectibleListTransactionIntent, "listingIds" | "status" | "reason">
 >;
 
 export type UpdatableIntent = UpdatableBaseIntent | UpdatableListIntent;
