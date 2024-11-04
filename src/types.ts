@@ -167,7 +167,7 @@ export type CapturableIntent<T extends WalletIntent> = Omit<
   "id" | "timestamp"
 >;
 
-export type UpdatableIntent = Partial<
+export type UpdatableBaseIntent = Partial<
   Pick<WalletIntent, "transactionIds" | "status" | "reason">
 >;
 
@@ -175,11 +175,11 @@ export type UpdatableListIntent = Partial<
   Pick<CollectibleListTransactionIntent, "listingId" | "status" | "reason">
 >;
 
+export type UpdatableIntent = UpdatableBaseIntent | UpdatableListIntent;
+
 export interface CapturedIntent {
   intent: WalletIntent;
-  update: (
-    intent: UpdatableIntent | UpdatableListIntent
-  ) => Promise<WalletIntent>;
+  update: (intent: UpdatableIntent) => Promise<WalletIntent>;
 }
 
 export type NewIntent = Omit<WalletIntent, "id" | "timestamp">;
