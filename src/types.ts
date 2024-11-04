@@ -140,7 +140,7 @@ export interface CollectibleListTransactionIntent extends TransactionIntent {
   inscriptionId: string;
   collectionName: string;
   inscriptionName: string;
-  listingId: string;
+  listingId?: string;
 }
 
 export interface CollectibleClaimTransactionIntent extends TransactionIntent {
@@ -171,9 +171,15 @@ export type UpdatableIntent = Partial<
   Pick<WalletIntent, "transactionIds" | "status" | "reason">
 >;
 
+export type UpdatableListIntent = Partial<
+  Pick<CollectibleListTransactionIntent, "listingId" | "status" | "reason">
+>;
+
 export interface CapturedIntent {
   intent: WalletIntent;
-  update: (intent: UpdatableIntent) => Promise<WalletIntent>;
+  update: (
+    intent: UpdatableIntent | UpdatableListIntent
+  ) => Promise<WalletIntent>;
 }
 
 export type NewIntent = Omit<WalletIntent, "id" | "timestamp">;
