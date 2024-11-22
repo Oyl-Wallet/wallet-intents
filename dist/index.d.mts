@@ -131,7 +131,7 @@ interface CollectibleClaimTransactionIntent extends TransactionIntent {
     collectionName: string;
 }
 type WalletIntent = BTCTransactionIntent | BRC20TransactionIntent | RuneTransactionIntent | CollectibleTransactionIntent | BRC20TradeTransactionIntent | RuneTradeTransactionIntent | CollectibleTradeTransactionIntent | CollectibleListTransactionIntent | CollectibleClaimTransactionIntent;
-type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp">;
+type CapturableIntent<T extends WalletIntent> = Omit<T, "id" | "timestamp"> | Omit<T, "id">;
 type UpdatableBaseIntent = Partial<Pick<WalletIntent, "transactionIds" | "status" | "reason">>;
 type UpdatableListIntent = Partial<Pick<CollectibleListTransactionIntent, "listingId" | "status" | "reason">>;
 type UpdatableIntent = UpdatableBaseIntent | UpdatableListIntent;

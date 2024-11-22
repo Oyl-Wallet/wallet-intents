@@ -49,17 +49,17 @@ var InMemoryStorageAdapter = class {
       }
       const existingIntent = this.intents[index];
       const updatedIntent = {
+        timestamp: existingIntent.timestamp,
         ...existingIntent,
-        ...intent,
-        timestamp: existingIntent.timestamp
+        ...intent
       };
       this.intents[index] = updatedIntent;
       return updatedIntent;
     } else {
       const newIntent = {
+        timestamp: Date.now(),
         ...intent,
-        id: uuidv4(),
-        timestamp: Date.now()
+        id: uuidv4()
       };
       this.intents.push(newIntent);
       return newIntent;
@@ -122,9 +122,9 @@ var PlasmoStorageAdapter = class {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
+            timestamp: existingIntent.timestamp,
             ...existingIntent,
-            ...intent,
-            timestamp: existingIntent.timestamp
+            ...intent
           };
           return updatedIntent;
         }
@@ -392,8 +392,14 @@ var TransactionHandler = class {
     const transactions = await Promise.all(
       intent.transactionIds.map((txId) => this.provider.getTxById(txId))
     );
-    const isConfirmed = transactions.length > 0 && transactions.every((tx) => tx.status?.confirmed);
-    if (isConfirmed) {
+    const now = Date.now();
+    const TIMEOUT_MS = 90 * 1e3;
+    const hasTimedOutTxs = transactions.some(
+      (tx) => typeof tx === "string" && intent.timestamp + TIMEOUT_MS < now
+    );
+    const lastTx = transactions[transactions.length - 1];
+    const isConfirmed = transactions.length > 0 && lastTx?.status?.confirmed;
+    if (isConfirmed || hasTimedOutTxs) {
       intent.status = "completed" /* Completed */;
       await this.manager.captureIntent(intent);
     }

@@ -39,9 +39,9 @@ export class PlasmoStorageAdapter implements StorageAdapter {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
+            timestamp: existingIntent.timestamp,
             ...existingIntent,
             ...intent,
-            timestamp: existingIntent.timestamp,
           } as WalletIntent;
           return updatedIntent;
         }

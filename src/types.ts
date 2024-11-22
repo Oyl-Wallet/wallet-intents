@@ -163,10 +163,9 @@ export type WalletIntent =
   | CollectibleListTransactionIntent
   | CollectibleClaimTransactionIntent;
 
-export type CapturableIntent<T extends WalletIntent> = Omit<
-  T,
-  "id" | "timestamp"
->;
+export type CapturableIntent<T extends WalletIntent> =
+  | Omit<T, "id" | "timestamp">
+  | Omit<T, "id">;
 
 export type UpdatableBaseIntent = Partial<
   Pick<WalletIntent, "transactionIds" | "status" | "reason">

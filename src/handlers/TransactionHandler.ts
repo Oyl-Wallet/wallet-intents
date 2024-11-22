@@ -1,4 +1,3 @@
-import { InscriptionId } from "micro-ordinals";
 import { IntentManager } from "../IntentManager";
 import {
   parseBrc20Inscription,
@@ -42,11 +41,18 @@ export class TransactionHandler {
       intent.transactionIds.map((txId: string) => this.provider.getTxById(txId))
     );
 
-    const isConfirmed =
-      transactions.length > 0 &&
-      transactions.every((tx: EsploraTransaction) => tx.status?.confirmed);
+    const now = Date.now();
+    const TIMEOUT_MS = 90 * 1000; // 90 seconds
 
-    if (isConfirmed) {
+    // Should handle replaced txs
+    const hasTimedOutTxs = transactions.some(
+      (tx) => typeof tx === "string" && intent.timestamp + TIMEOUT_MS < now
+    );
+
+    const lastTx = transactions[transactions.length - 1];
+    const isConfirmed = transactions.length > 0 && lastTx?.status?.confirmed;
+
+    if (isConfirmed || hasTimedOutTxs) {
       intent.status = IntentStatus.Completed;
       await this.manager.captureIntent(intent);
     }

@@ -184,6 +184,60 @@ test("Handles transactions that have become stale (with invalid tx ids)", async 
   expect(syncedIntents[2]).toHaveProperty("status", "pending");
 });
 
+test("Handles transactions that have been replaced or corrupted", async () => {
+  mockRpcResponse("esplora_tx", {
+    result: "Transaction not found",
+  });
+
+  const manager = new IntentManager(new InMemoryStorageAdapter());
+  const synchronizer = new IntentSynchronizer(
+    manager,
+    new SandshrewRpcProvider("http://localhost:3000/v1/regtest")
+  );
+
+  const twoMinutesAgo = Date.now() - 120 * 1000;
+
+  await manager.captureIntent({
+    timestamp: twoMinutesAgo,
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: [
+      "f7c5803c94d4372ca85d03bb94c833dc39eca447abdbf8f1a0e9e57927ad8797",
+    ],
+    btcAmount: 100000,
+  });
+
+  await manager.captureIntent({
+    timestamp: twoMinutesAgo,
+    address: "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+    type: IntentType.Transaction,
+    status: IntentStatus.Pending,
+    transactionType: TransactionType.Send,
+    assetType: AssetType.BTC,
+    transactionIds: [
+      "f7c5803c94d4372ca85d03bb94c833dc39eca447abdbf8f1a0e9e57927ad8797",
+    ],
+    btcAmount: 100000,
+  });
+
+  const pendingIntents = await manager.retrieveAllIntents();
+
+  expect(pendingIntents[0].status).toBe("pending");
+
+  await synchronizer.syncPendingIntents([
+    "tb1p6qyjjf9037p3sshkmaum2ylgzwx353ts05zmrtvagu4wva6psrgqv0w7ln",
+  ]);
+
+  const syncedIntents = await manager.retrieveAllIntents();
+
+  syncedIntents.forEach((intent) => {
+    expect(intent).toHaveProperty("status", "completed");
+  });
+});
+
 test("Handles transactions with errors", async () => {
   mockRpcResponse("esplora_address::txs", {
     result: undefined,

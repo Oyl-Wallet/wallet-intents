@@ -19,17 +19,17 @@ export class InMemoryStorageAdapter implements StorageAdapter {
       }
       const existingIntent = this.intents[index];
       const updatedIntent = {
+        timestamp: existingIntent.timestamp,
         ...existingIntent,
         ...intent,
-        timestamp: existingIntent.timestamp,
       } as WalletIntent;
       this.intents[index] = updatedIntent;
       return updatedIntent;
     } else {
       const newIntent = {
+        timestamp: Date.now(),
         ...intent,
         id: uuidv4(),
-        timestamp: Date.now(),
       } as WalletIntent;
       this.intents.push(newIntent);
       return newIntent;
