@@ -236,6 +236,7 @@ test("Handles transactions that have been replaced or corrupted", async () => {
   syncedIntents.forEach((intent) => {
     expect(intent).toHaveProperty("status", "completed");
   });
+  expect(syncedIntents[0].transactionIds).toHaveLength(0);
 });
 
 test("Handles transactions with errors", async () => {

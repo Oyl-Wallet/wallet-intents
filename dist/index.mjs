@@ -397,10 +397,14 @@ var TransactionHandler = class {
     const hasTimedOutTxs = transactions.some(
       (tx) => typeof tx === "string" && intent.timestamp + TIMEOUT_MS < now
     );
+    const validTxIds = intent.transactionIds.filter(
+      (_, index) => typeof transactions[index] !== "string"
+    );
     const lastTx = transactions[transactions.length - 1];
     const isConfirmed = transactions.length > 0 && lastTx?.status?.confirmed;
     if (isConfirmed || hasTimedOutTxs) {
       intent.status = "completed" /* Completed */;
+      intent.transactionIds = validTxIds;
       await this.manager.captureIntent(intent);
     }
   }
