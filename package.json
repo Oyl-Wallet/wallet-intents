@@ -1,6 +1,6 @@
 {
   "name": "@oyl/wallet-intents",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Library for handling intents in a bitcoin wallet.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
