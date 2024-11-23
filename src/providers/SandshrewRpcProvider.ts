@@ -30,6 +30,7 @@ export class SandshrewRpcProvider implements RpcProvider {
       return data.result;
     } catch (error) {
       console.error(error);
+      return [];
     }
   }
 

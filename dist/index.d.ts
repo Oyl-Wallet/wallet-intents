@@ -148,7 +148,7 @@ interface IntentHandler {
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-    retrieveIntentById(intentId: string): Promise<WalletIntent>;
+    retrieveIntentById(intentId: string): Promise<WalletIntent | undefined>;
     onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 interface StorageAdapter {
@@ -157,7 +157,7 @@ interface StorageAdapter {
     findByType(type: IntentType): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-    findById(intentId: string): Promise<WalletIntent>;
+    findById(intentId: string): Promise<WalletIntent | undefined>;
     deleteAll(): Promise<void>;
 }
 interface RpcProvider {
@@ -192,7 +192,7 @@ interface EsploraTransaction {
         scriptpubkey: string;
         scriptpubkey_asm: string;
         scriptpubkey_type: string;
-        scriptpubkey_address?: string;
+        scriptpubkey_address: string;
         value: number;
     }[];
     size: number;
@@ -283,7 +283,7 @@ declare class InMemoryStorageAdapter implements StorageAdapter {
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
-    findById(intentId: string): Promise<WalletIntent>;
+    findById(intentId: string): Promise<WalletIntent | undefined>;
     deleteAll(): Promise<void>;
 }
 
@@ -302,7 +302,7 @@ declare class PlasmoStorageAdapter implements StorageAdapter {
     findByStatus(status: IntentStatus): Promise<WalletIntent[]>;
     findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     findByStatusAndAddresses(status: IntentStatus, addresses: string[]): Promise<WalletIntent[]>;
-    findById(intentId: string): Promise<WalletIntent>;
+    findById(intentId: string): Promise<WalletIntent | undefined>;
     deleteAll(): Promise<void>;
 }
 
@@ -325,7 +325,7 @@ declare class IntentManager extends EventEmitter implements IntentHandler {
     retrieveAllIntents(): Promise<WalletIntent[]>;
     retrievePendingIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
     retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-    retrieveIntentById(intentId: string): Promise<WalletIntent>;
+    retrieveIntentById(intentId: string): Promise<WalletIntent | undefined>;
     onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 

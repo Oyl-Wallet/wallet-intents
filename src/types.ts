@@ -196,7 +196,7 @@ export interface IntentHandler {
     addresses: string[]
   ): Promise<WalletIntent[]>;
   retrieveIntentsByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-  retrieveIntentById(intentId: string): Promise<WalletIntent>;
+  retrieveIntentById(intentId: string): Promise<WalletIntent | undefined>;
   onIntentCaptured(listener: (intent: WalletIntent) => void): void;
 }
 
@@ -213,7 +213,7 @@ export interface StorageAdapter {
     addresses: string[]
   ): Promise<WalletIntent[]>;
   findByAddresses(addresses: string[]): Promise<WalletIntent[]>;
-  findById(intentId: string): Promise<WalletIntent>;
+  findById(intentId: string): Promise<WalletIntent | undefined>;
   deleteAll(): Promise<void>;
 }
 
@@ -250,7 +250,7 @@ export interface EsploraTransaction {
     scriptpubkey: string;
     scriptpubkey_asm: string;
     scriptpubkey_type: string;
-    scriptpubkey_address?: string;
+    scriptpubkey_address: string;
     value: number;
   }[];
   size: number;

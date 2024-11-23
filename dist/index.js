@@ -1,3 +1,4 @@
+"use strict";
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -84,7 +85,6 @@ var InMemoryStorageAdapter = class {
       }
       const existingIntent = this.intents[index];
       const updatedIntent = {
-        timestamp: existingIntent.timestamp,
         ...existingIntent,
         ...intent
       };
@@ -157,7 +157,6 @@ var PlasmoStorageAdapter = class {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
-            timestamp: existingIntent.timestamp,
             ...existingIntent,
             ...intent
           };
@@ -174,6 +173,9 @@ var PlasmoStorageAdapter = class {
       };
       intents.push(updatedIntent);
       await this.storage.set(this.key, intents);
+    }
+    if (!updatedIntent) {
+      throw new Error("Failed to save intent");
     }
     return updatedIntent;
   }
@@ -239,6 +241,7 @@ var SandshrewRpcProvider = class {
       return data.result;
     } catch (error) {
       console.error(error);
+      return [];
     }
   }
   async getTxById(txId) {
@@ -529,7 +532,7 @@ var TransactionHandler = class {
           runeDivisibility: runeDetails.entry.divisibility,
           inscription: categorized || null
         });
-      } else {
+      } else if (rune.edicts?.length) {
         const { amount, id } = rune.edicts[0];
         const runeId = `${id.block}:${id.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
@@ -668,8 +671,9 @@ var TransactionHandler = class {
       return [];
     }
     let runeId;
-    if (rune.edicts?.length > 0) {
-      const { id } = rune.edicts[0];
+    const edics = rune.edicts ?? [];
+    if (edics.length) {
+      const { id } = edics[0];
       runeId = `${id.block}:${id.tx}`;
     } else if (rune.mint) {
       runeId = `${rune.mint.block}:${rune.mint.tx}`;
@@ -768,7 +772,13 @@ var IntentManager = class extends import_events.EventEmitter {
   async captureIntent(intent) {
     if (this.debug) {
       console.log("Capturing intent:", intent);
-      return;
+      return {
+        intent,
+        update: async (updates) => {
+          console.log("Updating intent:", updates);
+          return intent;
+        }
+      };
     }
     const capturedIntent = await this.storage.save(intent);
     this.notifyIntentCaptured(capturedIntent);

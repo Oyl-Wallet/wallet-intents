@@ -33,13 +33,12 @@ export class PlasmoStorageAdapter implements StorageAdapter {
 
   async save(intent: NewIntent | PartialExistingIntent): Promise<WalletIntent> {
     const intents = await this.findAll();
-    let updatedIntent: WalletIntent;
+    let updatedIntent: WalletIntent | undefined;
 
     if ("id" in intent) {
       const newIntents = intents.map((existingIntent) => {
         if (existingIntent.id === intent.id) {
           updatedIntent = {
-            timestamp: existingIntent.timestamp,
             ...existingIntent,
             ...intent,
           } as WalletIntent;
@@ -58,6 +57,10 @@ export class PlasmoStorageAdapter implements StorageAdapter {
 
       intents.push(updatedIntent);
       await this.storage.set(this.key, intents);
+    }
+
+    if (!updatedIntent) {
+      throw new Error("Failed to save intent");
     }
 
     return updatedIntent;
@@ -102,7 +105,7 @@ export class PlasmoStorageAdapter implements StorageAdapter {
     );
   }
 
-  async findById(intentId: string): Promise<WalletIntent> {
+  async findById(intentId: string): Promise<WalletIntent | undefined> {
     return this.findAll().then((intents) =>
       intents.find((intent) => intent.id === intentId)
     );

@@ -19,7 +19,6 @@ export class InMemoryStorageAdapter implements StorageAdapter {
       }
       const existingIntent = this.intents[index];
       const updatedIntent = {
-        timestamp: existingIntent.timestamp,
         ...existingIntent,
         ...intent,
       } as WalletIntent;
@@ -70,7 +69,7 @@ export class InMemoryStorageAdapter implements StorageAdapter {
     );
   }
 
-  async findById(intentId: string): Promise<WalletIntent> {
+  async findById(intentId: string): Promise<WalletIntent | undefined> {
     return this.findAll().then((intents) =>
       intents.find(({ id }) => id === intentId)
     );

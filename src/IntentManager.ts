@@ -22,7 +22,13 @@ export class IntentManager extends EventEmitter implements IntentHandler {
   ): Promise<CapturedIntent> {
     if (this.debug) {
       console.log("Capturing intent:", intent);
-      return;
+      return {
+        intent: intent as WalletIntent,
+        update: async (updates) => {
+          console.log("Updating intent:", updates);
+          return intent as WalletIntent;
+        },
+      };
     }
 
     const capturedIntent = await this.storage.save(intent);

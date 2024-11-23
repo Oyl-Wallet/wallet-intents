@@ -99,7 +99,7 @@ export class TransactionHandler {
 
     return txs.filter((tx) =>
       tx.status.confirmed
-        ? tx.status.block_time * 1000 >= syncFromTimestamp
+        ? tx.status.block_time! * 1000 >= syncFromTimestamp
         : true
     );
   }
@@ -170,7 +170,7 @@ export class TransactionHandler {
           runeDivisibility: runeDetails.entry.divisibility,
           inscription: categorized || null,
         } as RuneMintTransactionIntent);
-      } else {
+      } else if (rune.edicts?.length) {
         const { amount, id } = rune.edicts[0];
         const runeId = `${id.block}:${id.tx}`;
         const runeDetails = await this.provider.getRuneById(runeId);
@@ -340,10 +340,11 @@ export class TransactionHandler {
       return [];
     }
 
-    let runeId: string;
+    let runeId: string | undefined;
+    const edics = rune.edicts ?? [];
 
-    if (rune.edicts?.length > 0) {
-      const { id } = rune.edicts[0];
+    if (edics.length) {
+      const { id } = edics[0];
       runeId = `${id.block}:${id.tx}`;
     } else if (rune.mint) {
       runeId = `${rune.mint.block}:${rune.mint.tx}`;
