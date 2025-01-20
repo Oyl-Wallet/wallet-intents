@@ -658,7 +658,7 @@ var TransactionHandler = class {
     const prevTxs = await Promise.all(
       tx.vin.map((input) => this.provider.getTxById(input.txid))
     );
-    const prevInputsInscriptions = prevTxs.flatMap(
+    const prevInputsInscriptions = prevTxs.filter((tx2) => typeof tx2 !== "string").flatMap(
       (prevTx) => prevTx.vin.flatMap(
         (input) => getInscriptionsFromInput(input, prevTx.txid)
       )

@@ -323,11 +323,13 @@ export class TransactionHandler {
       tx.vin.map((input) => this.provider.getTxById(input.txid))
     );
 
-    const prevInputsInscriptions = prevTxs.flatMap((prevTx) =>
-      prevTx.vin.flatMap((input) =>
-        getInscriptionsFromInput(input, prevTx.txid)
-      )
-    );
+    const prevInputsInscriptions = prevTxs
+      .filter((tx) => typeof tx !== "string")
+      .flatMap((prevTx) =>
+        prevTx.vin.flatMap((input) =>
+          getInscriptionsFromInput(input, prevTx.txid)
+        )
+      );
     return prevInputsInscriptions;
   }
 
