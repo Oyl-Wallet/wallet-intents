@@ -30,6 +30,7 @@ export enum AssetType {
   BTC = "btc",
   BRC20 = "brc-20",
   RUNE = "rune",
+  ALKANE = "alkane",
   COLLECTIBLE = "collectible",
 }
 

@@ -21,6 +21,7 @@ var AssetType = /* @__PURE__ */ ((AssetType2) => {
   AssetType2["BTC"] = "btc";
   AssetType2["BRC20"] = "brc-20";
   AssetType2["RUNE"] = "rune";
+  AssetType2["ALKANE"] = "alkane";
   AssetType2["COLLECTIBLE"] = "collectible";
   return AssetType2;
 })(AssetType || {});
