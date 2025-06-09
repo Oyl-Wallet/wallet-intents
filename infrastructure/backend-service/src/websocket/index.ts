@@ -23,11 +23,11 @@ export function setupWebSocketServer(httpServer: HttpServer): void {
   const serverCleanup = useServer(
     {
       schema,
-      onConnect: (ctx) => {
+      onConnect: (ctx: any) => {
         console.log('Client connected to WebSocket');
         return true;
       },
-      onDisconnect: (ctx) => {
+      onDisconnect: (ctx: any) => {
         console.log('Client disconnected from WebSocket');
       },
     },
