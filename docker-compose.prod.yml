@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: wallet-intents-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-wallet_intents}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-wallet_intents_password}
+      POSTGRES_DB: ${DB_NAME:-wallet_intents}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-wallet_intents}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wallet-intents-network
+
+  # Kafka and Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: wallet-intents-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: always
+    networks:
+      - wallet-intents-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: wallet-intents-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    restart: always
+    networks:
+      - wallet-intents-network
+
+  # Backend Service
+  backend-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.backend
+    container_name: wallet-intents-backend
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - "127.0.0.1:8080:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER:-wallet_intents}:${DB_PASSWORD:-wallet_intents_password}@postgres:5432/${DB_NAME:-wallet_intents}
+      KAFKA_BROKERS: kafka:9092
+      SANDSHREW_URL: ${SANDSHREW_URL:-https://mainnet.sandshrew.io/v2/default}
+    restart: always
+    networks:
+      - wallet-intents-network
+
+networks:
+  wallet-intents-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
